@@ -11,8 +11,8 @@
 
 struct Vertex
 {
-	int x;
-	int y;
+	size_t x;
+	size_t y;
 
 	bool operator==(const Vertex &rhs) const
 	{
@@ -35,8 +35,8 @@ public:
 
 	void SetAgents(int);
 	
-	int GetMksLB(int);
-	int GetSocLB(int);
+	int GetMksLB(size_t);
+	int GetSocLB(size_t);
 
 	void DebugPrint(std::vector<std::vector<int> >&);
 	void DebugPrint(std::vector<int>&);
@@ -63,5 +63,5 @@ private:
 	std::vector<int> mks_LBs;
 	std::vector<int> soc_LBs;
 
-	int last_number_of_agents;
+	size_t last_number_of_agents;
 };

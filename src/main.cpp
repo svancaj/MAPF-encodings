@@ -8,12 +8,15 @@
 
 using namespace std;
 
+void PrintIntro();
 void PrintHelp(char**);
 void CleanUp(Instance*, Logger*, ISolver*);
-bool CheckEncoding(ISolver*, Instance*, Logger*, string);
+ISolver* PickEncoding(string);
 
 int main(int argc, char** argv) 
 {
+	PrintIntro();
+
 	bool hflag = false;
 	char *evalue = NULL;
 	char *svalue = NULL;
@@ -83,12 +86,13 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	if (!CheckEncoding(solver, inst, log, string(evalue)))
+	if ((solver = PickEncoding(string(evalue))) == NULL)
 	{
 		cout << "Unknown base algorithm \"" << evalue << "\"!" << endl;
 		PrintHelp(argv);
 		return -1;
 	}
+	//solver = new Pass_parallel_mks_all(inst, log, string(evalue));
 
 	if (tvalue != NULL)
 		timeout = atoi(tvalue);
@@ -96,12 +100,13 @@ int main(int argc, char** argv)
 	// create classes and load map
 	inst = new Instance(map_dir, svalue);
 	log = new Logger(inst, stat_file, evalue);
+	solver->SetData(inst, log);
 
 	// check number of agents and increment
 	size_t current_agents = inst->agents.size();
 	if (avalue != NULL)
-		current_agents = stoi(avalue);
-	if (current_agents > inst->agents.size() || current_agents < 0)
+		current_agents = size_t(stoi(avalue));
+	if (current_agents > inst->agents.size())
 	{
 		cout << "Invalid number of agents. There are " << inst->agents.size() << " in the " << svalue << " scenario file." << endl;
 		CleanUp(inst, log, solver);
@@ -113,12 +118,10 @@ int main(int argc, char** argv)
 		increment = atoi(ivalue);
 	if (increment == 0)
 		increment = inst->agents.size();
-	
-	cout << "total agents " << inst->agents.size() << endl;
+
 	// main loop - solve given number of agents
 	do 
 	{
-		cout << "in main - solving " << current_agents << " agents" << endl;
 		inst->SetAgents(current_agents);
 		log->NewInstance(current_agents);
 
@@ -138,15 +141,24 @@ int main(int argc, char** argv)
 
 	//inst->DebugPrint(inst->map);
 
-	cout << "cleanup start" << endl;
 	CleanUp(inst, log, solver);
-	cout << "cleanup end" << endl;
-
 	return 0;
+}
+
+void PrintIntro()
+{
+	cout << endl;
+	cout << "*****************************************" << endl;
+	cout << "* This is a reduction-based MAPF solver *" << endl;
+	cout << "*   Created by Jiri Svancara @ MFF UK   *" << endl;
+	cout << "*       Used SAT solver is Kissat       *" << endl;
+	cout << "*****************************************" << endl;
+	cout << endl;
 }
 
 void PrintHelp(char* argv[])
 {
+	cout << endl;
 	cout << "Usage of this program:" << endl;
 	cout << argv[0] << " [-h] -e encoding -s scenario_file [-a number_of_agents] [-i increment] [-t timeout]" << endl;
 	cout << "	-h                  : Prints help and exits" << endl;
@@ -155,34 +167,26 @@ void PrintHelp(char* argv[])
 	cout << "	-a number_of_agents : Number of agents to solve. If not specified, all agents in the scenario file are used." << endl;
 	cout << "	-i increment        : After a successful call, increase the number of agents by the specified increment. If not specified, do not perform subsequent calls." << endl;
 	cout << "	-t timeout          : Timeout of the computation. Default value is 300s" << endl;
+	cout << endl;
 }
 
 void CleanUp(Instance* inst, Logger* log, ISolver* solver)
 {
 	if (inst != NULL)
-	{
 		delete inst;
-		cout << "clean1" << endl;
-	}
 	if (log != NULL)
-	{
 		delete log;
-		cout << "clean2" << endl;
-	}
 	if (solver != NULL)
-	{
 		delete solver;
-		cout << "clean3" << endl;
-	}
 }
 
-bool CheckEncoding(ISolver* solver, Instance* inst, Logger* log, string enc)
+ISolver* PickEncoding(string enc)
 {
+	ISolver* solver = NULL;
 	if (enc.compare("pass_parallel_mks_all") == 0)
 	{
-		cout << "creating solver" << endl;
-		solver = new Pass_parallel_mks_all(inst, log, enc);
-		return true;
+		solver = new Pass_parallel_mks_all(enc, 1);
+		return solver;
 	}
-	return false;
+	return solver;
 }

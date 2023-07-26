@@ -17,14 +17,14 @@ MAPF: $(OBJ)
 	mkdir -p build
 	$(CC) $(CFLAGS) -o $(B_DIR)/$@ $^
 
-%.o: %.c $(DEPS)
+%.o: %.cpp $(DEPS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
 	rm -f $(S_DIR)/*.o $(E_DIR)/*.o $(B_DIR)/MAPF
 
 test: MAPF
-	$(B_DIR)/MAPF -s instances/scenarios/0brc202d-random-1.scen -e pass_parallel_mks_all -a 10000 -i 100
+	$(B_DIR)/MAPF -s instances/scenarios/0brc202d-random-1.scen -e pass_parallel_mks_all -a 100 -i 100
 
 experiment: MAPF
 	sh experiment.sh

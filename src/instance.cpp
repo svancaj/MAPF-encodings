@@ -14,7 +14,7 @@ Instance::Instance(string map_dir, string agents_file)
 
 /* Public functions */
 
-int Instance::GetMksLB(int ags)
+int Instance::GetMksLB(size_t ags)
 {
 	if (mks_LBs[ags] >= 0)
 		return mks_LBs[ags];
@@ -25,7 +25,7 @@ int Instance::GetMksLB(int ags)
 	return LB;
 }
 
-int Instance::GetSocLB(int ags)
+int Instance::GetSocLB(size_t ags)
 {
 	if (soc_LBs[ags] >= 0)
 		return soc_LBs[ags];
@@ -69,7 +69,6 @@ void Instance::LoadAgents(string agents_path, string map_dir)
 		return;
 	}
 
-	char c_dump;
 	string line;
 	getline(in, line); // first line - version
 
@@ -89,8 +88,8 @@ void Instance::LoadAgents(string agents_path, string map_dir)
 		}
 
 		Agent new_agent;
-		new_agent.start = {stoi(parsed_line[5]), stoi(parsed_line[4])};
-		new_agent.goal = {stoi(parsed_line[7]), stoi(parsed_line[6])};
+		new_agent.start = {size_t(stoi(parsed_line[5])), size_t(stoi(parsed_line[4]))};
+		new_agent.goal = {size_t(stoi(parsed_line[7])), size_t(stoi(parsed_line[6]))};
 
 		agents.push_back(new_agent);
 	}
@@ -128,9 +127,9 @@ void Instance::LoadMap(string map_path)
 	map = vector<vector<int> >(height, vector<int>(width, -1));
 	number_of_vertices = 0;
 
-	for (int i = 0; i < height; i++)
+	for (size_t i = 0; i < height; i++)
 	{
-		for (int j = 0; j < width; j++)
+		for (size_t j = 0; j < width; j++)
 		{
 			in >> c_dump;
 			if (c_dump == '.')
