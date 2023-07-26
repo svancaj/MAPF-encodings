@@ -1,0 +1,58 @@
+Journal idea:
+
+Compare reduction-based models (reduction to SAT). Implement all in python/C++ (no Picat).
+
+
+Encodings:
+
+Variables
+ - At
+ - At + Pass
+ - At + shift
+
+Motion
+ - pebble
+ - parallel
+
+Cost function
+ - mks
+ - soc
+ - soc2 (only for paper with Dor)
+
+Conflicts
+ - all at once
+ - once needed
+
+
+ICAART with Dor:
+
+- Pass_parallel_mks_all
+- Pass_parallel_soc_all
+- Pass_parallel_soc2_all
+
+Journal:
+
+- At_pebble_mks_all
+- At_pebble_mks_jit
+- At_pebble_soc_all
+- At_pebble_soc_jit
+- At_parallel_mks_all
+- At_parallel_mks_jit
+- At_parallel_soc_all
+- At_parallel_soc_jit
+- Pass_pebble_mks_all
+- Pass_pebble_mks_jit
+- Pass_pebble_soc_all
+- Pass_pebble_soc_jit
+- Pass_parallel_mks_all
+- Pass_parallel_mks_jit
+- Pass_parallel_soc_all
+- Pass_parallel_soc_jit
+- Shift_pebble_mks_all
+- Shift_pebble_mks_jit
+- Shift_pebble_soc_all
+- Shift_pebble_soc_jit
+- Shift_parallel_mks_all
+- Shift_parallel_mks_jit
+- Shift_parallel_soc_all
+- Shift_parallel_soc_jit
