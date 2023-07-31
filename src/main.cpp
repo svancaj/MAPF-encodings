@@ -129,7 +129,7 @@ int main(int argc, char** argv)
 
 		if (res == 1) // timeout
 		{
-			cout << "No solution found in the give timeout" << endl;
+			cout << "No solution found in the given timeout" << endl;
 			break;
 		}
 		

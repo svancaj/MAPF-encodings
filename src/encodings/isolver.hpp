@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unistd.h>
+#include <chrono>
 
 #include "../instance.hpp"
 #include "../logger.hpp"
@@ -25,6 +26,8 @@ protected:
 	std::string solver_name;
 	int cost_function; // 1 = mks, 2 = soc
 
+	std::vector<std::vector<int> > CNF;
+
 	void PrintSolveDetails(int ags, int delta)
 	{
 		std::cout << "Currently solving" << std::endl;
@@ -38,5 +41,18 @@ protected:
 		std::cout << "Delta: " << delta << std::endl;
 		std::cout << std::endl;
 	};
+
+	void DebugPrint(std::vector<std::vector<int> >& CNF)
+	{
+		for (size_t i = 0; i < CNF.size(); i++)
+		{
+			for (size_t j = 0; j < CNF[i].size(); j++)
+			{
+				std::cout << CNF[i][j] << " ";
+			}
+			std::cout << "0\n";
+		}
+		std::cout << "0" << std::endl;
+	}
 };
 

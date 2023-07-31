@@ -38,6 +38,16 @@ public:
 	int GetMksLB(size_t);
 	int GetSocLB(size_t);
 
+	Vertex IDtoCoords(int);
+	bool HasNeighbor(Vertex, int);
+	bool HasNeighbor(int, int);
+	int GetNeighbor(int, int);
+	
+	int FirstTimestep(int, int);
+	int LastTimestepMks(int, int, int);
+	bool IsReachableMks(int, int, int, int);
+	int OppositeDir(int);
+
 	void DebugPrint(std::vector<std::vector<int> >&);
 	void DebugPrint(std::vector<int>&);
 	void DebugPrint(std::vector<Vertex>&);
@@ -62,6 +72,7 @@ private:
 	
 	std::vector<int> mks_LBs;
 	std::vector<int> soc_LBs;
+	std::vector<Vertex> coord_list;
 
 	size_t last_number_of_agents;
 };

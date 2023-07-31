@@ -48,10 +48,86 @@ void Instance::SetAgents(int ags)
 
 		SP_lengths[i] = length_from_start[i][map[agents[i].goal.x][agents[i].goal.y]];
 
-		mks_LBs[i+1] = max(mks_LBs[i], SP_lengths[i]);
-		soc_LBs[i+1] = soc_LBs[i] + SP_lengths[i];
+		mks_LBs[i+1] = max(mks_LBs[i], SP_lengths[i] + 1);
+		soc_LBs[i+1] = soc_LBs[i] + SP_lengths[i] + 1;
 	}
 	last_number_of_agents = ags;
+}
+
+Vertex Instance::IDtoCoords(int vertex)
+{
+	return coord_list[vertex];
+}
+
+bool Instance::HasNeighbor(Vertex v, int dir)
+{
+	if (dir == 0) // self loop
+		return true;
+
+	if (dir == 1 && v.x > 0 && map[v.x - 1][v.y] != -1)
+		return true;
+	if (dir == 2 && v.x < height - 1 && map[v.x + 1][v.y] != -1)
+		return true;
+	if (dir == 3 && v.y > 0 && map[v.x][v.y - 1] != -1 )
+		return true;
+	if (dir == 4 && v.y < width - 1 && map[v.x][v.y + 1] != -1 )
+		return true;
+	return false;
+}
+
+bool Instance::HasNeighbor(int v, int dir)
+{
+	if (dir == 0) // self loop
+		return true;
+	return HasNeighbor(IDtoCoords(v), dir);
+}
+
+int Instance::GetNeighbor(int ver, int dir) // assumes the neighbor exists
+{
+	if (dir == 0) // self loop
+		return ver;
+
+	Vertex v = IDtoCoords(ver);
+
+	if (dir == 1 && v.x > 0)
+		return map[v.x - 1][v.y];
+	if (dir == 2 && v.x < height - 1)
+		return map[v.x + 1][v.y];
+	if (dir == 3 && v.y > 0)
+		return map[v.x][v.y - 1];
+	if (dir == 4 && v.y < width - 1)
+		return map[v.x][v.y + 1];
+	return -1;
+}
+
+int Instance::FirstTimestep(int agent, int vertex)
+{
+	return length_from_start[agent][vertex];
+}
+
+int Instance::LastTimestepMks(int agent, int vertex, int timelimit)
+{
+	return timelimit - length_from_goal[agent][vertex] - 1;
+}
+
+bool Instance::IsReachableMks(int agent, int vertex, int timestep, int timelimit)
+{
+	if (FirstTimestep(agent, vertex) <= timestep && LastTimestepMks(agent, vertex, timelimit) >= timestep)
+		return true;
+	return false;
+}
+
+int Instance::OppositeDir(int dir)
+{
+	if (dir == 1)
+		return 2;
+	if (dir == 2)
+		return 1;
+	if (dir == 3)
+		return 4;
+	if (dir == 4)
+		return 3;
+	return -1;
 }
 
 
@@ -136,6 +212,7 @@ void Instance::LoadMap(string map_path)
 			{
 				map[i][j] = number_of_vertices;
 				number_of_vertices++;
+				coord_list.push_back({i,j});
 			}
 		}
 	}
@@ -155,22 +232,22 @@ void Instance::BFS(vector<int>& length_from, Vertex start)
 		Vertex v = que.front();
 		que.pop();
 
-		if (v.x > 0 && map[v.x - 1][v.y] != -1 && length_from[map[v.x - 1][v.y]] == -1)
+		if (HasNeighbor(v,1) && length_from[map[v.x - 1][v.y]] == -1)
 		{
 			length_from[map[v.x - 1][v.y]] = length_from[map[v.x][v.y]] + 1;
 			que.push({v.x - 1, v.y});
 		}
-		if (v.x < height - 1 && map[v.x + 1][v.y] != -1 && length_from[map[v.x + 1][v.y]] == -1)
+		if (HasNeighbor(v,2) && length_from[map[v.x + 1][v.y]] == -1)
 		{
 			length_from[map[v.x + 1][v.y]] = length_from[map[v.x][v.y]] + 1;
 			que.push({v.x + 1, v.y});
 		}
-		if (v.y > 0 && map[v.x][v.y - 1] != -1 && length_from[map[v.x][v.y - 1]] == -1)
+		if (HasNeighbor(v,3) && length_from[map[v.x][v.y - 1]] == -1)
 		{
 			length_from[map[v.x][v.y - 1]] = length_from[map[v.x][v.y]] + 1;
 			que.push({v.x, v.y - 1});
 		}
-		if (v.y < width - 1 && map[v.x][v.y + 1] != -1 && length_from[map[v.x][v.y + 1]] == -1)
+		if (HasNeighbor(v,4) && length_from[map[v.x][v.y + 1]] == -1)
 		{
 			length_from[map[v.x][v.y + 1]] = length_from[map[v.x][v.y]] + 1;
 			que.push({v.x, v.y + 1});

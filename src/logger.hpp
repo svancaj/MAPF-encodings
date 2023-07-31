@@ -13,6 +13,13 @@ public:
 	int GetMks(std::vector<std::vector<int> >&);
 	int GetSoc(std::vector<std::vector<int> >&);
 
+	int solution_mks;
+	int solution_soc;
+	int building_time;
+	int solving_time;
+	int nr_vars;
+	int nr_clauses;
+	
 private:
 	Instance* inst;
 	std::string log_file;
@@ -23,10 +30,5 @@ private:
 	int agents;
 	int mksLB;
 	int socLB;
-	int solution_mks;
-	int solution_soc;
-	int building_time;
-	int solving_time;
-	int nr_vars;
-	int nr_clauses;
+
 };
