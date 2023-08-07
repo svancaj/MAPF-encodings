@@ -9,8 +9,10 @@ public:
 	~Pass_parallel_mks_all() {};
 	
 	int Solve(int);
-	int CreateFormula(std::vector<std::vector<int> >&, int, int);
 
 private:
+	int CreateFormula(std::vector<std::vector<int> >&, int, int);
+	void PrintCNF(std::vector<std::vector<int> >&);
+	int InvokeSolver();
 	
 };

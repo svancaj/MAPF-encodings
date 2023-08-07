@@ -24,7 +24,7 @@ clean:
 	rm -f $(S_DIR)/*.o $(E_DIR)/*.o $(B_DIR)/MAPF
 
 test: MAPF
-	$(B_DIR)/MAPF -s instances/scenarios/0brc202d-random-1.scen -e pass_parallel_mks_all -a 100 -i 100
+	$(B_DIR)/MAPF -s instances/scenarios/test3.scen -e pass_parallel_mks_all -a 2
 
 experiment: MAPF
 	sh experiment.sh

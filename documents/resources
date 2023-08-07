@@ -1,0 +1,20 @@
+https://www.it.uu.se/research/group/astra/ModRef10/papers/Alan%20M.%20Frisch%20and%20Paul%20A.%20Giannoros.%20SAT%20Encodings%20of%20the%20At-Most-k%20Constraint%20-%20ModRef%202010.pdf
+
+
+https://github.com/master-keying/pblib
+
+@incollection{pblib.sat2015
+    year={2015},
+    isbn={978-3-319-24317-7},
+    booktitle={Theory and Applications of Satisfiability Testing -- SAT 2015},
+    volume={9340},
+    series={Lecture Notes in Computer Science},
+    editor={Heule, Marijn and Weaver, Sean},
+    doi={10.1007/978-3-319-24318-4_2},
+    title={PBLib -- A Library for Encoding Pseudo-Boolean Constraints into CNF},
+    publisher={Springer International Publishing},
+    author={Philipp, Tobias and Steinke, Peter},
+    pages={9-16}
+}
+
+https://news.ycombinator.com/item?id=23979388

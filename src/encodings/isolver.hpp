@@ -6,10 +6,17 @@
 #include "../instance.hpp"
 #include "../logger.hpp"
 
+struct TEGAgent
+{
+	int first_variable;
+	int first_timestep;
+	int last_timestep;
+};
+
 class ISolver
 {
 public:
-	ISolver(std::string sn, int opt) : solver_name(sn), cost_function(opt) { std::cout << "create" << std::endl; }; 
+	ISolver(std::string sn, int opt) : solver_name(sn), cost_function(opt) {}; 
 	virtual ~ISolver() {};
 	
 	virtual int Solve(int) = 0;
@@ -27,6 +34,8 @@ protected:
 	int cost_function; // 1 = mks, 2 = soc
 
 	std::vector<std::vector<int> > CNF;
+	int nr_vars;
+	int nr_clauses;
 
 	void PrintSolveDetails(int ags, int delta)
 	{
