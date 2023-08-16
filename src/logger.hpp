@@ -8,10 +8,8 @@ class Logger
 public:
 	Logger(Instance*, std::string, std::string);
 
-	void PrintStatistics(std::vector<std::vector<int> >&);
+	void PrintStatistics();
 	void NewInstance(int);
-	int GetMks(std::vector<std::vector<int> >&);
-	int GetSoc(std::vector<std::vector<int> >&);
 
 	int solution_mks;
 	int solution_soc;
@@ -19,6 +17,7 @@ public:
 	int solving_time;
 	int nr_vars;
 	int nr_clauses;
+	int solver_calls;
 	
 private:
 	Instance* inst;

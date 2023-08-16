@@ -11,11 +11,8 @@ Logger::Logger(Instance* i, string log_f, string enc)
 	encoding = enc;
 }
 
-void Logger::PrintStatistics(std::vector<std::vector<int> >& plan)
+void Logger::PrintStatistics()
 {
-	solution_mks = GetMks(plan);
-	solution_soc = GetSoc(plan);
-
 	ofstream log;
 	log.open(log_file, ios::app);
 	if (log.is_open())
@@ -31,6 +28,7 @@ void Logger::PrintStatistics(std::vector<std::vector<int> >& plan)
 			solution_soc << sep <<
 			building_time << sep <<
 			solving_time << sep <<
+			solver_calls << sep <<
 			nr_vars << sep <<
 			nr_clauses << endl;
 	}
@@ -54,14 +52,4 @@ void Logger::NewInstance(int ags)
 	solving_time = 0;
 	nr_vars = 0;
 	nr_clauses = 0;
-}
-
-int Logger::GetMks(std::vector<std::vector<int> >&)
-{
-	return 1;
-}
-
-int Logger::GetSoc(std::vector<std::vector<int> >&)
-{
-	return 1;
 }

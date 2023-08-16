@@ -1,14 +1,11 @@
 #!/bin/bash
 
-timeout=300
+timeout=100
 
-for instance in resources/instances/scenarios/*
+for instance in instances/scenarios/*
 do
-	for strategy in b m p c
+	for encoding in pass_parallel_mks_all
 	do
-		for path in single all random diverse
-		do
-			./build/bin/subgraph_framework -i $instance -s $strategy -b asp-teg -t $timeout -p $path
-		done
+		./build/MAPF -s $instance -t $timeout -e $encoding -a 1 -i 1
 	done
 done

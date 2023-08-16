@@ -3,7 +3,7 @@
 
 #include "instance.hpp"
 #include "logger.hpp"
-#include "encodings/isolver.hpp"
+#include "encodings/solver_common.hpp"
 #include "encodings/pass_parallel_mks_all.hpp"
 
 using namespace std;
@@ -24,11 +24,9 @@ int main(int argc, char** argv)
 	char *ivalue = NULL;
 	char *tvalue = NULL;
 
-	srand('a');
-
 	int timeout = 300;
 	string map_dir = "instances/maps";
-	string stat_file = "results.dat";
+	string stat_file = "results.res";
 
 	Instance* inst;
 	Logger* log;
@@ -100,7 +98,7 @@ int main(int argc, char** argv)
 	// create classes and load map
 	inst = new Instance(map_dir, svalue);
 	log = new Logger(inst, stat_file, evalue);
-	solver->SetData(inst, log);
+	solver->SetData(inst, log, timeout);
 
 	// check number of agents and increment
 	size_t current_agents = inst->agents.size();
@@ -133,8 +131,7 @@ int main(int argc, char** argv)
 			break;
 		}
 		
-		vector<vector<int> > plan = vector<vector<int> >();
-		log->PrintStatistics(plan);
+		log->PrintStatistics();
 		current_agents += increment;
 	}
 	while (current_agents <= inst->agents.size());
@@ -166,7 +163,7 @@ void PrintHelp(char* argv[])
 	cout << "	-s scenario_file    : Path to a scenario file" << endl;
 	cout << "	-a number_of_agents : Number of agents to solve. If not specified, all agents in the scenario file are used." << endl;
 	cout << "	-i increment        : After a successful call, increase the number of agents by the specified increment. If not specified, do not perform subsequent calls." << endl;
-	cout << "	-t timeout          : Timeout of the computation. Default value is 300s" << endl;
+	cout << "	-t timeout          : Timeout of the computation in seconds. Default value is 300s" << endl;
 	cout << endl;
 }
 

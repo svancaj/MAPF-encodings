@@ -1,6 +1,6 @@
 #pragma once
 
-#include "isolver.hpp"
+#include "solver_common.hpp"
 
 class Pass_parallel_mks_all : public ISolver
 {
@@ -12,7 +12,4 @@ public:
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int, int);
-	void PrintCNF(std::vector<std::vector<int> >&);
-	int InvokeSolver();
-	
 };
