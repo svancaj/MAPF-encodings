@@ -18,22 +18,16 @@ int Instance::GetMksLB(size_t ags)
 {
 	if (mks_LBs[ags] >= 0)
 		return mks_LBs[ags];
-	int LB = 0;
-	for (size_t i = 0; i < ags; i++)
-		LB = max(LB, SP_lengths[i]);
-	mks_LBs[ags] = LB;
-	return LB;
+	cout << "shoud not get here! (GetMksLB)" << endl;
+	return -1;
 }
 
 int Instance::GetSocLB(size_t ags)
 {
 	if (soc_LBs[ags] >= 0)
 		return soc_LBs[ags];
-	int LB = 0;
-	for (size_t i = 0; i < ags; i++)
-		LB += SP_lengths[i];
-	soc_LBs[ags] = LB;
-	return LB;
+	cout << "shoud not get here! (GetSocLB)" << endl;
+	return -1;
 }
 
 void Instance::SetAgents(int ags)
@@ -105,16 +99,13 @@ int Instance::FirstTimestep(int agent, int vertex)
 	return length_from_start[agent][vertex];
 }
 
-int Instance::LastTimestepMks(int agent, int vertex, int timelimit)
+int Instance::LastTimestep(int agent, int vertex, int timelimit, int delta, int cost_function)
 {
-	return timelimit - length_from_goal[agent][vertex] - 1;
-}
+	if (cost_function == 1) // makespan
+		return timelimit - length_from_goal[agent][vertex] - 1;
 
-bool Instance::IsReachableMks(int agent, int vertex, int timestep, int timelimit)
-{
-	if (FirstTimestep(agent, vertex) <= timestep && LastTimestepMks(agent, vertex, timelimit) >= timestep)
-		return true;
-	return false;
+	if (cost_function == 2) // sum of costs
+		return SP_lengths[agent] + delta - length_from_goal[agent][vertex];
 }
 
 int Instance::OppositeDir(int dir)

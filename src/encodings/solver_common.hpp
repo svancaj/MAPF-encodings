@@ -31,6 +31,7 @@ protected:
 
 	int agents;
 	int vertices;
+	int delta;
 	TEGAgent** at;
 	TEGAgent*** pass;
 	TEGAgent*** shift;
@@ -39,14 +40,16 @@ protected:
 	int nr_clauses;
 	int solver_calls;
 
-	void PrintSolveDetails(int);
+	void PrintSolveDetails();
 	void DebugPrint(std::vector<std::vector<int> >& );
 
 	// creating formula
 	int CreateAt(int, int);
 	int CreatePass(int, int);
 
-	void CreatePossition_StartGoal(std::vector<std::vector<int> >&);
+	void CreatePossition_Start(std::vector<std::vector<int> >&);
+	void CreatePossition_Goal(std::vector<std::vector<int> >&);
+	void CreatePossition_NoneAtGoal(std::vector<std::vector<int> >&);
 	void CreateConf_Vertex(std::vector<std::vector<int> >&);
 	void CreateConf_Swapping_Pass(std::vector<std::vector<int> >&);
 	void CreateMove_NoDuplicates(std::vector<std::vector<int> >&);

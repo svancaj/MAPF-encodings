@@ -44,8 +44,7 @@ public:
 	int GetNeighbor(int, int);
 	
 	int FirstTimestep(int, int);
-	int LastTimestepMks(int, int, int);
-	bool IsReachableMks(int, int, int, int);
+	int LastTimestep(int, int, int, int, int);
 	int OppositeDir(int);
 
 	void DebugPrint(std::vector<std::vector<int> >&);

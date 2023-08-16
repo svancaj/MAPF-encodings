@@ -5,6 +5,7 @@
 #include "logger.hpp"
 #include "encodings/solver_common.hpp"
 #include "encodings/pass_parallel_mks_all.hpp"
+#include "encodings/pass_parallel_soc_all.hpp"
 
 using namespace std;
 
@@ -183,6 +184,11 @@ ISolver* PickEncoding(string enc)
 	if (enc.compare("pass_parallel_mks_all") == 0)
 	{
 		solver = new Pass_parallel_mks_all(enc, 1);
+		return solver;
+	}
+	if (enc.compare("pass_parallel_soc_all") == 0)
+	{
+		solver = new Pass_parallel_soc_all(enc, 2);
 		return solver;
 	}
 	return solver;

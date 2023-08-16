@@ -2,11 +2,11 @@
 
 #include "solver_common.hpp"
 
-class Pass_parallel_mks_all : public ISolver
+class Pass_parallel_soc_all : public ISolver
 {
 public:
 	using ISolver::ISolver;
-	~Pass_parallel_mks_all() {};
+	~Pass_parallel_soc_all() {};
 	
 	int Solve(int);
 

@@ -13,7 +13,7 @@ void ISolver::SetData(Instance* i, Logger* l, int to)
 		timeout = to; // in s
 	};
 
-void ISolver::PrintSolveDetails(int delta)
+void ISolver::PrintSolveDetails()
 {
 	cout << "Currently solving" << endl;
 	cout << "Instance name: " << inst->scen_name << endl;
@@ -53,12 +53,15 @@ int ISolver::CreateAt(int lit, int timesteps)
 		at[a] = new TEGAgent[vertices];
 		for (int v = 0; v < vertices; v++)
 		{
-			if (inst->FirstTimestep(a, v) <= inst->LastTimestepMks(a, v, timesteps))
+			if (inst->FirstTimestep(a, v) <= inst->LastTimestep(a, v, timesteps, delta, cost_function))
 			{
 				at[a][v].first_variable = lit;
 				at[a][v].first_timestep = inst->FirstTimestep(a, v);
-				at[a][v].last_timestep = inst->LastTimestepMks(a, v, timesteps);
+				at[a][v].last_timestep = inst->LastTimestep(a, v, timesteps, delta, cost_function);
 				lit += at[a][v].last_timestep - at[a][v].first_timestep + 1;
+				//cout << "create at a, v " << a << " " << v;
+				//cout << " variables from ID " << at[a][v].first_variable;
+				//cout << " fimsteps from, to " << at[a][v].first_timestep << " " << at[a][v].last_timestep << endl;
 			}
 			else
 			{
@@ -73,7 +76,7 @@ int ISolver::CreateAt(int lit, int timesteps)
 int ISolver::CreatePass(int lit, int timesteps)
 {
 	pass = new TEGAgent**[agents];
-	
+
 	for (int a = 0; a < agents; a++)
 	{
 		pass[a] = new TEGAgent*[vertices];
@@ -87,12 +90,15 @@ int ISolver::CreatePass(int lit, int timesteps)
 					pass[a][v][dir].first_variable = 0;
 					continue;
 				}
-				if (inst->FirstTimestep(a, v) < inst->LastTimestepMks(a, inst->GetNeighbor(v, dir), timesteps)) // !!! might be wrong
+				if (inst->FirstTimestep(a, v) < inst->LastTimestep(a, inst->GetNeighbor(v, dir), timesteps, delta, cost_function)) // !!! might be wrong
 				{
 					pass[a][v][dir].first_variable = lit;
 					pass[a][v][dir].first_timestep = inst->FirstTimestep(a, v);
-					pass[a][v][dir].last_timestep = inst->LastTimestepMks(a, inst->GetNeighbor(v, dir), timesteps) - 1;
+					pass[a][v][dir].last_timestep = inst->LastTimestep(a, inst->GetNeighbor(v, dir), timesteps, delta, cost_function) - 1;
 					lit += pass[a][v][dir].last_timestep - pass[a][v][dir].first_timestep + 1;
+					//cout << "create pass a, v, dir " << a << " " << v << " " << dir;
+					//cout << " variables from ID " << pass[a][v][dir].first_variable;
+					//cout << " fimsteps from, to " << pass[a][v][dir].first_timestep << " " << pass[a][v][dir].last_timestep << endl;
 				}
 				else
 				{
@@ -105,17 +111,43 @@ int ISolver::CreatePass(int lit, int timesteps)
 	return lit;
 }
 
-void ISolver::CreatePossition_StartGoal(std::vector<std::vector<int> >& CNF)
+void ISolver::CreatePossition_Start(std::vector<std::vector<int> >& CNF)
 {
 	for (int a = 0; a < agents; a++)
 	{
 		int start_var = at[a][inst->map[inst->agents[a].start.x][inst->agents[a].start.y]].first_variable;
+		CNF.push_back(vector<int> {start_var});
+	}
+}
 
+void ISolver::CreatePossition_Goal(std::vector<std::vector<int> >& CNF)
+{
+	for (int a = 0; a < agents; a++)
+	{
 		TEGAgent AV_goal = at[a][inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y]];
 		int goal_var = AV_goal.first_variable + (AV_goal.last_timestep - AV_goal.first_timestep);
-
-		CNF.push_back(vector<int> {start_var});
 		CNF.push_back(vector<int> {goal_var});
+	}
+}
+
+void ISolver::CreatePossition_NoneAtGoal(std::vector<std::vector<int> >& CNF)
+{
+	for (int a = 0; a < agents; a++)
+	{
+		int star_t = at[a][inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y]].last_timestep + 1;
+		int v = inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y];
+		for (int a2 = a+1; a2 < agents; a2++)
+		{
+			if (at[a2][v].first_variable == 0)
+				continue;
+			int end_t = at[a2][v].last_timestep;
+			for (int t = star_t; t < end_t; t++)
+			{
+				//cout << a2 << " can not be at " << v << ", timestep " << t << " becuase " << a << " is in goal there" << endl;
+				int a2_var = at[a2][v].first_variable + (t - at[a2][v].first_timestep);
+				CNF.push_back(vector<int> {-a2_var});
+			}
+		}
 	}
 }
 

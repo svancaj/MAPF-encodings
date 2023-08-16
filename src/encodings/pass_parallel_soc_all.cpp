@@ -1,8 +1,8 @@
-#include "pass_parallel_mks_all.hpp"
+#include "Pass_parallel_soc_all.hpp"
 
 using namespace std;
 
-int Pass_parallel_mks_all::Solve(int ags)
+int Pass_parallel_soc_all::Solve(int ags)
 {
 	delta = 0;
 	int time_left = timeout; // in s
@@ -49,6 +49,7 @@ int Pass_parallel_mks_all::Solve(int ags)
 			log->building_time = building_time;
 			log->solving_time = solving_time;
 			log->solution_mks = inst->GetMksLB(agents) + delta;
+			log->solution_soc = inst->GetSocLB(agents) + delta;
 			log->solver_calls = solver_calls;
 			break;
 		}
@@ -61,7 +62,7 @@ int Pass_parallel_mks_all::Solve(int ags)
 	return 0;
 }
 
-int Pass_parallel_mks_all::CreateFormula(vector<vector<int> >& CNF, int time_left)
+int Pass_parallel_soc_all::CreateFormula(vector<vector<int> >& CNF, int time_left)
 {
 	int timesteps = inst->GetMksLB(agents) + delta;
 
@@ -78,6 +79,7 @@ int Pass_parallel_mks_all::CreateFormula(vector<vector<int> >& CNF, int time_lef
 	// start - goal possitions
 	CreatePossition_Start(CNF);
 	CreatePossition_Goal(CNF);
+	CreatePossition_NoneAtGoal(CNF);
 
 	// conflicts
 	CreateConf_Vertex(CNF);
