@@ -106,6 +106,8 @@ int Instance::LastTimestep(int agent, int vertex, int timelimit, int delta, int 
 
 	if (cost_function == 2) // sum of costs
 		return SP_lengths[agent] + delta - length_from_goal[agent][vertex];
+
+	return -1; // should not get here
 }
 
 int Instance::OppositeDir(int dir)
@@ -118,7 +120,7 @@ int Instance::OppositeDir(int dir)
 		return 4;
 	if (dir == 4)
 		return 3;
-	return -1;
+	return -1; // should not get here
 }
 
 

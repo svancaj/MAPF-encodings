@@ -80,6 +80,8 @@ int Pass_parallel_soc_all::CreateFormula(vector<vector<int> >& CNF, int time_lef
 	CreatePossition_Start(CNF);
 	CreatePossition_Goal(CNF);
 	CreatePossition_NoneAtGoal(CNF);
+	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
+		return -1;
 
 	// conflicts
 	CreateConf_Vertex(CNF);
@@ -93,6 +95,10 @@ int Pass_parallel_soc_all::CreateFormula(vector<vector<int> >& CNF, int time_lef
 	CreateMove_LeaveVertex_Pass(CNF);
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
+
+	// soc limit
+	if (delta > 0)
+		lit = CreateConst_LimitSoc(CNF, lit);
 
 	// Deallocate memory
 	CleanUp();

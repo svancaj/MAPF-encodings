@@ -59,9 +59,9 @@ int ISolver::CreateAt(int lit, int timesteps)
 				at[a][v].first_timestep = inst->FirstTimestep(a, v);
 				at[a][v].last_timestep = inst->LastTimestep(a, v, timesteps, delta, cost_function);
 				lit += at[a][v].last_timestep - at[a][v].first_timestep + 1;
-				//cout << "create at a, v " << a << " " << v;
+				//cout << "create at a, v " << a << ", " << v;
 				//cout << " variables from ID " << at[a][v].first_variable;
-				//cout << " fimsteps from, to " << at[a][v].first_timestep << " " << at[a][v].last_timestep << endl;
+				//cout << " timesteps from, to " << at[a][v].first_timestep << ", " << at[a][v].last_timestep << endl;
 			}
 			else
 			{
@@ -98,7 +98,7 @@ int ISolver::CreatePass(int lit, int timesteps)
 					lit += pass[a][v][dir].last_timestep - pass[a][v][dir].first_timestep + 1;
 					//cout << "create pass a, v, dir " << a << " " << v << " " << dir;
 					//cout << " variables from ID " << pass[a][v][dir].first_variable;
-					//cout << " fimsteps from, to " << pass[a][v][dir].first_timestep << " " << pass[a][v][dir].last_timestep << endl;
+					//cout << " timesteps from, to " << pass[a][v][dir].first_timestep << " " << pass[a][v][dir].last_timestep << endl;
 				}
 				else
 				{
@@ -308,6 +308,35 @@ void ISolver::CreateMove_LeaveVertex_Pass(std::vector<std::vector<int> >& CNF)
 			}
 		}
 	}
+}
+
+int ISolver::CreateConst_LimitSoc(vector<vector<int>>& CNF, int lit)
+{
+	vector<int> late_variables;
+
+	for (int a = 0; a < agents; a++)
+	{
+		int goal_v = inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y];
+		int at_var = at[a][goal_v].first_variable;
+		for (int d = 0; d < delta; d++)
+		{
+			CNF.push_back(vector<int> {at_var + d, lit});	// if agent is not at goal, it is late
+			if (d < delta - 1)
+				CNF.push_back(vector<int> {lit, -(lit + 1)});	// if agent is late at t, it is late at t+1
+			late_variables.push_back(lit);
+			lit++;
+		}
+	}
+
+	// add constraint on sum of delays
+	PB2CNF pb2cnf;
+	vector<vector<int> > formula;
+	lit = pb2cnf.encodeAtMostK(late_variables, delta, formula, lit) + 1;
+
+	for (size_t i = 0; i < formula.size(); i++)
+		CNF.push_back(formula[i]);
+
+	return lit;
 }
 
 /***************************/

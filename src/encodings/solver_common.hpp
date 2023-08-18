@@ -2,6 +2,7 @@
 
 #include <unistd.h>
 #include <chrono>
+#include <pblib/pb2cnf.h> // https://github.com/master-keying/pblib
 
 #include "../instance.hpp"
 #include "../logger.hpp"
@@ -55,6 +56,7 @@ protected:
 	void CreateMove_NoDuplicates(std::vector<std::vector<int> >&);
 	void CreateMove_EnterVertex_Pass(std::vector<std::vector<int> >&);
 	void CreateMove_LeaveVertex_Pass(std::vector<std::vector<int> >&);
+	int CreateConst_LimitSoc(std::vector<std::vector<int> >&, int);
 
 
 	// solving

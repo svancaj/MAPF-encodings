@@ -5,27 +5,31 @@ E_DIR = $(S_DIR)/encodings
 B_DIR = build
 
 
-_ENC_DEPS = solver_common.hpp pass_parallel_mks_all.hpp
+_ENC_DEPS = solver_common.hpp pass_parallel_mks_all.hpp pass_parallel_soc_all.hpp
 _DEPS = instance.hpp logger.hpp 
 DEPS = $(patsubst %,$(S_DIR)/%,$(_DEPS)) $(patsubst %,$(E_DIR)/%,$(_ENC_DEPS))
 
 _ENC_OBJ = solver_common.o pass_parallel_mks_all.o pass_parallel_soc_all.o
 _OBJ = main.o instance.o logger.o
-OBJ = $(patsubst %,$(abspath $(S_DIR))/%,$(_OBJ)) $(patsubst %,$(abspath $(E_DIR))/%,$(_ENC_OBJ))
+#OBJ = $(patsubst %,$(abspath $(S_DIR))/%,$(_OBJ)) $(patsubst %,$(abspath $(E_DIR))/%,$(_ENC_OBJ))
+OBJ = $(patsubst %,$(B_DIR)/%,$(_OBJ)) $(patsubst %, $(B_DIR)/%,$(_ENC_OBJ))
 
 MAPF: $(OBJ)
 	mkdir -p build
 	mkdir -p run
-	$(CC) $(CFLAGS) -o $(B_DIR)/$@ $^
+	$(CC) $(CFLAGS) -o $(B_DIR)/$@ $^ $(B_DIR)/libpb.a
 
-%.o: %.cpp $(DEPS)
+$(B_DIR)/%.o: $(E_DIR)/%.cpp $(DEPS)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(B_DIR)/%.o: $(S_DIR)/%.cpp $(DEPS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f $(S_DIR)/*.o $(E_DIR)/*.o $(B_DIR)/MAPF
+	rm -f $(B_DIR)/*.o $(B_DIR)/MAPF
 
 test: MAPF
-	$(B_DIR)/MAPF -s instances/testing/scenarios/test2.scen -e pass_parallel_soc_all -a 2
+	$(B_DIR)/MAPF -s instances/testing/scenarios/test1.scen -e pass_parallel_mks_all -t 30 -a 2
 
 experiment: MAPF
 	sh experiment.sh
