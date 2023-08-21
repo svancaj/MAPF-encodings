@@ -15,7 +15,6 @@ _OBJ = main.o instance.o logger.o
 OBJ = $(patsubst %,$(B_DIR)/%,$(_OBJ)) $(patsubst %, $(B_DIR)/%,$(_ENC_OBJ))
 
 MAPF: $(OBJ)
-	mkdir -p build
 	mkdir -p run
 	$(CC) $(CFLAGS) -o $(B_DIR)/$@ $^ $(B_DIR)/libpb.a
 

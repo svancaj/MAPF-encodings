@@ -1,4 +1,4 @@
-build
 *.o
 .vscode
 run
+build/MAPF
