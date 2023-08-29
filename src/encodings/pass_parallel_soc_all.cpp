@@ -54,7 +54,7 @@ int Pass_parallel_soc_all::Solve(int ags)
 			break;
 		}
 		if (res == -1) // something went horribly wrong with the solver!
-		 return 1;
+			return 1;
 
 		delta++; // no solution with given limits, increase delta
 	}
