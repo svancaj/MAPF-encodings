@@ -1,6 +1,4 @@
-Journal idea:
-
-Compare reduction-based models (reduction to SAT). Implement all in python/C++ (no Picat).
+Compare reduction-based models (reduction to SAT). Implement all in C++.
 
 
 Encodings:
@@ -17,20 +15,20 @@ Motion
 Cost function
  - mks
  - soc
- - soc2 (only for paper with Dor)
+ - soc-jump (only for ICAART paper)
 
 Conflicts
  - all at once
  - once needed
 
 
-ICAART with Dor:
+ICAART paper encodings:
 
 - Pass_parallel_mks_all
 - Pass_parallel_soc_all
 - Pass_parallel_soc2_all
 
-Journal:
+Final encodings:
 
 - At_pebble_mks_all
 - At_pebble_mks_jit
