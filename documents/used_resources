@@ -2,7 +2,7 @@ PBlib for "at most K" constraint
 
 https://github.com/master-keying/pblib
 
-@incollection{pblib.sat2015
+@incollection{pblib.sat2015,
     year={2015},
     isbn={978-3-319-24317-7},
     booktitle={Theory and Applications of Satisfiability Testing -- SAT 2015},

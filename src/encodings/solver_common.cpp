@@ -343,69 +343,30 @@ int ISolver::CreateConst_LimitSoc(vector<vector<int>>& CNF, int lit)
 /********* solving *********/
 /***************************/
 
-void ISolver::PrintCNF(vector<vector<int>> &CNF)
+int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit, bool get_plan)
 {
-	ofstream dimacs;
-	dimacs.open("run/input.cnf");
-	if (dimacs.is_open())
+	kissat* solver = kissat_init();
+    kissat_set_option(solver, "quiet", 1);
+	
+	// CNF to solver
+	for (size_t i = 0; i < CNF.size(); i++)
 	{
-		dimacs << "p cnf " << nr_vars << " " << nr_clauses << endl;
-		for (size_t i = 0; i < CNF.size(); i++)
-		{
-			for (size_t j = 0; j < CNF[i].size(); j++)
-			{
-				dimacs << CNF[i][j] << " ";
-			}
-			dimacs << "0\n";
-		}
-	}
-	else
-		return;
-	dimacs.close();
-}
-
-int ISolver::InvokeSolver(int timelimit, bool get_soltuion)
-{
-	string output_file = "run/result.out";
-	string n = "-n";
-	if (get_soltuion)
-		n = "";
-
-	string call = "./build/kissat-3.1.0-linux-amd64 run/input.cnf -q " + n + " --time=" + to_string(timelimit) + " > " + output_file;
-	system(call.c_str());
-	solver_calls++;
-
-	ifstream res;
-	res.open(output_file);
-	if (!res.is_open())
-	{
-		cout << "Could not open solution file " << output_file << endl;
-		return -1;
+		for (size_t j = 0; j < CNF[i].size(); j++)
+			kissat_add(solver, CNF[i][j]);
+		kissat_add(solver, 0);
 	}
 
-	bool sat = false;
-	string line;
+    int ret = kissat_solve(solver); // TODO - timelimit
 
-	while (getline(res, line))
+	cout << ret << endl;
+
+	if (get_plan)	// variable assignment
 	{
-		if (line.rfind("s", 0) == 0)	// solution
-		{
-			stringstream ssline(line);
-			string part;
-			vector<string> parsed_line;
-			while (getline(ssline, part, ' '))
-				parsed_line.push_back(part);
-			if (parsed_line[1].compare("SATISFIABLE") == 0)
-				sat = true;	
-		}
-		if (get_soltuion && line.rfind("v", 0) == 0)	// variable assignment
-		{
-			// TODO
-			cout << line << endl;
-		}
+		// TODO
+		cout << "plan" << endl;
 	}
 
-	return (sat) ? 0 : 1;
+	return (ret == 10) ? 0 : 1;
 }
 
 bool ISolver::TimesUp(	std::chrono::time_point<std::chrono::high_resolution_clock> start_time,

@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <chrono>
 #include <pblib/pb2cnf.h> // https://github.com/master-keying/pblib
+#include "../solvers/kissat.h" // https://github.com/arminbiere/kissat
 
 #include "../instance.hpp"
 #include "../logger.hpp"
@@ -60,8 +61,7 @@ protected:
 
 
 	// solving
-	void PrintCNF(std::vector<std::vector<int> >&);
-	int InvokeSolver(int, bool);
+	int InvokeSolver(std::vector<std::vector<int> >&, int, bool);
 	bool TimesUp(std::chrono::time_point<std::chrono::high_resolution_clock>, std::chrono::time_point<std::chrono::high_resolution_clock>, int);
 	void CleanUp();
 };

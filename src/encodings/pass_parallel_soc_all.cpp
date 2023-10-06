@@ -33,9 +33,8 @@ int Pass_parallel_soc_all::Solve(int ags)
 			return 1;
 
 		// solve formula
-		PrintCNF(CNF);
 		start = chrono::high_resolution_clock::now();
-		res = InvokeSolver(time_left + 1, false);
+		res = InvokeSolver(CNF, time_left + 1, false);
 		stop = chrono::high_resolution_clock::now();
 		solving_time += chrono::duration_cast<chrono::milliseconds>(stop - start).count();
 		time_left -= solving_time/1000;
