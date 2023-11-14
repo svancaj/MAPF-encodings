@@ -22,7 +22,7 @@ public:
 	virtual ~ISolver() {};
 	
 	virtual int Solve(int) = 0;
-	void SetData(Instance*, Logger*, int);
+	void SetData(Instance*, Logger*, int, bool);
 
 protected:
 	Instance* inst;
@@ -30,6 +30,7 @@ protected:
 	std::string solver_name;
 	int cost_function; // 1 = mks, 2 = soc
 	int timeout;
+	bool quiet;
 
 	int agents;
 	int vertices;

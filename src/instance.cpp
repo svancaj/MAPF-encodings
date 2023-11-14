@@ -4,11 +4,23 @@ using namespace std;
 
 /* Constructor */
 
+// instance from file
 Instance::Instance(string map_dir, string agents_file)
 {
 	LoadAgents(agents_file, map_dir);
 	last_number_of_agents = 0;
 	scen_name = agents_file;
+}
+
+// instance from data
+Instance::Instance(vector<vector<int> >& map_vector, vector<pair<int,int> >& starts, vector<pair<int,int> >& goals,
+					string scenstr, string mapstr)
+{
+	LoadAgentsData(starts, goals);
+	LoadMapData(map_vector);
+	last_number_of_agents = 0;
+	scen_name = scenstr;
+	map_name = mapstr;
 }
 
 
@@ -18,7 +30,7 @@ int Instance::GetMksLB(size_t ags)
 {
 	if (mks_LBs[ags] >= 0)
 		return mks_LBs[ags];
-	cout << "shoud not get here! (GetMksLB)" << endl;
+	cerr << "shoud not get here! (GetMksLB)" << endl;
 	return -1;
 }
 
@@ -26,7 +38,7 @@ int Instance::GetSocLB(size_t ags)
 {
 	if (soc_LBs[ags] >= 0)
 		return soc_LBs[ags];
-	cout << "shoud not get here! (GetSocLB)" << endl;
+	cerr << "shoud not get here! (GetSocLB)" << endl;
 	return -1;
 }
 
@@ -134,7 +146,7 @@ void Instance::LoadAgents(string agents_path, string map_dir)
 	in.open(agents_path);
 	if (!in.is_open())
 	{
-		cout << "Could not open " << agents_path << endl;
+		cerr << "Could not open " << agents_path << endl;
 		return;
 	}
 
@@ -174,13 +186,33 @@ void Instance::LoadAgents(string agents_path, string map_dir)
 	in.close();
 }
 
+void Instance::LoadAgentsData(vector<pair<int,int> >& start, vector<pair<int,int> >& goal)
+{
+	for (size_t i = 0; i < start.size(); i++)
+	{
+		Agent new_agent;
+		new_agent.start = {size_t(start[i].first), size_t(start[i].second)};
+		new_agent.goal = {size_t(goal[i].first), size_t(goal[i].second)};
+
+		agents.push_back(new_agent);
+	}
+
+	mks_LBs = vector<int>(agents.size() + 1, -1);
+	soc_LBs = vector<int>(agents.size() + 1, -1);
+	mks_LBs[0] = 0;
+	soc_LBs[0] = 0;
+	SP_lengths = vector<int>(agents.size(), 0);
+	length_from_start = vector<vector<int> >(agents.size());
+	length_from_goal = vector<vector<int> >(agents.size());
+}
+
 void Instance::LoadMap(string map_path)
 {
 	ifstream in;
 	in.open(map_path);
 	if (!in.is_open())
 	{
-		cout << "Could not open " << map_path << endl;
+		cerr << "Could not open " << map_path << endl;
 		return;
 	}
 
@@ -211,6 +243,28 @@ void Instance::LoadMap(string map_path)
 	}
 
 	in.close();
+}
+
+void Instance::LoadMapData(std::vector<std::vector<int> >& map_vector)
+{
+	map = map_vector;
+	height = map.size();
+	width = map[0].size();
+
+	number_of_vertices = 0;
+
+	for (size_t i = 0; i < height; i++)
+	{
+		for (size_t j = 0; j < width; j++)
+		{
+			if (map[i][j] != -1)
+			{
+				map[i][j] = number_of_vertices;
+				number_of_vertices++;
+				coord_list.push_back({i,j});
+			}
+		}
+	}
 }
 
 void Instance::BFS(vector<int>& length_from, Vertex start)

@@ -6,15 +6,19 @@ using namespace std;
 /****** before solving ******/
 /****************************/
 
-void ISolver::SetData(Instance* i, Logger* l, int to)
-	{
-		inst = i;
-		log = l;
-		timeout = to; // in s
-	};
+void ISolver::SetData(Instance* i, Logger* l, int to, bool q)
+{
+	inst = i;
+	log = l;
+	timeout = to; // in s
+	quiet = q;
+};
 
 void ISolver::PrintSolveDetails()
 {
+	if (quiet)
+		return;
+	
 	cout << "Currently solving" << endl;
 	cout << "Instance name: " << inst->scen_name << endl;
 	cout << "Map name: " << inst->map_name << endl;
@@ -357,8 +361,6 @@ int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit, bool get_plan
 	}
 
     int ret = kissat_solve(solver); // TODO - timelimit
-
-	cout << ret << endl;
 
 	if (get_plan)	// variable assignment
 	{

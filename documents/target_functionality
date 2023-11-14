@@ -21,13 +21,6 @@ Conflicts
  - all at once
  - once needed
 
-
-ICAART paper encodings:
-
-- Pass_parallel_mks_all
-- Pass_parallel_soc_all
-- Pass_parallel_soc2_all
-
 Final encodings:
 
 - At_pebble_mks_all
@@ -42,9 +35,9 @@ Final encodings:
 - Pass_pebble_mks_jit
 - Pass_pebble_soc_all
 - Pass_pebble_soc_jit
-- Pass_parallel_mks_all
+- Pass_parallel_mks_all		DONE
 - Pass_parallel_mks_jit
-- Pass_parallel_soc_all
+- Pass_parallel_soc_all		DONE
 - Pass_parallel_soc_jit
 - Shift_pebble_mks_all
 - Shift_pebble_mks_jit

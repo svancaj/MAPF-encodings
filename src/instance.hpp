@@ -32,6 +32,7 @@ class Instance
 {
 public:
 	Instance(std::string, std::string);
+	Instance(std::vector<std::vector<int> >&, std::vector<std::pair<int,int> >&, std::vector<std::pair<int,int> >&, std::string, std::string);
 
 	void SetAgents(int);
 	
@@ -66,7 +67,9 @@ public:
 
 private:
 	void LoadAgents(std::string, std::string);
+	void LoadAgentsData(std::vector<std::pair<int,int> >&, std::vector<std::pair<int,int> >&);
 	void LoadMap(std::string);
+	void LoadMapData(std::vector<std::vector<int> >&);
 	void BFS(std::vector<int>&, Vertex);
 	
 	std::vector<int> mks_LBs;
