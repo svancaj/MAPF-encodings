@@ -1,4 +1,4 @@
-#include "pass_pebble_mks_all.hpp"
+#include "solver_common.hpp"
 
 using namespace std;
 
@@ -80,7 +80,7 @@ int Pass_pebble_mks_all::CreateFormula(vector<vector<int> >& CNF, int time_left)
 
 	// conflicts
 	CreateConf_Vertex(CNF);
-	CreateConf_Swapping_Pass(CNF);
+	CreateConf_Pebble_Pass(CNF);
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 	

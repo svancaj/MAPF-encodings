@@ -1,4 +1,4 @@
-#include "Pass_parallel_soc_all.hpp"
+#include "solver_common.hpp"
 
 using namespace std;
 

@@ -1,4 +1,4 @@
-#include "pass_parallel_mks_all.hpp"
+#include "solver_common.hpp"
 
 using namespace std;
 

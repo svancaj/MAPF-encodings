@@ -31,7 +31,7 @@ Final encodings:
 - At_parallel_mks_jit
 - At_parallel_soc_all
 - At_parallel_soc_jit
-- Pass_pebble_mks_all
+- Pass_pebble_mks_all		DONE
 - Pass_pebble_mks_jit
 - Pass_pebble_soc_all
 - Pass_pebble_soc_jit

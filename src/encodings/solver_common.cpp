@@ -218,6 +218,44 @@ void ISolver::CreateConf_Swapping_Pass(std::vector<std::vector<int> >& CNF)
 	}
 }
 
+void ISolver::CreateConf_Pebble_Pass(std::vector<std::vector<int> >& CNF)
+{
+	// Pass(a1,t,u,v) -> forall a2: -At(a2,t,v)
+	for (int v = 0; v < vertices; v++)
+	{
+		for (int dir = 1; dir < 5; dir++) // ignore waiting, ie. selfloops
+		{
+			if (!inst->HasNeighbor(v, dir))
+				continue;
+			for (int a1 = 0; a1 < agents; a1++)
+			{
+				if (pass[a1][v][dir].first_variable == 0)
+					continue;
+				for (int a2 = 0; a2 < agents; a2++)
+				{
+					if (a1 == a2)
+						continue;
+
+					int u = inst->GetNeighbor(v, dir);
+					if (at[a2][u].first_variable == 0)
+						continue;
+
+					int star_t = max(pass[a1][v][dir].first_timestep, at[a2][u].first_timestep);
+					int end_t = min(pass[a1][v][dir].last_timestep, at[a2][u].last_timestep) + 1;
+
+					for (int t = star_t; t < end_t; t++)
+					{
+						//cout << "pebble conflict at edge (" << v << "," << u << "), timestep " << t << " between moving agent " << a1 << " and " << a2 << endl;
+						int a1_var = pass[a1][v][dir].first_variable + (t - pass[a1][v][dir].first_timestep);
+						int a2_var = at[a2][u].first_variable + (t - at[a2][u].first_timestep);
+						CNF.push_back(vector<int> {-a1_var, -a2_var});
+					}
+				}
+			}
+		}
+	}
+}
+
 void ISolver::CreateMove_NoDuplicates(std::vector<std::vector<int> >& CNF)
 {
 	for (int a = 0; a < agents; a++)
@@ -361,6 +399,7 @@ int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit, bool get_plan
 	}
 
     int ret = kissat_solve(solver); // TODO - timelimit
+	solver_calls++;
 
 	if (get_plan)	// variable assignment
 	{

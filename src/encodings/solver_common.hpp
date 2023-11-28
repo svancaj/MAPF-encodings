@@ -53,11 +53,15 @@ protected:
 	void CreatePossition_Start(std::vector<std::vector<int> >&);
 	void CreatePossition_Goal(std::vector<std::vector<int> >&);
 	void CreatePossition_NoneAtGoal(std::vector<std::vector<int> >&);
+
 	void CreateConf_Vertex(std::vector<std::vector<int> >&);
 	void CreateConf_Swapping_Pass(std::vector<std::vector<int> >&);
+	void CreateConf_Pebble_Pass(std::vector<std::vector<int> >&);
+
 	void CreateMove_NoDuplicates(std::vector<std::vector<int> >&);
 	void CreateMove_EnterVertex_Pass(std::vector<std::vector<int> >&);
 	void CreateMove_LeaveVertex_Pass(std::vector<std::vector<int> >&);
+
 	int CreateConst_LimitSoc(std::vector<std::vector<int> >&, int);
 
 
@@ -67,3 +71,39 @@ protected:
 	void CleanUp();
 };
 
+/******************************************************************/
+/*********************** Specific Encodings ***********************/
+/******************************************************************/
+
+class Pass_parallel_mks_all : public ISolver
+{
+public:
+	using ISolver::ISolver;
+	~Pass_parallel_mks_all() {};
+	int Solve(int);
+
+private:
+	int CreateFormula(std::vector<std::vector<int> >&, int);
+};
+
+class Pass_parallel_soc_all : public ISolver
+{
+public:
+	using ISolver::ISolver;
+	~Pass_parallel_soc_all() {};
+	int Solve(int);
+
+private:
+	int CreateFormula(std::vector<std::vector<int> >&, int);
+};
+
+class Pass_pebble_mks_all : public ISolver
+{
+public:
+	using ISolver::ISolver;
+	~Pass_pebble_mks_all() {};
+	int Solve(int);
+
+private:
+	int CreateFormula(std::vector<std::vector<int> >&, int);
+};
