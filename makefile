@@ -11,7 +11,12 @@ LIBS = $(patsubst %,$(B_DIR)/%,$(_LIBS))
 _DEPS = instance.hpp logger.hpp encodings/solver_common.hpp
 DEPS = $(patsubst %,$(S_DIR)/%,$(_DEPS))
 
-_ENC_OBJ = solver_common.o pass_parallel_mks_all.o pass_parallel_soc_all.o pass_pebble_mks_all.o pass_pebble_soc_all.o
+VAR = pass
+MOVE = parallel pebble
+FUNC = mks soc
+COMP = all
+
+_ENC_OBJ = solver_common.o $(foreach v, $(VAR), $(foreach m, $(MOVE), $(foreach f, $(FUNC), $(foreach c, $(COMP), $v_$m_$f_$c.o))))
 _OBJ = main.o instance.o logger.o
 OBJ = $(patsubst %,$(B_DIR)/%,$(_OBJ)) $(patsubst %, $(B_DIR)/%,$(_ENC_OBJ))
 
