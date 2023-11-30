@@ -34,7 +34,7 @@ int Pass_parallel_mks_all::Solve(int ags)
 
 		// solve formula
 		start = chrono::high_resolution_clock::now();
-		res = InvokeSolver(CNF, time_left + 1, false);
+		res = InvokeSolver(CNF, time_left + 1, print_plan);
 		stop = chrono::high_resolution_clock::now();
 		solving_time += chrono::duration_cast<chrono::milliseconds>(stop - start).count();
 		time_left -= solving_time/1000;
@@ -92,7 +92,7 @@ int Pass_parallel_mks_all::CreateFormula(vector<vector<int> >& CNF, int time_lef
 		return -1;
 
 	// Deallocate memory
-	CleanUp();
+	CleanUp(print_plan);
 
 	return lit;
 }

@@ -16,6 +16,7 @@ int main(int argc, char** argv)
 {
 	bool hflag = false;
 	bool qflag = false;
+	bool pflag = false;
 	char *evalue = NULL;
 	char *svalue = NULL;
 	char *avalue = NULL;
@@ -33,7 +34,7 @@ int main(int argc, char** argv)
 	// parse arguments
 	opterr = 0;
 	char c;
-	while ((c = getopt (argc, argv, "hqe:s:a:i:t:")) != -1)
+	while ((c = getopt (argc, argv, "hqpe:s:a:i:t:")) != -1)
 	{
 		switch (c)
 		{
@@ -42,6 +43,9 @@ int main(int argc, char** argv)
 				break;
 			case 'q':
 				qflag = true;
+				break;
+			case 'p':
+				pflag = true;
 				break;
 			case 'e':
 				evalue = optarg;
@@ -101,7 +105,7 @@ int main(int argc, char** argv)
 	// create classes and load map
 	inst = new Instance(map_dir, svalue);
 	log = new Logger(inst, stat_file, evalue);
-	solver->SetData(inst, log, timeout, qflag);
+	solver->SetData(inst, log, timeout, qflag, pflag);
 
 	// check number of agents and increment
 	size_t current_agents = inst->agents.size();
@@ -170,6 +174,7 @@ void PrintHelp(char* argv[], bool quiet)
 	cout << argv[0] << " [-h] -e encoding -s scenario_file [-a number_of_agents] [-i increment] [-t timeout]" << endl;
 	cout << "	-h                  : Prints help and exits" << endl;
 	cout << "	-q                  : Suppress print on stdout" << endl;
+	cout << "	-p                  : Print found plan. If q flag is set, p flag is overwritten." << endl;
 	cout << "	-e encoding         : Encoding to be used. Available options are {at|pass|shift}_{pebble|parallel}_{mks|soc}_{all|jit}" << endl;
 	cout << "	-s scenario_file    : Path to a scenario file" << endl;
 	cout << "	-a number_of_agents : Number of agents to solve. If not specified, all agents in the scenario file are used." << endl;

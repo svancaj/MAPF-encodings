@@ -32,7 +32,7 @@ clean:
 	rm -f $(B_DIR)/*.o $(B_DIR)/$(PROJECT_NAME) log.log $(B_DIR)/usecase
 
 test: $(PROJECT_NAME)
-	$(B_DIR)/$(PROJECT_NAME) -s instances/testing/scenarios/test2.scen -e pass_pebble_mks_all -t 30 -a 2
+	$(B_DIR)/$(PROJECT_NAME) -s instances/testing/scenarios/test2.scen -e pass_pebble_mks_all -t 30 -a 2 -p
 
 experiment: $(PROJECT_NAME)
 	sh experiment.sh

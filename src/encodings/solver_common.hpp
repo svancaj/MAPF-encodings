@@ -22,7 +22,7 @@ public:
 	virtual ~ISolver() {};
 	
 	virtual int Solve(int) = 0;
-	void SetData(Instance*, Logger*, int, bool);
+	void SetData(Instance*, Logger*, int, bool, bool);
 
 protected:
 	Instance* inst;
@@ -31,14 +31,20 @@ protected:
 	int cost_function; // 1 = mks, 2 = soc
 	int timeout;
 	bool quiet;
+	bool print_plan;
 
 	int agents;
 	int vertices;
 	int delta;
+	int max_timestep;
+
 	TEGAgent** at;
 	TEGAgent*** pass;
 	TEGAgent*** shift;
+	int at_vars;
+
 	std::vector<std::vector<int> > CNF;
+
 	int nr_vars;
 	int nr_clauses;
 	int solver_calls;
@@ -68,7 +74,7 @@ protected:
 	// solving
 	int InvokeSolver(std::vector<std::vector<int> >&, int, bool);
 	bool TimesUp(std::chrono::time_point<std::chrono::high_resolution_clock>, std::chrono::time_point<std::chrono::high_resolution_clock>, int);
-	void CleanUp();
+	void CleanUp(bool);
 };
 
 /******************************************************************/

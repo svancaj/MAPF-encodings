@@ -6,12 +6,20 @@ using namespace std;
 /****** before solving ******/
 /****************************/
 
-void ISolver::SetData(Instance* i, Logger* l, int to, bool q)
+void ISolver::SetData(Instance* i, Logger* l, int to, bool q, bool p)
 {
 	inst = i;
 	log = l;
 	timeout = to; // in s
 	quiet = q;
+	print_plan = p;
+
+	if (quiet)
+		print_plan = false;
+
+	at = NULL;
+	pass = NULL;
+	shift = NULL;
 };
 
 void ISolver::PrintSolveDetails()
@@ -51,7 +59,7 @@ void ISolver::DebugPrint(vector<vector<int> >& CNF)
 int ISolver::CreateAt(int lit, int timesteps)
 {
 	at = new TEGAgent*[agents];
-	
+
 	for (int a = 0; a < agents; a++)
 	{
 		at[a] = new TEGAgent[vertices];
@@ -74,6 +82,8 @@ int ISolver::CreateAt(int lit, int timesteps)
 		}
 	}
 
+	max_timestep = timesteps;
+	at_vars = lit; // at vars alwayes start at 1
 	return lit;
 }
 
@@ -401,10 +411,40 @@ int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit, bool get_plan
     int ret = kissat_solve(solver); // TODO - timelimit
 	solver_calls++;
 
-	if (get_plan)	// variable assignment
+	if (get_plan && ret == 10)	// variable assignment
 	{
-		// TODO
-		cout << "plan" << endl;
+		vector<bool> eval = vector<bool>(at_vars);
+		for (int var = 1; var < at_vars; var++)
+			eval[var-1] = (kissat_value (solver, var) > 0) ? true : false;
+
+		vector<vector<int> > plan = vector<vector<int> >(agents, vector<int>(max_timestep));
+
+		for (int a = 0; a < agents; a++)
+		{
+			for (int v = 0; v < vertices; v++)
+			{
+				if (at[a][v].first_variable == 0)
+					continue;
+
+				for (int t = at[a][v].first_timestep; t < at[a][v].last_timestep + 1; t++)
+				{
+					int var = at[a][v].first_variable + (t - at[a][v].first_timestep);
+					if (eval[var-1])
+						plan[a][t] = v;
+				}
+			}
+		}
+
+		cout << "Found plan [agents = " << agents << "] [timesteps = " << max_timestep << "]" << endl;
+		for (int a = 0; a < agents; a++)
+		{
+			cout << "Agent #" << a << " : ";
+			for (int t = 0; t < max_timestep; t++)
+				cout << plan[a][t] << " ";
+			cout << endl;
+		}
+
+		CleanUp(false);
 	}
 
 	return (ret == 10) ? 0 : 1;
@@ -416,19 +456,33 @@ bool ISolver::TimesUp(	std::chrono::time_point<std::chrono::high_resolution_cloc
 {
 	if (chrono::duration_cast<chrono::milliseconds>(current_time - start_time).count() > timelimit*1000)
 	{
-		CleanUp();
+		CleanUp(false);
 		return true;
 	}
 	return false;
 }
 
-void ISolver::CleanUp()
+void ISolver::CleanUp(bool keep_at)
 {
-	for (int a = 0; a < agents; a++)
+	if (shift != NULL)
 	{
-		delete[] at[a];
-		delete[] pass[a];
+		// TODO
+		shift = NULL;
 	}
-	delete[] at;
-	delete[] pass;
+
+	if (pass != NULL)
+	{
+		for (int a = 0; a < agents; a++)
+			delete[] pass[a];
+		delete[] pass;
+		pass = NULL;
+	}
+
+	if (!keep_at && at != NULL)
+	{
+		for (int a = 0; a < agents; a++)
+			delete[] at[a];
+		delete[] at;
+		at = NULL;
+	}
 }
