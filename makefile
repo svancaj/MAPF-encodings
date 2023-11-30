@@ -8,9 +8,8 @@ PROJECT_NAME = MAPF
 _LIBS = libpb.a libkissat.a
 LIBS = $(patsubst %,$(B_DIR)/%,$(_LIBS))
 
-_ENC_DEPS = solver_common.hpp
-_DEPS = instance.hpp logger.hpp 
-DEPS = $(patsubst %,$(S_DIR)/%,$(_DEPS)) $(patsubst %,$(E_DIR)/%,$(_ENC_DEPS))
+_DEPS = instance.hpp logger.hpp encodings/solver_common.hpp
+DEPS = $(patsubst %,$(S_DIR)/%,$(_DEPS))
 
 _ENC_OBJ = solver_common.o pass_parallel_mks_all.o pass_parallel_soc_all.o pass_pebble_mks_all.o pass_pebble_soc_all.o
 _OBJ = main.o instance.o logger.o

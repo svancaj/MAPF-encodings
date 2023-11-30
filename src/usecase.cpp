@@ -4,8 +4,6 @@
 #include "instance.hpp"
 #include "logger.hpp"
 #include "encodings/solver_common.hpp"
-#include "encodings/pass_parallel_mks_all.hpp"
-#include "encodings/pass_parallel_soc_all.hpp"
 
 using namespace std;
 
@@ -23,7 +21,7 @@ int main(int argc, char** argv)
 	Logger* log = new Logger(inst, "log.log", "encoding_name");
 	Pass_parallel_mks_all* solver = new Pass_parallel_mks_all("encoding_name", 1);
 
-	solver->SetData(inst, log, 300, false);
+	solver->SetData(inst, log, 300, false, true);
 	inst->SetAgents(2);
 	log->NewInstance(2);
 
