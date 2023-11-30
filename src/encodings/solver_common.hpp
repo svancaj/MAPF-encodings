@@ -113,3 +113,14 @@ public:
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
+
+class Pass_pebble_soc_all : public ISolver
+{
+public:
+	using ISolver::ISolver;
+	~Pass_pebble_soc_all() {};
+	int Solve(int);
+
+private:
+	int CreateFormula(std::vector<std::vector<int> >&, int);
+};

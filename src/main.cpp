@@ -211,5 +211,10 @@ ISolver* PickEncoding(string enc)
 		solver = new Pass_pebble_mks_all(enc, 1);
 		return solver;
 	}
+	if (enc.compare("pass_pebble_soc_all") == 0)
+	{
+		solver = new Pass_pebble_soc_all(enc, 2);
+		return solver;
+	}
 	return solver;
 }
