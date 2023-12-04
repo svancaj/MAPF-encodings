@@ -2,9 +2,9 @@
 
 using namespace std;
 
-int Pass_pebble_mks_all::Solve(int ags)
+int Pass_pebble_mks_all::Solve(int ags, int input_delta, bool optimize)
 {
-	delta = 0;
+	delta = input_delta;
 	int time_left = timeout; // in s
 	long long building_time = 0;
 	long long solving_time = 0;
@@ -55,6 +55,8 @@ int Pass_pebble_mks_all::Solve(int ags)
 			return 1;
 
 		delta++; // no solution with given limits, increase delta
+		if (!optimize)	// no solution with the given delta, do not optimize, return no sol
+			return -1;
 	}
 
 	return 0;

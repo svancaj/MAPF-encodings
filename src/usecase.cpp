@@ -25,7 +25,15 @@ int main(int argc, char** argv)
 	inst->SetAgents(2);
 	log->NewInstance(2);
 
-	int res = solver->Solve(2);
+	//int res = solver->Solve(2);
+	int res = solver->Solve(2, 2, false);
+
+	if (res == -1)
+		cout << "no solution with given limits" << endl;
+	if (res == 0)
+		cout << "found solution" << endl;
+	if (res == 1)
+		cout << "no solution in the given timelimit" << endl;
 
 	log->PrintStatistics();
 
