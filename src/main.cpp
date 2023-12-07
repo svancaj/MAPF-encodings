@@ -189,7 +189,7 @@ void PrintHelp(char* argv[], bool quiet)
 
 	cout << endl;
 	cout << "Usage of this program:" << endl;
-	cout << argv[0] << " [-h] -e encoding -s scenario_file [-a number_of_agents] [-i increment] [-t timeout]" << endl;
+	cout << argv[0] << " [-h] [-q] [-p] -e encoding -s scenario_file [-a number_of_agents] [-i increment] [-t timeout] [-d delta] [-o]" << endl;
 	cout << "	-h                  : Prints help and exits" << endl;
 	cout << "	-q                  : Suppress print on stdout" << endl;
 	cout << "	-p                  : Print found plan. If q flag is set, p flag is overwritten." << endl;
