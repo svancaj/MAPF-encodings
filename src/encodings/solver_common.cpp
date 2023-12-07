@@ -448,11 +448,10 @@ int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit, bool get_plan
 			for (int t = 0; t < max_timestep; t++)
 				cout << plan[a][t] << " ";
 			cout << endl;
-		}
-
-		CleanUp(false);
+		}		
 	}
 
+	CleanUp(false);
 	kissat_release(solver);
 
 	return (ret == 10) ? 0 : 1;
@@ -502,8 +501,13 @@ void ISolver::CleanUp(bool keep_at)
 	if (pass != NULL)
 	{
 		for (int a = 0; a < agents; a++)
+		{
+			for (int v = 0; v < vertices; v++)
+				delete[] pass[a][v];
 			delete[] pass[a];
+		}
 		delete[] pass;
+		cout << "deleting pass" << endl;
 		pass = NULL;
 	}
 
@@ -512,6 +516,7 @@ void ISolver::CleanUp(bool keep_at)
 		for (int a = 0; a < agents; a++)
 			delete[] at[a];
 		delete[] at;
+		cout << "deleting at" << endl;
 		at = NULL;
 	}
 }
