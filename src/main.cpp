@@ -149,6 +149,13 @@ int main(int argc, char** argv)
 				cout << "No solution found in the given timeout" << endl;
 			break;
 		}
+
+		if (res == -1) // unsat with given cost
+		{
+			if (!qflag)
+				cout << "No solution found in the given cost limit" << endl;
+			break;
+		}
 		
 		log->PrintStatistics();
 		current_agents += increment;
