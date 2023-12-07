@@ -2,7 +2,7 @@
 
 using namespace std;
 
-int Pass_pebble_soc_all::Solve(int ags, int input_delta, bool optimize)
+int Pass_pebble_soc_all::Solve(int ags, int input_delta, bool oneshot)
 {
 	delta = input_delta;
 	int time_left = timeout; // in s
@@ -56,7 +56,7 @@ int Pass_pebble_soc_all::Solve(int ags, int input_delta, bool optimize)
 			return 1;
 
 		delta++; // no solution with given limits, increase delta
-		if (!optimize)	// no solution with the given delta, do not optimize, return no sol
+		if (oneshot)	// no solution with the given delta, do not optimize, return no sol
 			return -1;
 	}
 

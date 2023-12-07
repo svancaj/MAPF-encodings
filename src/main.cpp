@@ -17,11 +17,13 @@ int main(int argc, char** argv)
 	bool hflag = false;
 	bool qflag = false;
 	bool pflag = false;
+	bool oflag = false;
 	char *evalue = NULL;
 	char *svalue = NULL;
 	char *avalue = NULL;
 	char *ivalue = NULL;
 	char *tvalue = NULL;
+	char *dvalue = NULL;
 
 	int timeout = 300;
 	string map_dir = "instances/maps";
@@ -34,7 +36,7 @@ int main(int argc, char** argv)
 	// parse arguments
 	opterr = 0;
 	char c;
-	while ((c = getopt (argc, argv, "hqpe:s:a:i:t:")) != -1)
+	while ((c = getopt (argc, argv, "hqpoe:s:a:i:t:d:")) != -1)
 	{
 		switch (c)
 		{
@@ -46,6 +48,9 @@ int main(int argc, char** argv)
 				break;
 			case 'p':
 				pflag = true;
+				break;
+			case 'o':
+				oflag = true;
 				break;
 			case 'e':
 				evalue = optarg;
@@ -62,8 +67,11 @@ int main(int argc, char** argv)
 			case 't':
 				tvalue = optarg;
 				break;
+			case 'd':
+				dvalue = optarg;
+				break;
 			case '?':
-				if (optopt == 'e' || optopt == 's' || optopt == 'a' || optopt == 'i' || optopt == 't')
+				if (optopt == 'e' || optopt == 's' || optopt == 'a' || optopt == 'i' || optopt == 't' || optopt == 'd')
 				{
 					cout << "Option -" << (char)optopt << " requires an argument!" << endl;
 					return -1;
@@ -97,7 +105,6 @@ int main(int argc, char** argv)
 		PrintHelp(argv, qflag);
 		return -1;
 	}
-	//solver = new Pass_parallel_mks_all(inst, log, string(evalue));
 
 	if (tvalue != NULL)
 		timeout = atoi(tvalue);
@@ -123,6 +130,10 @@ int main(int argc, char** argv)
 		increment = atoi(ivalue);
 	if (increment == 0)
 		increment = inst->agents.size();
+	
+	int delta = 0;
+	if (dvalue != NULL)
+		delta = atoi(dvalue);
 
 	// main loop - solve given number of agents
 	do 
@@ -130,7 +141,7 @@ int main(int argc, char** argv)
 		inst->SetAgents(current_agents);
 		log->NewInstance(current_agents);
 
-		int res = solver->Solve(current_agents);
+		int res = solver->Solve(current_agents, delta, oflag);
 
 		if (res == 1) // timeout
 		{
@@ -180,6 +191,8 @@ void PrintHelp(char* argv[], bool quiet)
 	cout << "	-a number_of_agents : Number of agents to solve. If not specified, all agents in the scenario file are used." << endl;
 	cout << "	-i increment        : After a successful call, increase the number of agents by the specified increment. If not specified, do not perform subsequent calls." << endl;
 	cout << "	-t timeout          : Timeout of the computation in seconds. Default value is 300s" << endl;
+	cout << "	-d delta            : Cost of delta is added to the first call. Default is 0." << endl;
+	cout << "	-o                  : Oneshot solving. Ie. do not increment cost in case of unsat call. Default is to optimize." << endl;
 	cout << endl;
 }
 

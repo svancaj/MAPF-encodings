@@ -21,7 +21,7 @@ public:
 	ISolver(std::string sn, int opt) : solver_name(sn), cost_function(opt) {}; 
 	virtual ~ISolver() {};
 	
-	virtual int Solve(int, int, bool) = 0;
+	virtual int Solve(int, int = 0, bool = false) = 0;
 	void SetData(Instance*, Logger*, int, bool, bool);
 
 protected:
@@ -86,7 +86,7 @@ class Pass_parallel_mks_all : public ISolver
 public:
 	using ISolver::ISolver;
 	~Pass_parallel_mks_all() {};
-	int Solve(int, int = 0, bool = true);
+	int Solve(int, int = 0, bool = false);
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
@@ -97,7 +97,7 @@ class Pass_parallel_soc_all : public ISolver
 public:
 	using ISolver::ISolver;
 	~Pass_parallel_soc_all() {};
-	int Solve(int, int = 0, bool = true);
+	int Solve(int, int = 0, bool = false);
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
@@ -108,7 +108,7 @@ class Pass_pebble_mks_all : public ISolver
 public:
 	using ISolver::ISolver;
 	~Pass_pebble_mks_all() {};
-	int Solve(int, int = 0, bool = true);
+	int Solve(int, int = 0, bool = false);
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
@@ -119,7 +119,7 @@ class Pass_pebble_soc_all : public ISolver
 public:
 	using ISolver::ISolver;
 	~Pass_pebble_soc_all() {};
-	int Solve(int, int = 0, bool = true);
+	int Solve(int, int = 0, bool = false);
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
