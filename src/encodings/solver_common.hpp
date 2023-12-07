@@ -2,6 +2,7 @@
 
 #include <unistd.h>
 #include <chrono>
+#include <thread>
 #include <pblib/pb2cnf.h> // https://github.com/master-keying/pblib
 #include "../solvers/kissat.h" // https://github.com/arminbiere/kissat
 
@@ -73,6 +74,7 @@ protected:
 
 	// solving
 	int InvokeSolver(std::vector<std::vector<int> >&, int, bool);
+	static void wait_for_terminate(int, kissat*, bool&);
 	bool TimesUp(std::chrono::time_point<std::chrono::high_resolution_clock>, std::chrono::time_point<std::chrono::high_resolution_clock>, int);
 	void CleanUp(bool);
 };

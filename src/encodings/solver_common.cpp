@@ -408,7 +408,13 @@ int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit, bool get_plan
 		kissat_add(solver, 0);
 	}
 
-    int ret = kissat_solve(solver); // TODO - timelimit
+	bool ended = false;
+	thread waiting_thread = thread(wait_for_terminate, timelimit*1000, solver, ref(ended));
+	
+    int ret = kissat_solve(solver); // Start solver
+
+	ended = true;
+	waiting_thread.join();	// Wait for counting thread to return
 	solver_calls++;
 
 	if (get_plan && ret == 10)	// variable assignment
@@ -447,7 +453,30 @@ int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit, bool get_plan
 		CleanUp(false);
 	}
 
+	kissat_release(solver);
+
 	return (ret == 10) ? 0 : 1;
+}
+
+void ISolver::wait_for_terminate(int time_left_ms, kissat* solver, bool& ended)
+{
+	while (time_left_ms > 0)
+	{
+		if (ended)
+			return;
+
+		// Sleep for
+		this_thread::sleep_for(std::chrono::milliseconds(50));
+		time_left_ms -= 50;
+	}
+
+	// If solver ended his computing return without terminating it
+	if (ended)
+		return;
+
+	// Trusting in kissat implementation that in case of terminating solver that ended computing everything will be ok
+	// because solver could ended in meantime
+	kissat_terminate(solver);
 }
 
 bool ISolver::TimesUp(	std::chrono::time_point<std::chrono::high_resolution_clock> start_time,
