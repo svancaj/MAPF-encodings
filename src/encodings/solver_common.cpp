@@ -52,6 +52,73 @@ void ISolver::DebugPrint(vector<vector<int> >& CNF)
 	cout << "0" << endl;
 }
 
+/********************************/
+/********* SOLVING MAPF *********/
+/********************************/
+
+int ISolver::Solve(int ags, int input_delta, bool oneshot)
+{
+	delta = input_delta;
+	int time_left = timeout * 1000; // given in s, tranfer to ms
+	long long building_time = 0;
+	long long solving_time = 0;
+	solver_calls = 0;
+	int res = 1; // 0 = ok, 1 = timeout, -1 no solution
+
+	at = NULL;
+	pass = NULL;
+	shift = NULL;
+	agents = ags;
+	vertices = inst->number_of_vertices;
+
+	while (true)
+	{
+		PrintSolveDetails();
+		CNF = vector<vector<int> >();
+
+		// create formula
+		auto start = chrono::high_resolution_clock::now();
+		nr_vars = CreateFormula(CNF, time_left);
+		auto stop = chrono::high_resolution_clock::now();
+		if (TimesUp(start, stop, time_left))
+			return 1;
+
+		nr_clauses = CNF.size();
+		building_time += chrono::duration_cast<chrono::milliseconds>(stop - start).count();
+		time_left -= building_time;
+
+		// solve formula
+		start = chrono::high_resolution_clock::now();
+		res = InvokeSolver(CNF, time_left + 100, print_plan);
+		stop = chrono::high_resolution_clock::now();
+		if (TimesUp(start, stop, time_left))
+			return 1;
+
+		solving_time += chrono::duration_cast<chrono::milliseconds>(stop - start).count();
+		time_left -= solving_time;
+
+		if (res == 0) // ok
+		{
+			log->nr_vars = nr_vars;
+			log->nr_clauses = nr_clauses;
+			log->building_time = building_time;
+			log->solving_time = solving_time;
+			log->solution_mks = inst->GetMksLB(agents) + delta;
+			log->solution_soc = (cost_function == 1) ? 0 : inst->GetSocLB(agents) + delta;
+			log->solver_calls = solver_calls;
+			break;
+		}
+		if (res == -1) // something went horribly wrong with the solver!
+			return 1;
+
+		delta++; // no solution with given limits, increase delta
+		if (oneshot)	// no solution with the given delta, do not optimize, return no sol
+			return -1;
+	}
+
+	return 0;
+}
+
 /****************************/
 /***** creating formula *****/
 /****************************/
@@ -391,9 +458,9 @@ int ISolver::CreateConst_LimitSoc(vector<vector<int>>& CNF, int lit)
 	return lit;
 }
 
-/***************************/
-/********* solving *********/
-/***************************/
+/*******************************/
+/********* solving CNF *********/
+/*******************************/
 
 int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit, bool get_plan)
 {
@@ -409,12 +476,11 @@ int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit, bool get_plan
 	}
 
 	bool ended = false;
-	thread waiting_thread = thread(wait_for_terminate, timelimit*1000, solver, ref(ended));
+	thread waiting_thread = thread(wait_for_terminate, timelimit, solver, ref(ended));
 	
     int ret = kissat_solve(solver); // Start solver
 
 	ended = true;
-	waiting_thread.join();	// Wait for counting thread to return
 	solver_calls++;
 
 	if (get_plan && ret == 10)	// variable assignment
@@ -453,6 +519,7 @@ int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit, bool get_plan
 
 	CleanUp(false);
 	kissat_release(solver);
+	waiting_thread.join();
 
 	return (ret == 10) ? 0 : 1;
 }
@@ -469,7 +536,7 @@ void ISolver::wait_for_terminate(int time_left_ms, kissat* solver, bool& ended)
 		time_left_ms -= 50;
 	}
 
-	// If solver ended his computing return without terminating it
+	// If solver ended its computing return without terminating it
 	if (ended)
 		return;
 
@@ -480,9 +547,9 @@ void ISolver::wait_for_terminate(int time_left_ms, kissat* solver, bool& ended)
 
 bool ISolver::TimesUp(	std::chrono::time_point<std::chrono::high_resolution_clock> start_time,
 						std::chrono::time_point<std::chrono::high_resolution_clock> current_time,
-						int timelimit) // timelimit is in s
+						int timelimit) // timelimit is in ms
 {
-	if (chrono::duration_cast<chrono::milliseconds>(current_time - start_time).count() > timelimit*1000)
+	if (chrono::duration_cast<chrono::milliseconds>(current_time - start_time).count() > timelimit)
 	{
 		CleanUp(false);
 		return true;
@@ -507,7 +574,6 @@ void ISolver::CleanUp(bool keep_at)
 			delete[] pass[a];
 		}
 		delete[] pass;
-		cout << "deleting pass" << endl;
 		pass = NULL;
 	}
 
@@ -516,7 +582,6 @@ void ISolver::CleanUp(bool keep_at)
 		for (int a = 0; a < agents; a++)
 			delete[] at[a];
 		delete[] at;
-		cout << "deleting at" << endl;
 		at = NULL;
 	}
 }

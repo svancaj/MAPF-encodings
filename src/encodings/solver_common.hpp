@@ -22,7 +22,7 @@ public:
 	ISolver(std::string sn, int opt) : solver_name(sn), cost_function(opt) {}; 
 	virtual ~ISolver() {};
 	
-	virtual int Solve(int, int = 0, bool = false) = 0;
+	int Solve(int, int = 0, bool = false);
 	void SetData(Instance*, Logger*, int, bool, bool);
 
 protected:
@@ -50,8 +50,12 @@ protected:
 	int nr_clauses;
 	int solver_calls;
 
+	// before solving
 	void PrintSolveDetails();
 	void DebugPrint(std::vector<std::vector<int> >& );
+
+	// virtual encoding to be used
+	virtual int CreateFormula(std::vector<std::vector<int> >&, int) = 0;
 
 	// creating formula
 	int CreateAt(int, int);
@@ -88,7 +92,6 @@ class Pass_parallel_mks_all : public ISolver
 public:
 	using ISolver::ISolver;
 	~Pass_parallel_mks_all() {};
-	int Solve(int, int = 0, bool = false);
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
@@ -99,7 +102,6 @@ class Pass_parallel_soc_all : public ISolver
 public:
 	using ISolver::ISolver;
 	~Pass_parallel_soc_all() {};
-	int Solve(int, int = 0, bool = false);
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
@@ -110,7 +112,6 @@ class Pass_pebble_mks_all : public ISolver
 public:
 	using ISolver::ISolver;
 	~Pass_pebble_mks_all() {};
-	int Solve(int, int = 0, bool = false);
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
@@ -121,7 +122,6 @@ class Pass_pebble_soc_all : public ISolver
 public:
 	using ISolver::ISolver;
 	~Pass_pebble_soc_all() {};
-	int Solve(int, int = 0, bool = false);
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);

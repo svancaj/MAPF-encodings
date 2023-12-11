@@ -33,9 +33,17 @@ $(B_DIR)/%.o: $(S_DIR)/%.cpp $(DEPS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -f $(B_DIR)/*.o $(B_DIR)/$(PROJECT_NAME) log.log $(B_DIR)/usecase
+	rm -f $(B_DIR)/*.o $(B_DIR)/$(PROJECT_NAME) valgrind-out.txt log.log $(B_DIR)/usecase
 
 test: $(PROJECT_NAME)
+	$(B_DIR)/$(PROJECT_NAME) -s instances/scenarios/random08-1.scen -e pass_pebble_mks_all -t 2 -a 1 -i 1
+
+valgrind: $(PROJECT_NAME)
+	valgrind --leak-check=full \
+	--show-leak-kinds=all \
+	--track-origins=yes \
+	--verbose \
+	--log-file=valgrind-out.txt \
 	$(B_DIR)/$(PROJECT_NAME) -s instances/testing/scenarios/test2.scen -e pass_pebble_soc_all -t 30 -a 2 -p
 
 experiment: $(PROJECT_NAME)
