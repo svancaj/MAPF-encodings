@@ -23,13 +23,13 @@ Conflicts
 
 Final encodings:
 
-- At_pebble_mks_all
+- At_pebble_mks_all			DONE
 - At_pebble_mks_jit
-- At_pebble_soc_all
+- At_pebble_soc_all			DONE
 - At_pebble_soc_jit
-- At_parallel_mks_all
+- At_parallel_mks_all		DONE
 - At_parallel_mks_jit
-- At_parallel_soc_all
+- At_parallel_soc_all		DONE
 - At_parallel_soc_jit
 - Pass_pebble_mks_all		DONE
 - Pass_pebble_mks_jit

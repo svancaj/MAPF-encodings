@@ -647,18 +647,14 @@ void ISolver::wait_for_terminate(int time_left_ms, kissat* solver, bool& ended)
 		if (ended)
 			return;
 
-		// Sleep for
 		this_thread::sleep_for(std::chrono::milliseconds(50));
 		time_left_ms -= 50;
 	}
 
-	// If solver ended its computing return without terminating it
 	if (ended)
 		return;
-
-	// Trusting in kissat implementation that in case of terminating solver that ended computing everything will be ok
-	// because solver could ended in meantime
-	kissat_terminate(solver);
+		
+	kissat_terminate(solver);	// Trusting in kissat implementation
 }
 
 bool ISolver::TimesUp(	std::chrono::time_point<std::chrono::high_resolution_clock> start_time,
