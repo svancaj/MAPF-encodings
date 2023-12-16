@@ -89,7 +89,7 @@ int ISolver::Solve(int ags, int input_delta, bool oneshot)
 
 		// solve formula
 		start = chrono::high_resolution_clock::now();
-		res = InvokeSolver(CNF, time_left + 100, print_plan);
+		res = InvokeSolver(CNF, time_left + 100);
 		stop = chrono::high_resolution_clock::now();
 		if (TimesUp(start, stop, time_left))
 			return 1;
@@ -575,7 +575,7 @@ int ISolver::CreateConst_LimitSoc(vector<vector<int>>& CNF, int lit)
 /********* solving CNF *********/
 /*******************************/
 
-int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit, bool get_plan)
+int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit)
 {
 	kissat* solver = kissat_init();
     kissat_set_option(solver, "quiet", 1);
@@ -588,6 +588,9 @@ int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit, bool get_plan
 		kissat_add(solver, 0);
 	}
 
+	CleanUp(print_plan);	// save memory for kissat
+	CNF = vector<vector<int> >();
+
 	bool ended = false;
 	thread waiting_thread = thread(wait_for_terminate, timelimit, solver, ref(ended));
 	
@@ -596,7 +599,7 @@ int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit, bool get_plan
 	ended = true;
 	solver_calls++;
 
-	if (get_plan && ret == 10)	// variable assignment
+	if (print_plan && ret == 10)	// variable assignment
 	{
 		vector<bool> eval = vector<bool>(at_vars);
 		for (int var = 1; var < at_vars; var++)
