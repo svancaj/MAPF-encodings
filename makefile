@@ -11,7 +11,7 @@ LIBS = $(patsubst %,$(B_DIR)/%,$(_LIBS))
 _DEPS = instance.hpp logger.hpp encodings/solver_common.hpp
 DEPS = $(patsubst %,$(S_DIR)/%,$(_DEPS))
 
-VAR = pass
+VAR = at pass
 MOVE = parallel pebble
 FUNC = mks soc
 COMP = all
@@ -36,7 +36,7 @@ clean:
 	rm -f $(B_DIR)/*.o $(B_DIR)/$(PROJECT_NAME) valgrind-out.txt log.log $(B_DIR)/usecase
 
 test: $(PROJECT_NAME)
-	$(B_DIR)/$(PROJECT_NAME) -s instances/scenarios/random08-1.scen -e pass_pebble_mks_all -t 2 -a 1 -i 1
+	$(B_DIR)/$(PROJECT_NAME) -s instances/testing/scenarios/test2.scen -e at_pebble_soc_all -t 30 -a 2 -p
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \

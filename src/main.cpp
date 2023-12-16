@@ -216,6 +216,26 @@ void CleanUp(Instance* inst, Logger* log, ISolver* solver)
 ISolver* PickEncoding(string enc)
 {
 	ISolver* solver = NULL;
+	if (enc.compare("at_parallel_mks_all") == 0)
+	{
+		solver = new At_parallel_mks_all(enc, 1);
+		return solver;
+	}
+	if (enc.compare("at_parallel_soc_all") == 0)
+	{
+		solver = new At_parallel_soc_all(enc, 2);
+		return solver;
+	}
+	if (enc.compare("at_pebble_mks_all") == 0)
+	{
+		solver = new At_pebble_mks_all(enc, 1);
+		return solver;
+	}
+	if (enc.compare("at_pebble_soc_all") == 0)
+	{
+		solver = new At_pebble_soc_all(enc, 2);
+		return solver;
+	}
 	if (enc.compare("pass_parallel_mks_all") == 0)
 	{
 		solver = new Pass_parallel_mks_all(enc, 1);

@@ -66,10 +66,13 @@ protected:
 	void CreatePossition_NoneAtGoal(std::vector<std::vector<int> >&);
 
 	void CreateConf_Vertex(std::vector<std::vector<int> >&);
+	void CreateConf_Swapping_At(std::vector<std::vector<int> >&);
 	void CreateConf_Swapping_Pass(std::vector<std::vector<int> >&);
+	void CreateConf_Pebble_At(std::vector<std::vector<int> >&);
 	void CreateConf_Pebble_Pass(std::vector<std::vector<int> >&);
 
 	void CreateMove_NoDuplicates(std::vector<std::vector<int> >&);
+	void CreateMove_NextVertex_At(std::vector<std::vector<int> >&);
 	void CreateMove_EnterVertex_Pass(std::vector<std::vector<int> >&);
 	void CreateMove_LeaveVertex_Pass(std::vector<std::vector<int> >&);
 
@@ -86,6 +89,46 @@ protected:
 /******************************************************************/
 /*********************** Specific Encodings ***********************/
 /******************************************************************/
+
+class At_parallel_mks_all : public ISolver
+{
+public:
+	using ISolver::ISolver;
+	~At_parallel_mks_all() {};
+
+private:
+	int CreateFormula(std::vector<std::vector<int> >&, int);
+};
+
+class At_parallel_soc_all : public ISolver
+{
+public:
+	using ISolver::ISolver;
+	~At_parallel_soc_all() {};
+
+private:
+	int CreateFormula(std::vector<std::vector<int> >&, int);
+};
+
+class At_pebble_mks_all : public ISolver
+{
+public:
+	using ISolver::ISolver;
+	~At_pebble_mks_all() {};
+
+private:
+	int CreateFormula(std::vector<std::vector<int> >&, int);
+};
+
+class At_pebble_soc_all : public ISolver
+{
+public:
+	using ISolver::ISolver;
+	~At_pebble_soc_all() {};
+
+private:
+	int CreateFormula(std::vector<std::vector<int> >&, int);
+};
 
 class Pass_parallel_mks_all : public ISolver
 {

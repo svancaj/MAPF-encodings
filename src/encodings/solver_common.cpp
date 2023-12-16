@@ -259,11 +259,50 @@ void ISolver::CreateConf_Vertex(std::vector<std::vector<int> >& CNF)
 	}
 }
 
+void ISolver::CreateConf_Swapping_At(std::vector<std::vector<int> >& CNF)
+{
+	for (int v = 0; v < vertices; v++)
+	{
+		for (int dir = 1; dir < 5; dir++) // ignore waiting, ie. selfloops
+		{
+			if (!inst->HasNeighbor(v, dir))
+				continue;
+
+			int u = inst->GetNeighbor(v, dir);
+
+			for (int a1 = 0; a1 < agents; a1++)
+			{
+				if (at[a1][v].first_variable == 0 || at[a1][u].first_variable == 0)
+					continue;
+
+				for (int a2 = a1 + 1; a2 < agents; a2++)
+				{
+					if (at[a2][u].first_variable == 0 || at[a2][v].first_variable == 0)
+						continue;
+
+					int star_t = max({at[a1][v].first_timestep, at[a1][u].first_timestep - 1, at[a2][u].first_timestep, at[a2][v].first_timestep - 1});
+					int end_t = min({at[a1][v].last_timestep, at[a1][u].last_timestep - 1, at[a2][u].last_timestep, at[a2][v].last_timestep - 1}) + 1;
+
+					for (int t = star_t; t < end_t; t++)
+					{
+						//cout << "swapping conflict between vertices (" << v << "," << u << "), timestep " << t << " between " << a1 << " and " << a2 << endl;
+						int a1_v_var = at[a1][v].first_variable + (t - at[a1][v].first_timestep);
+						int a1_u_var = at[a1][u].first_variable + (t + 1 - at[a1][u].first_timestep);
+						int a2_v_var = at[a2][v].first_variable + (t + 1 - at[a2][v].first_timestep);
+						int a2_u_var = at[a2][u].first_variable + (t - at[a2][u].first_timestep);
+						CNF.push_back(vector<int> {-a1_v_var, -a1_u_var, -a2_v_var, -a2_u_var});
+					}
+				}
+			}
+		}
+	}
+}
+
 void ISolver::CreateConf_Swapping_Pass(std::vector<std::vector<int> >& CNF)
 {
 	for (int v = 0; v < vertices; v++)
 	{
-		for (int dir = 0; dir < 5; dir++)
+		for (int dir = 1; dir < 5; dir++)
 		{
 			if (!inst->HasNeighbor(v, dir))
 				continue;
@@ -291,6 +330,39 @@ void ISolver::CreateConf_Swapping_Pass(std::vector<std::vector<int> >& CNF)
 					}
 				}
 			}
+		}
+	}
+}
+
+void ISolver::CreateConf_Pebble_At(std::vector<std::vector<int> >& CNF)
+{
+	for (int v = 0; v < vertices; v++)
+	{
+		for (int a1 = 0; a1 < agents; a1++)
+		{
+			if (at[a1][v].first_variable == 0)
+				continue;
+			
+			for (int a2 = 0; a2 < agents; a2++)
+			{
+				if (a1 == a2)
+					continue;
+				if (at[a2][v].first_variable == 0)
+					continue;
+
+				int star_t = max(at[a1][v].first_timestep, at[a2][v].first_timestep + 1);
+				int end_t = min(at[a1][v].last_timestep, at[a2][v].last_timestep + 1) + 1;
+
+				for (int t = star_t; t < end_t; t++)
+				{
+					//cout << "pebble conflict at vertex " << v << ", timestep " << t << " between " << a1 << " and " << a2 << endl;
+					int a1_var = at[a1][v].first_variable + (t - at[a1][v].first_timestep);
+					int a2_var = at[a2][v].first_variable + (t - 1 - at[a2][v].first_timestep);
+					CNF.push_back(vector<int> {-a1_var, -a2_var});
+				}
+
+			}
+
 		}
 	}
 }
@@ -361,6 +433,47 @@ void ISolver::CreateMove_NoDuplicates(std::vector<std::vector<int> >& CNF)
 	}
 }
 
+void ISolver::CreateMove_NextVertex_At(std::vector<std::vector<int> >& CNF)
+{
+	for (int a = 0; a < agents; a++)
+	{
+		for (int v = 0; v < vertices; v++)
+		{
+			if (at[a][v].first_variable == 0)
+				continue;
+
+			int star_t = at[a][v].first_timestep;
+			int end_t = at[a][v].last_timestep + 1;
+
+			for (int t = star_t; t < end_t; t++)
+			{
+				int neib_t = t+1;
+				vector<int> neibs;
+				for (int dir = 0; dir < 5; dir++)
+				{
+					int u = inst->GetNeighbor(v, dir);
+					if (at[a][u].first_variable == 0)
+						continue;
+					if (at[a][u].first_timestep <= neib_t && at[a][u].last_timestep >= neib_t)
+					{
+						//cout << a << " can move from " << v << " into " << u << " at timestep " << t << endl;
+						int neib_var = at[a][u].first_variable + (neib_t - at[a][u].first_timestep);
+						neibs.push_back(neib_var);
+					}
+				}
+
+				if (neibs.empty())
+					continue;
+				
+				int at_var = at[a][v].first_variable + (t - at[a][v].first_timestep);;
+				neibs.push_back(-at_var);
+
+				CNF.push_back(neibs);
+			}
+		}
+	}
+}
+
 void ISolver::CreateMove_EnterVertex_Pass(std::vector<std::vector<int> >& CNF)
 {
 	for (int v = 0; v < vertices; v++)
@@ -400,7 +513,7 @@ void ISolver::CreateMove_LeaveVertex_Pass(std::vector<std::vector<int> >& CNF)
 				continue;
 
 			int star_t = at[a][v].first_timestep;
-			int end_t =at[a][v].last_timestep + 1;
+			int end_t = at[a][v].last_timestep + 1;
 
 			for (int t = star_t; t < end_t; t++)
 			{
