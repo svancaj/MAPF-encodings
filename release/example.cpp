@@ -37,5 +37,9 @@ int main()
 
 	//inst->DebugPrint(inst->map);
 
+	delete inst;
+	delete log;
+	delete solver;
+
 	return 0;
 }
