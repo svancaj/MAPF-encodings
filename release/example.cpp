@@ -1,13 +1,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "instance.hpp"
-#include "logger.hpp"
-#include "encodings/solver_common.hpp"
+#include "MAPF.hpp"
 
 using namespace std;
 
-int main(int argc, char** argv) 
+int main() 
 {
 	vector<vector<int> > map = 
 		{

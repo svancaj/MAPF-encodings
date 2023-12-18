@@ -1,4 +1,7 @@
-*.o
 .vscode
-build/MAPF
+.build
+release/MAPF*
+release/example
+release/libmapf.a
 documents/TODO
+log.log

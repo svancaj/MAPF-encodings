@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _logger_h_INCLUDED
+#define _logger_h_INCLUDED
 
 #include "instance.hpp"
 
@@ -31,3 +32,5 @@ private:
 	int socLB;
 
 };
+
+#endif

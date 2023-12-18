@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _instance_h_INCLUDED
+#define _instance_h_INCLUDED
 
 #include <iostream>
 #include <fstream>
@@ -78,3 +79,5 @@ private:
 
 	size_t last_number_of_agents;
 };
+
+#endif

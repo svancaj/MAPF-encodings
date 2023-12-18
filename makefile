@@ -1,12 +1,21 @@
+####################
+# define variables #
+####################
+
 CC = g++
 CFLAGS = -std=c++11 -O3 -Wall -Wextra -pedantic
 S_DIR = src
 E_DIR = $(S_DIR)/encodings
-B_DIR = build
+B_DIR = .build
+L_DIR = libs
+R_DIR = release
 PROJECT_NAME = MAPF
+OUTPUT_LIB = libmapf.a
+HEADER_NAME = MAPF.hpp
+EX_NAME = example
 
 _LIBS = libpb.a libkissat.a
-LIBS = $(patsubst %,$(B_DIR)/%,$(_LIBS))
+LIBS = $(patsubst %,$(L_DIR)/%,$(_LIBS))
 
 _DEPS = instance.hpp logger.hpp encodings/solver_common.hpp
 DEPS = $(patsubst %,$(S_DIR)/%,$(_DEPS))
@@ -17,26 +26,59 @@ FUNC = mks soc
 COMP = all
 
 _ENC_OBJ = solver_common.o $(foreach v, $(VAR), $(foreach m, $(MOVE), $(foreach f, $(FUNC), $(foreach c, $(COMP), $v_$m_$f_$c.o))))
-_OBJ = main.o instance.o logger.o
+_OBJ = instance.o logger.o
 OBJ = $(patsubst %,$(B_DIR)/%,$(_OBJ)) $(patsubst %, $(B_DIR)/%,$(_ENC_OBJ))
+_MAIN = main.o
+MAIN = $(patsubst %,$(B_DIR)/%,$(_MAIN))
 
-_OBJ_USECASE = usecase.o instance.o logger.o
-OBJ_USECASE = $(patsubst %,$(B_DIR)/%,$(_OBJ_USECASE)) $(patsubst %, $(B_DIR)/%,$(_ENC_OBJ))
+_OBJ_EXAMPLE = $(EX_NAME).o
+OBJ_EXAMPLE = $(patsubst %,$(B_DIR)/%,$(_OBJ_EXAMPLE))
 
-$(PROJECT_NAME): $(OBJ)
-	$(CC) $(CFLAGS) -o $(B_DIR)/$@ $^ $(LIBS)
+###################
+# project targets #
+###################
 
-$(B_DIR)/%.o: $(E_DIR)/%.cpp $(DEPS)
+all: $(PROJECT_NAME) lib example
+
+release: $(PROJECT_NAME) lib 
+
+# binary only
+$(PROJECT_NAME): $(OBJ) $(MAIN)
+	$(CC) $(CFLAGS) -o $(R_DIR)/$@ $^ $(LIBS)
+
+# library and header only
+lib: $(OBJ) $(DEPS)
+	rm -f $(R_DIR)/$(OUTPUT_LIB)
+	ar cqT $(R_DIR)/$(OUTPUT_LIB) $(OBJ) $(LIBS)
+	@echo 'create $(R_DIR)/$(OUTPUT_LIB)\naddlib $(R_DIR)/$(OUTPUT_LIB)\nsave\nend' | ar -M
+
+	cat $(DEPS) > $(R_DIR)/$(HEADER_NAME)
+	sed -i '/#include "/d' $(R_DIR)/$(HEADER_NAME)
+	
+# example only
+$(EX_NAME): $(R_DIR)/$(EX_NAME).cpp lib 
+	$(CC) $(CFLAGS) -c -o $(OBJ_EXAMPLE) $(R_DIR)/$@.cpp
+	$(CC) $(CFLAGS) -o $(R_DIR)/$@ $(OBJ_EXAMPLE) $(R_DIR)/$(OUTPUT_LIB)
+
+################
+# object files #
+################
+
+$(B_DIR)/%.o: $(E_DIR)/%.cpp $(DEPS) | $(B_DIR)_exists
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(B_DIR)/%.o: $(S_DIR)/%.cpp $(DEPS)
+$(B_DIR)/%.o: $(S_DIR)/%.cpp $(DEPS) | $(B_DIR)_exists
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-clean:
-	rm -f $(B_DIR)/*.o $(B_DIR)/$(PROJECT_NAME) valgrind-out.txt log.log $(B_DIR)/usecase
+$(B_DIR)_exists:
+	mkdir -p $(B_DIR)
+
+###########
+# testing #
+###########
 
 test: $(PROJECT_NAME)
-	$(B_DIR)/$(PROJECT_NAME) -s instances/testing/scenarios/test2.scen -e at_pebble_soc_all -t 30 -a 2 -p
+	$(R_DIR)/$(PROJECT_NAME) -s instances/testing/scenarios/test2.scen -e at_pebble_soc_all -t 30 -a 2 -p
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \
@@ -44,13 +86,23 @@ valgrind: $(PROJECT_NAME)
 	--track-origins=yes \
 	--verbose \
 	--log-file=valgrind-out.txt \
-	$(B_DIR)/$(PROJECT_NAME) -s instances/testing/scenarios/test2.scen -e pass_pebble_soc_all -t 30 -a 2 -p
+	$(R_DIR)/$(PROJECT_NAME) -s instances/testing/scenarios/test2.scen -e pass_pebble_soc_all -t 30 -a 2 -p
+
+test_example: $(EX_NAME)
+	$(R_DIR)/$^
+
+##############
+# experiment #
+##############
 
 experiment: $(PROJECT_NAME)
 	sh experiment.sh
 
-usecase: $(OBJ_USECASE)
-	$(CC) $(CFLAGS) -o $(B_DIR)/$@ $^ $(LIBS)
+#########
+# clean #
+#########
 
-test_usecase: usecase
-	$(B_DIR)/$^
+clean:
+	rm -rf $(B_DIR)
+	rm -f $(R_DIR)/$(PROJECT_NAME) $(R_DIR)/$(EX_NAME) $(R_DIR)/$(OUTPUT_LIB) $(R_DIR)/$(HEADER_NAME)
+	rm -f valgrind-out.txt log.log

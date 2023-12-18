@@ -1,5 +1,9 @@
 #include "solver_common.hpp"
 
+// hide includes form user
+#include <pblib/pb2cnf.h> // https://github.com/master-keying/pblib
+#include "../externals/kissat.h" // https://github.com/arminbiere/kissat
+
 using namespace std;
 
 /****************************/
@@ -640,7 +644,7 @@ int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit)
 	return (ret == 10) ? 0 : 1;
 }
 
-void ISolver::wait_for_terminate(int time_left_ms, kissat* solver, bool& ended)
+void ISolver::wait_for_terminate(int time_left_ms, void* solver, bool& ended)
 {
 	while (time_left_ms > 0)
 	{
@@ -654,7 +658,7 @@ void ISolver::wait_for_terminate(int time_left_ms, kissat* solver, bool& ended)
 	if (ended)
 		return;
 		
-	kissat_terminate(solver);	// Trusting in kissat implementation
+	kissat_terminate((kissat*)solver);	// Trusting in kissat implementation
 }
 
 bool ISolver::TimesUp(	std::chrono::time_point<std::chrono::high_resolution_clock> start_time,
