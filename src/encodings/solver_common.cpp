@@ -1,7 +1,10 @@
 #include "solver_common.hpp"
 
 // hide includes form user
-#include <pblib/pb2cnf.h> // https://github.com/master-keying/pblib
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"	// pblib has some warnings, lets ignore them
+#include "../externals/pblib/pb2cnf.h" // https://github.com/master-keying/pblib
+#pragma GCC diagnostic pop	// do not ignore warnings in our code!
 #include "../externals/kissat.h" // https://github.com/arminbiere/kissat
 
 using namespace std;
