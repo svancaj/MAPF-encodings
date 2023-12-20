@@ -20,6 +20,7 @@ int main(int argc, char** argv)
 	bool oflag = false;
 	char *evalue = NULL;
 	char *svalue = NULL;
+	char *mvalue = NULL;
 	char *avalue = NULL;
 	char *ivalue = NULL;
 	char *tvalue = NULL;
@@ -36,7 +37,7 @@ int main(int argc, char** argv)
 	// parse arguments
 	opterr = 0;
 	char c;
-	while ((c = getopt (argc, argv, "hqpoe:s:a:i:t:d:")) != -1)
+	while ((c = getopt (argc, argv, "hqpoe:s:m:a:i:t:d:")) != -1)
 	{
 		switch (c)
 		{
@@ -58,6 +59,9 @@ int main(int argc, char** argv)
 			case 's':
 				svalue = optarg;
 				break;
+			case 'm':
+				mvalue = optarg;
+				break;
 			case 'a':
 				avalue = optarg;
 				break;
@@ -71,7 +75,7 @@ int main(int argc, char** argv)
 				dvalue = optarg;
 				break;
 			case '?':
-				if (optopt == 'e' || optopt == 's' || optopt == 'a' || optopt == 'i' || optopt == 't' || optopt == 'd')
+				if (optopt == 'e' || optopt == 's' || optopt == 'm' || optopt == 'a' || optopt == 'i' || optopt == 't' || optopt == 'd')
 				{
 					cout << "Option -" << (char)optopt << " requires an argument!" << endl;
 					return -1;
@@ -105,6 +109,9 @@ int main(int argc, char** argv)
 		PrintHelp(argv, qflag);
 		return -1;
 	}
+
+	if (mvalue != NULL)
+		map_dir = mvalue;
 
 	if (tvalue != NULL)
 		timeout = atoi(tvalue);
@@ -189,12 +196,13 @@ void PrintHelp(char* argv[], bool quiet)
 
 	cout << endl;
 	cout << "Usage of this program:" << endl;
-	cout << argv[0] << " [-h] [-q] [-p] -e encoding -s scenario_file [-a number_of_agents] [-i increment] [-t timeout] [-d delta] [-o]" << endl;
+	cout << argv[0] << " [-h] [-q] [-p] -e encoding -s scenario_file [-m map_dir] [-a number_of_agents] [-i increment] [-t timeout] [-d delta] [-o]" << endl;
 	cout << "	-h                  : Prints help and exits" << endl;
 	cout << "	-q                  : Suppress print on stdout" << endl;
 	cout << "	-p                  : Print found plan. If q flag is set, p flag is overwritten." << endl;
 	cout << "	-e encoding         : Encoding to be used. Available options are {at|pass|shift}_{pebble|parallel}_{mks|soc}_{all|jit}" << endl;
 	cout << "	-s scenario_file    : Path to a scenario file" << endl;
+	cout << "	-m map_dir          : Directory containing map files. Default is instances/maps" << endl;
 	cout << "	-a number_of_agents : Number of agents to solve. If not specified, all agents in the scenario file are used." << endl;
 	cout << "	-i increment        : After a successful call, increase the number of agents by the specified increment. If not specified, do not perform subsequent calls." << endl;
 	cout << "	-t timeout          : Timeout of the computation in seconds. Default value is 300s" << endl;
