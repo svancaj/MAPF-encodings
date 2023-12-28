@@ -50,7 +50,7 @@ protected:
 	int solver_calls;
 
 	// before solving
-	void PrintSolveDetails();
+	void PrintSolveDetails(int);
 	void DebugPrint(std::vector<std::vector<int> >& );
 
 	// virtual encoding to be used

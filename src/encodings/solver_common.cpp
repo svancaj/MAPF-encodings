@@ -29,7 +29,7 @@ void ISolver::SetData(Instance* i, Logger* l, int to, bool q, bool p)
 	shift = NULL;
 };
 
-void ISolver::PrintSolveDetails()
+void ISolver::PrintSolveDetails(int time_left)
 {
 	if (quiet)
 		return;
@@ -43,6 +43,7 @@ void ISolver::PrintSolveDetails()
 	cout << "Mks LB: " << inst->GetMksLB(agents) << endl;
 	cout << "SoC LB: " << inst->GetSocLB(agents) << endl;
 	cout << "Delta: " << delta << endl;
+	cout << "Remaining time: " << time_left << " [ms]" << endl;
 	cout << endl;
 };
 
@@ -80,7 +81,9 @@ int ISolver::Solve(int ags, int input_delta, bool oneshot)
 
 	while (true)
 	{
-		PrintSolveDetails();
+		long long current_building_time = 0;
+		long long current_solving_time = 0;
+		PrintSolveDetails(time_left);
 		CNF = vector<vector<int> >();
 
 		// create formula
@@ -91,8 +94,9 @@ int ISolver::Solve(int ags, int input_delta, bool oneshot)
 			return 1;
 
 		nr_clauses = CNF.size();
-		building_time += chrono::duration_cast<chrono::milliseconds>(stop - start).count();
-		time_left -= building_time;
+		current_building_time = chrono::duration_cast<chrono::milliseconds>(stop - start).count();
+		building_time += current_building_time;
+		time_left -= current_building_time;
 
 		// solve formula
 		start = chrono::high_resolution_clock::now();
@@ -101,8 +105,9 @@ int ISolver::Solve(int ags, int input_delta, bool oneshot)
 		if (TimesUp(start, stop, time_left))
 			return 1;
 
-		solving_time += chrono::duration_cast<chrono::milliseconds>(stop - start).count();
-		time_left -= solving_time;
+		current_solving_time = chrono::duration_cast<chrono::milliseconds>(stop - start).count();
+		solving_time += current_solving_time;
+		time_left -= current_solving_time;
 
 		if (res == 0) // ok
 		{
