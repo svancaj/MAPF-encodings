@@ -11,8 +11,12 @@ Logger::Logger(Instance* i, string log_f, string enc)
 	encoding = enc;
 }
 
-void Logger::PrintStatistics()
+void Logger::PrintStatistics(bool solved)
 {
+	string solution = "unsat";
+	if (solved)
+		solution = "sat";
+
 	ofstream log;
 	log.open(log_file, ios::app);
 	if (log.is_open())
@@ -30,7 +34,9 @@ void Logger::PrintStatistics()
 			solving_time << sep <<
 			solver_calls << sep <<
 			nr_vars << sep <<
-			nr_clauses << endl;
+			nr_clauses << sep <<
+			solution << sep <<
+			endl;
 	}
 	else
 	{

@@ -109,17 +109,18 @@ int ISolver::Solve(int ags, int input_delta, bool oneshot)
 		solving_time += current_solving_time;
 		time_left -= current_solving_time;
 
+		
+		log->nr_vars = nr_vars;
+		log->nr_clauses = nr_clauses;
+		log->building_time = building_time;
+		log->solving_time = solving_time;
+		log->solution_mks = inst->GetMksLB(agents) + delta;
+		log->solution_soc = (cost_function == 1) ? 0 : inst->GetSocLB(agents) + delta;
+		log->solver_calls = solver_calls;
+
 		if (res == 0) // ok
-		{
-			log->nr_vars = nr_vars;
-			log->nr_clauses = nr_clauses;
-			log->building_time = building_time;
-			log->solving_time = solving_time;
-			log->solution_mks = inst->GetMksLB(agents) + delta;
-			log->solution_soc = (cost_function == 1) ? 0 : inst->GetSocLB(agents) + delta;
-			log->solver_calls = solver_calls;
-			break;
-		}
+			return 0;
+
 		if (res == -1) // something went horribly wrong with the solver!
 			return 1;
 

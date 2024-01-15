@@ -9,7 +9,7 @@ class Logger
 public:
 	Logger(Instance*, std::string, std::string);
 
-	void PrintStatistics();
+	void PrintStatistics(bool = true);
 	void NewInstance(int);
 
 	int solution_mks;
