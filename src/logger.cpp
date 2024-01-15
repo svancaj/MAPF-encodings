@@ -34,7 +34,7 @@ void Logger::PrintStatistics()
 	}
 	else
 	{
-		cout << "Could not open log file!" << endl;
+		cerr << "Could not open log file " << log_file << endl;
 		return;
 	}
 

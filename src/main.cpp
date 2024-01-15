@@ -25,6 +25,7 @@ int main(int argc, char** argv)
 	char *ivalue = NULL;
 	char *tvalue = NULL;
 	char *dvalue = NULL;
+	char *fvalue = NULL;
 
 	int timeout = 300;
 	string map_dir = "instances/maps";
@@ -37,7 +38,7 @@ int main(int argc, char** argv)
 	// parse arguments
 	opterr = 0;
 	char c;
-	while ((c = getopt (argc, argv, "hqpoe:s:m:a:i:t:d:")) != -1)
+	while ((c = getopt (argc, argv, "hqpoe:s:m:a:i:t:d:f:")) != -1)
 	{
 		switch (c)
 		{
@@ -74,8 +75,11 @@ int main(int argc, char** argv)
 			case 'd':
 				dvalue = optarg;
 				break;
+			case 'f':
+				fvalue = optarg;
+				break;
 			case '?':
-				if (optopt == 'e' || optopt == 's' || optopt == 'm' || optopt == 'a' || optopt == 'i' || optopt == 't' || optopt == 'd')
+				if (optopt == 'e' || optopt == 's' || optopt == 'm' || optopt == 'a' || optopt == 'i' || optopt == 't' || optopt == 'd' || optopt == 'f')
 				{
 					cout << "Option -" << (char)optopt << " requires an argument!" << endl;
 					return -1;
@@ -115,6 +119,9 @@ int main(int argc, char** argv)
 
 	if (tvalue != NULL)
 		timeout = atoi(tvalue);
+
+	if (fvalue != NULL)
+		stat_file = fvalue;
 
 	// create classes and load map
 	inst = new Instance(map_dir, svalue);
@@ -196,7 +203,7 @@ void PrintHelp(char* argv[], bool quiet)
 
 	cout << endl;
 	cout << "Usage of this program:" << endl;
-	cout << argv[0] << " [-h] [-q] [-p] -e encoding -s scenario_file [-m map_dir] [-a number_of_agents] [-i increment] [-t timeout] [-d delta] [-o]" << endl;
+	cout << argv[0] << " [-h] [-q] [-p] -e encoding -s scenario_file [-m map_dir] [-a number_of_agents] [-i increment] [-t timeout] [-d delta] [-o] [-f log_file]" << endl;
 	cout << "	-h                  : Prints help and exits" << endl;
 	cout << "	-q                  : Suppress print on stdout" << endl;
 	cout << "	-p                  : Print found plan. If q flag is set, p flag is overwritten." << endl;
@@ -208,6 +215,7 @@ void PrintHelp(char* argv[], bool quiet)
 	cout << "	-t timeout          : Timeout of the computation in seconds. Default value is 300s" << endl;
 	cout << "	-d delta            : Cost of delta is added to the first call. Default is 0." << endl;
 	cout << "	-o                  : Oneshot solving. Ie. do not increment cost in case of unsat call. Default is to optimize." << endl;
+	cout << "	-f log_file         : log file. Default is results.res." << endl;
 	cout << endl;
 }
 
