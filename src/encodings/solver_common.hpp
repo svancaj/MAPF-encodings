@@ -18,11 +18,35 @@ struct _MAPFSAT_TEGAgent
 class _MAPFSAT_ISolver
 {
 public:
-	_MAPFSAT_ISolver(std::string sn, int opt) : solver_name(sn), cost_function(opt) {}; 
-	virtual ~_MAPFSAT_ISolver() {};
-	
-	int Solve(int, int = 0, bool = false);
-	void SetData(_MAPFSAT_Instance*, _MAPFSAT_Logger*, int, bool, bool);
+    /** Constructor of _MAPFSAT_ISolver.
+    *
+    * @param solver_name name of the encoding.
+    * @param cost_function cost function to be used - 1 = mks, 2 = soc
+    */
+    _MAPFSAT_ISolver(std::string sn, int opt) : solver_name(sn), cost_function(opt) {}; 
+    virtual ~_MAPFSAT_ISolver() {};
+    
+    /** Perform a solve call.
+    * 
+    * Creates CNF formula based on the specified encoding and calls SAT solver to find a solution.
+    *
+    * @param ags number of agents in the solve call.
+    * @param delta the initial delta. Default is 0.
+    * @param oneshot option to perform just one solver call without optimization. Default is false.
+    */
+    int Solve(int, int = 0, bool = false);
+
+    /** Set data before solving.
+    * 
+    * Should be performed before the first solve. The stored data will be remembered for all of the solve calls.
+    *
+    * @param instance pointer to a _MAPFSAT_Instance.
+    * @param logger pointer to a _MAPFSAT_Logger.
+    * @param timeout timeout for each solve call in [s]. Gets reseted after each solve call.
+    * @param quiet option to suppress any print to stdout. Default is false.
+    * @param print_paths option to print found paths. Default is false.
+    */
+    void SetData(_MAPFSAT_Instance*, _MAPFSAT_Logger*, int, bool = false, bool = false);
 
 protected:
 	_MAPFSAT_Instance* inst;

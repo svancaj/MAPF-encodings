@@ -78,7 +78,7 @@ $(B_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/empty08-1.scen -e at_parallel_mks_all -t 60 -p -a 5 -i 5 -q -l 1 -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/empty08-1.scen -e at_parallel_soc_all -t 100 -p -a 30 -o -l 2
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \

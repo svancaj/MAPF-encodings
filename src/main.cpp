@@ -180,7 +180,7 @@ int main(int argc, char** argv)
 
 		if (res == -1) // unsat with given cost
 		{
-			log->PrintStatistics(false);
+			log->PrintStatistics();
 			if (!qflag)
 				cout << "No solution found in the given cost limit" << endl;
 			break;

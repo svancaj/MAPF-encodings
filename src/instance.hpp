@@ -32,10 +32,34 @@ struct _MAPFSAT_Agent
 class _MAPFSAT_Instance
 {
 public:
-	_MAPFSAT_Instance(std::string, std::string);
-	_MAPFSAT_Instance(std::vector<std::vector<int> >&, std::vector<std::pair<int,int> >&, std::vector<std::pair<int,int> >&, std::string = "scen", std::string = "map");
+	/** Constructor of _MAPFSAT_Instance using files.
+    *
+    * Stores all relevant data about the solved instance.
+    *
+    * @param map_dir directory including the map.
+    * @param agents_file file containing the solved scenario.
+    */
+    _MAPFSAT_Instance(std::string, std::string);
 
-	void SetAgents(int);
+    /** Constructor of _MAPFSAT_Instance using data.
+    *
+    * Stores all relevant data about the solved instance.
+    *
+    * @param map_vector the map, obstacles are marked by -1
+    * @param starts agents start locations - x, y coords
+    * @param goals agents goal locations - x, y coords
+    * @param scenstr name of the scenario, for logging purposes, default is "scen"
+    * @param mapstr name of the map, for logging purposes, default is "map"
+    */
+    _MAPFSAT_Instance(std::vector<std::vector<int> >&, std::vector<std::pair<int,int> >&, std::vector<std::pair<int,int> >&, std::string = "scen", std::string = "map");
+
+    /** Set the number of agents to be computed.
+    *
+    * Computes reachability and lower bounds for agents that were not used before. Does not check if ags is out of bounds.
+    *
+    * @param ags number of agents.
+    */
+    void SetAgents(int);
 	
 	int GetMksLB(size_t);
 	int GetSocLB(size_t);

@@ -12,13 +12,13 @@ _MAPFSAT_Logger::_MAPFSAT_Logger(_MAPFSAT_Instance* i, string enc, int type, str
 	print_type = type;
 }
 
-void _MAPFSAT_Logger::PrintStatistics(bool solved)
+void _MAPFSAT_Logger::PrintStatistics()
 {
 	if (print_type == 0) // no print
 		return;
 
 	string solution = "unsat";
-	if (solved)
+	if (res == 0)
 		solution = "sat";
 
 	ostream* log;
@@ -95,4 +95,5 @@ void _MAPFSAT_Logger::NewInstance(int ags)
 	solving_time = 0;
 	nr_vars = 0;
 	nr_clauses = 0;
+	res = 1;
 }

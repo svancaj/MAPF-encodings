@@ -71,7 +71,6 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot)
 	long long building_time = 0;
 	long long solving_time = 0;
 	solver_calls = 0;
-	int res = 1; // 0 = ok, 1 = timeout, -1 no solution
 
 	at = NULL;
 	pass = NULL;
@@ -81,6 +80,7 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot)
 
 	while (true)
 	{
+		int res = 1; // 0 = ok, 1 = timeout, -1 no solution
 		long long current_building_time = 0;
 		long long current_solving_time = 0;
 		PrintSolveDetails(time_left);
@@ -108,7 +108,6 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot)
 		current_solving_time = chrono::duration_cast<chrono::milliseconds>(stop - start).count();
 		solving_time += current_solving_time;
 		time_left -= current_solving_time;
-
 		
 		log->nr_vars = nr_vars;
 		log->nr_clauses = nr_clauses;
@@ -117,6 +116,7 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot)
 		log->solution_mks = inst->GetMksLB(agents) + delta;
 		log->solution_soc = (cost_function == 1) ? 0 : inst->GetSocLB(agents) + delta;
 		log->solver_calls = solver_calls;
+		log->res = res;
 
 		if (res == 0) // ok
 			return 0;
