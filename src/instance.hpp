@@ -33,7 +33,7 @@ class Instance
 {
 public:
 	Instance(std::string, std::string);
-	Instance(std::vector<std::vector<int> >&, std::vector<std::pair<int,int> >&, std::vector<std::pair<int,int> >&, std::string, std::string);
+	Instance(std::vector<std::vector<int> >&, std::vector<std::pair<int,int> >&, std::vector<std::pair<int,int> >&, std::string = "scen", std::string = "map");
 
 	void SetAgents(int);
 	

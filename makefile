@@ -78,7 +78,7 @@ $(B_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test2.scen -e at_parallel_mks_all -t 60 -p -o
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/empty08-1.scen -e at_parallel_mks_all -t 60 -p -a 5 -i 5 -q -l 1 -f results.res
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \
@@ -86,7 +86,7 @@ valgrind: $(PROJECT_NAME)
 	--track-origins=yes \
 	--verbose \
 	--log-file=valgrind-out.txt \
-	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test2.scen -e pass_pebble_soc_all -t 30 -a 2 -p
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/empty08-1.scen -e at_parallel_mks_all -t 60 -p -a 5 -i 5 -q -l 1 -f results.res
 
 test_example: $(EX_NAME)
 	$(R_DIR)/$^

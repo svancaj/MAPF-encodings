@@ -643,7 +643,8 @@ int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit)
 			for (int t = 0; t < max_timestep; t++)
 				cout << plan[a][t] << " ";
 			cout << endl;
-		}		
+		}	
+		cout << endl;	
 	}
 
 	CleanUp(false);

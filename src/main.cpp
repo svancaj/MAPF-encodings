@@ -26,10 +26,12 @@ int main(int argc, char** argv)
 	char *tvalue = NULL;
 	char *dvalue = NULL;
 	char *fvalue = NULL;
+	char *lvalue = NULL;
 
 	int timeout = 300;
 	string map_dir = "instances/maps";
-	string stat_file = "results.res";
+	string stat_file = "";
+	int log_option = 0;
 
 	Instance* inst;
 	Logger* log;
@@ -38,7 +40,7 @@ int main(int argc, char** argv)
 	// parse arguments
 	opterr = 0;
 	char c;
-	while ((c = getopt (argc, argv, "hqpoe:s:m:a:i:t:d:f:")) != -1)
+	while ((c = getopt (argc, argv, "hqpoe:s:m:a:i:t:d:f:l:")) != -1)
 	{
 		switch (c)
 		{
@@ -78,8 +80,11 @@ int main(int argc, char** argv)
 			case 'f':
 				fvalue = optarg;
 				break;
+			case 'l':
+				lvalue = optarg;
+				break;
 			case '?':
-				if (optopt == 'e' || optopt == 's' || optopt == 'm' || optopt == 'a' || optopt == 'i' || optopt == 't' || optopt == 'd' || optopt == 'f')
+				if (optopt == 'e' || optopt == 's' || optopt == 'm' || optopt == 'a' || optopt == 'i' || optopt == 't' || optopt == 'd' || optopt == 'f' || optopt == 'l')
 				{
 					cout << "Option -" << (char)optopt << " requires an argument!" << endl;
 					return -1;
@@ -123,9 +128,18 @@ int main(int argc, char** argv)
 	if (fvalue != NULL)
 		stat_file = fvalue;
 
+	if (lvalue != NULL)
+		log_option = atoi(lvalue);
+	if (log_option != 0 && log_option != 1 && log_option != 2)
+	{
+		cerr << "Invalid log level!" << endl;
+		PrintHelp(argv, qflag);
+		return -1;
+	}
+
 	// create classes and load map
 	inst = new Instance(map_dir, svalue);
-	log = new Logger(inst, stat_file, evalue);
+	log = new Logger(inst, evalue, log_option, stat_file);
 	solver->SetData(inst, log, timeout, qflag, pflag);
 
 	// check number of agents and increment
@@ -216,7 +230,8 @@ void PrintHelp(char* argv[], bool quiet)
 	cout << "	-t timeout          : Timeout of the computation in seconds. Default value is 300s" << endl;
 	cout << "	-d delta            : Cost of delta is added to the first call. Default is 0." << endl;
 	cout << "	-o                  : Oneshot solving. Ie. do not increment cost in case of unsat call. Default is to optimize." << endl;
-	cout << "	-f log_file         : log file. Default is results.res." << endl;
+	cout << "	-f log_file         : log file. If not specified, output to stdout." << endl;
+	cout << "	-l log_level        : logging option. 0 = no log, 1 = inline log, 2 = human readable log. if -f log_file is not specified in combination with -l 1 or -l 2 overrides -q. Default is 0." << endl;
 	cout << endl;
 }
 

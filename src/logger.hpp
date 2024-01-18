@@ -7,11 +7,14 @@ class Logger
 {
 
 public:
-	Logger(Instance*, std::string, std::string);
+	Logger(Instance*, std::string, int = 0, std::string = "");
 
 	void PrintStatistics(bool = true);
 	void NewInstance(int);
 
+	std::string map_name;
+	std::string scen_name;
+	std::string encoding;
 	int solution_mks;
 	int solution_soc;
 	int building_time;
@@ -19,17 +22,15 @@ public:
 	int nr_vars;
 	int nr_clauses;
 	int solver_calls;
+	int agents;
+	int mksLB;
+	int socLB;	
 	
 private:
 	Instance* inst;
 	std::string log_file;
 
-	std::string map_name;
-	std::string scen_name;
-	std::string encoding;
-	int agents;
-	int mksLB;
-	int socLB;
+	int print_type;
 
 };
 
