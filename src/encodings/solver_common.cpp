@@ -13,7 +13,7 @@ using namespace std;
 /****** before solving ******/
 /****************************/
 
-void ISolver::SetData(Instance* i, Logger* l, int to, bool q, bool p)
+void _MAPFSAT_ISolver::SetData(_MAPFSAT_Instance* i, _MAPFSAT_Logger* l, int to, bool q, bool p)
 {
 	inst = i;
 	log = l;
@@ -29,7 +29,7 @@ void ISolver::SetData(Instance* i, Logger* l, int to, bool q, bool p)
 	shift = NULL;
 };
 
-void ISolver::PrintSolveDetails(int time_left)
+void _MAPFSAT_ISolver::PrintSolveDetails(int time_left)
 {
 	if (quiet)
 		return;
@@ -47,7 +47,7 @@ void ISolver::PrintSolveDetails(int time_left)
 	cout << endl;
 };
 
-void ISolver::DebugPrint(vector<vector<int> >& CNF)
+void _MAPFSAT_ISolver::DebugPrint(vector<vector<int> >& CNF)
 {
 	for (size_t i = 0; i < CNF.size(); i++)
 	{
@@ -64,7 +64,7 @@ void ISolver::DebugPrint(vector<vector<int> >& CNF)
 /********* SOLVING MAPF *********/
 /********************************/
 
-int ISolver::Solve(int ags, int input_delta, bool oneshot)
+int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot)
 {
 	delta = input_delta;
 	int time_left = timeout * 1000; // given in s, tranfer to ms
@@ -136,13 +136,13 @@ int ISolver::Solve(int ags, int input_delta, bool oneshot)
 /***** creating formula *****/
 /****************************/
 
-int ISolver::CreateAt(int lit, int timesteps)
+int _MAPFSAT_ISolver::CreateAt(int lit, int timesteps)
 {
-	at = new TEGAgent*[agents];
+	at = new _MAPFSAT_TEGAgent*[agents];
 
 	for (int a = 0; a < agents; a++)
 	{
-		at[a] = new TEGAgent[vertices];
+		at[a] = new _MAPFSAT_TEGAgent[vertices];
 		for (int v = 0; v < vertices; v++)
 		{
 			if (inst->FirstTimestep(a, v) <= inst->LastTimestep(a, v, timesteps, delta, cost_function))
@@ -167,16 +167,16 @@ int ISolver::CreateAt(int lit, int timesteps)
 	return lit;
 }
 
-int ISolver::CreatePass(int lit, int timesteps)
+int _MAPFSAT_ISolver::CreatePass(int lit, int timesteps)
 {
-	pass = new TEGAgent**[agents];
+	pass = new _MAPFSAT_TEGAgent**[agents];
 
 	for (int a = 0; a < agents; a++)
 	{
-		pass[a] = new TEGAgent*[vertices];
+		pass[a] = new _MAPFSAT_TEGAgent*[vertices];
 		for (int v = 0; v < vertices; v++)
 		{
-			pass[a][v] = new TEGAgent[5]; // 5 directions from a vertex
+			pass[a][v] = new _MAPFSAT_TEGAgent[5]; // 5 directions from a vertex
 			for (int dir = 0; dir < 5; dir++)
 			{
 				if (!inst->HasNeighbor(v, dir))
@@ -205,7 +205,7 @@ int ISolver::CreatePass(int lit, int timesteps)
 	return lit;
 }
 
-void ISolver::CreatePossition_Start(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreatePossition_Start(std::vector<std::vector<int> >& CNF)
 {
 	for (int a = 0; a < agents; a++)
 	{
@@ -214,17 +214,17 @@ void ISolver::CreatePossition_Start(std::vector<std::vector<int> >& CNF)
 	}
 }
 
-void ISolver::CreatePossition_Goal(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreatePossition_Goal(std::vector<std::vector<int> >& CNF)
 {
 	for (int a = 0; a < agents; a++)
 	{
-		TEGAgent AV_goal = at[a][inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y]];
+		_MAPFSAT_TEGAgent AV_goal = at[a][inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y]];
 		int goal_var = AV_goal.first_variable + (AV_goal.last_timestep - AV_goal.first_timestep);
 		CNF.push_back(vector<int> {goal_var});
 	}
 }
 
-void ISolver::CreatePossition_NoneAtGoal(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreatePossition_NoneAtGoal(std::vector<std::vector<int> >& CNF)
 {
 	for (int a = 0; a < agents; a++)
 	{
@@ -245,7 +245,7 @@ void ISolver::CreatePossition_NoneAtGoal(std::vector<std::vector<int> >& CNF)
 	}
 }
 
-void ISolver::CreateConf_Vertex(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateConf_Vertex(std::vector<std::vector<int> >& CNF)
 {
 	for (int v = 0; v < vertices; v++)
 	{
@@ -272,7 +272,7 @@ void ISolver::CreateConf_Vertex(std::vector<std::vector<int> >& CNF)
 	}
 }
 
-void ISolver::CreateConf_Swapping_At(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateConf_Swapping_At(std::vector<std::vector<int> >& CNF)
 {
 	for (int v = 0; v < vertices; v++)
 	{
@@ -311,7 +311,7 @@ void ISolver::CreateConf_Swapping_At(std::vector<std::vector<int> >& CNF)
 	}
 }
 
-void ISolver::CreateConf_Swapping_Pass(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateConf_Swapping_Pass(std::vector<std::vector<int> >& CNF)
 {
 	for (int v = 0; v < vertices; v++)
 	{
@@ -347,7 +347,7 @@ void ISolver::CreateConf_Swapping_Pass(std::vector<std::vector<int> >& CNF)
 	}
 }
 
-void ISolver::CreateConf_Pebble_At(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateConf_Pebble_At(std::vector<std::vector<int> >& CNF)
 {
 	for (int v = 0; v < vertices; v++)
 	{
@@ -380,7 +380,7 @@ void ISolver::CreateConf_Pebble_At(std::vector<std::vector<int> >& CNF)
 	}
 }
 
-void ISolver::CreateConf_Pebble_Pass(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateConf_Pebble_Pass(std::vector<std::vector<int> >& CNF)
 {
 	// Pass(a1,t,u,v) -> forall a2: -At(a2,t,v)
 	for (int v = 0; v < vertices; v++)
@@ -418,7 +418,7 @@ void ISolver::CreateConf_Pebble_Pass(std::vector<std::vector<int> >& CNF)
 	}
 }
 
-void ISolver::CreateMove_NoDuplicates(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateMove_NoDuplicates(std::vector<std::vector<int> >& CNF)
 {
 	for (int a = 0; a < agents; a++)
 	{
@@ -446,7 +446,7 @@ void ISolver::CreateMove_NoDuplicates(std::vector<std::vector<int> >& CNF)
 	}
 }
 
-void ISolver::CreateMove_NextVertex_At(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateMove_NextVertex_At(std::vector<std::vector<int> >& CNF)
 {
 	for (int a = 0; a < agents; a++)
 	{
@@ -487,7 +487,7 @@ void ISolver::CreateMove_NextVertex_At(std::vector<std::vector<int> >& CNF)
 	}
 }
 
-void ISolver::CreateMove_EnterVertex_Pass(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateMove_EnterVertex_Pass(std::vector<std::vector<int> >& CNF)
 {
 	for (int v = 0; v < vertices; v++)
 	{
@@ -516,7 +516,7 @@ void ISolver::CreateMove_EnterVertex_Pass(std::vector<std::vector<int> >& CNF)
 	}
 }
 
-void ISolver::CreateMove_LeaveVertex_Pass(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateMove_LeaveVertex_Pass(std::vector<std::vector<int> >& CNF)
 {
 	for (int a = 0; a < agents; a++)
 	{
@@ -555,7 +555,7 @@ void ISolver::CreateMove_LeaveVertex_Pass(std::vector<std::vector<int> >& CNF)
 	}
 }
 
-int ISolver::CreateConst_LimitSoc(vector<vector<int>>& CNF, int lit)
+int _MAPFSAT_ISolver::CreateConst_LimitSoc(vector<vector<int>>& CNF, int lit)
 {
 	vector<int> late_variables;
 
@@ -588,7 +588,7 @@ int ISolver::CreateConst_LimitSoc(vector<vector<int>>& CNF, int lit)
 /********* solving CNF *********/
 /*******************************/
 
-int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit)
+int _MAPFSAT_ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit)
 {
 	kissat* solver = kissat_init();
     kissat_set_option(solver, "quiet", 1);
@@ -654,7 +654,7 @@ int ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit)
 	return (ret == 10) ? 0 : 1;
 }
 
-void ISolver::wait_for_terminate(int time_left_ms, void* solver, bool& ended)
+void _MAPFSAT_ISolver::wait_for_terminate(int time_left_ms, void* solver, bool& ended)
 {
 	while (time_left_ms > 0)
 	{
@@ -671,7 +671,7 @@ void ISolver::wait_for_terminate(int time_left_ms, void* solver, bool& ended)
 	kissat_terminate((kissat*)solver);	// Trusting in kissat implementation
 }
 
-bool ISolver::TimesUp(	std::chrono::time_point<std::chrono::high_resolution_clock> start_time,
+bool _MAPFSAT_ISolver::TimesUp(	std::chrono::time_point<std::chrono::high_resolution_clock> start_time,
 						std::chrono::time_point<std::chrono::high_resolution_clock> current_time,
 						int timelimit) // timelimit is in ms
 {
@@ -683,7 +683,7 @@ bool ISolver::TimesUp(	std::chrono::time_point<std::chrono::high_resolution_cloc
 	return false;
 }
 
-void ISolver::CleanUp(bool keep_at)
+void _MAPFSAT_ISolver::CleanUp(bool keep_at)
 {
 	if (shift != NULL)
 	{

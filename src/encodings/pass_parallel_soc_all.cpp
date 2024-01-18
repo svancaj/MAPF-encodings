@@ -2,7 +2,7 @@
 
 using namespace std;
 
-int Pass_parallel_soc_all::CreateFormula(vector<vector<int> >& CNF, int time_left)
+int _MAPFSAT_PassParallelSocAll::CreateFormula(vector<vector<int> >& CNF, int time_left)
 {
 	int timesteps = inst->GetMksLB(agents) + delta;
 

@@ -2,7 +2,7 @@
 
 using namespace std;
 
-int At_pebble_mks_all::CreateFormula(vector<vector<int> >& CNF, int time_left)
+int _MAPFSAT_AtPebbleMksAll::CreateFormula(vector<vector<int> >& CNF, int time_left)
 {
 	int timesteps = inst->GetMksLB(agents) + delta;
 

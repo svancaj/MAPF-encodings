@@ -2,7 +2,7 @@
 
 using namespace std;
 
-int At_parallel_mks_all::CreateFormula(vector<vector<int> >& CNF, int time_left)
+int _MAPFSAT_AtParallelMksAll::CreateFormula(vector<vector<int> >& CNF, int time_left)
 {
 	int timesteps = inst->GetMksLB(agents) + delta;
 

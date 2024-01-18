@@ -8,25 +8,25 @@
 #include "../instance.hpp"
 #include "../logger.hpp"
 
-struct TEGAgent
+struct _MAPFSAT_TEGAgent
 {
 	int first_variable;
 	int first_timestep;
 	int last_timestep;
 };
 
-class ISolver
+class _MAPFSAT_ISolver
 {
 public:
-	ISolver(std::string sn, int opt) : solver_name(sn), cost_function(opt) {}; 
-	virtual ~ISolver() {};
+	_MAPFSAT_ISolver(std::string sn, int opt) : solver_name(sn), cost_function(opt) {}; 
+	virtual ~_MAPFSAT_ISolver() {};
 	
 	int Solve(int, int = 0, bool = false);
-	void SetData(Instance*, Logger*, int, bool, bool);
+	void SetData(_MAPFSAT_Instance*, _MAPFSAT_Logger*, int, bool, bool);
 
 protected:
-	Instance* inst;
-	Logger* log;
+	_MAPFSAT_Instance* inst;
+	_MAPFSAT_Logger* log;
 	std::string solver_name;
 	int cost_function; // 1 = mks, 2 = soc
 	int timeout;
@@ -38,9 +38,9 @@ protected:
 	int delta;
 	int max_timestep;
 
-	TEGAgent** at;
-	TEGAgent*** pass;
-	TEGAgent*** shift;
+	_MAPFSAT_TEGAgent** at;
+	_MAPFSAT_TEGAgent*** pass;
+	_MAPFSAT_TEGAgent*** shift;
 	int at_vars;
 
 	std::vector<std::vector<int> > CNF;
@@ -89,81 +89,81 @@ protected:
 /*********************** Specific Encodings ***********************/
 /******************************************************************/
 
-class At_parallel_mks_all : public ISolver
+class _MAPFSAT_AtParallelMksAll : public _MAPFSAT_ISolver
 {
 public:
-	using ISolver::ISolver;
-	~At_parallel_mks_all() {};
+	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	~_MAPFSAT_AtParallelMksAll() {};
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
 
-class At_parallel_soc_all : public ISolver
+class _MAPFSAT_AtParallelSocAll : public _MAPFSAT_ISolver
 {
 public:
-	using ISolver::ISolver;
-	~At_parallel_soc_all() {};
+	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	~_MAPFSAT_AtParallelSocAll() {};
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
 
-class At_pebble_mks_all : public ISolver
+class _MAPFSAT_AtPebbleMksAll : public _MAPFSAT_ISolver
 {
 public:
-	using ISolver::ISolver;
-	~At_pebble_mks_all() {};
+	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	~_MAPFSAT_AtPebbleMksAll() {};
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
 
-class At_pebble_soc_all : public ISolver
+class _MAPFSAT_AtPebbleSocAll : public _MAPFSAT_ISolver
 {
 public:
-	using ISolver::ISolver;
-	~At_pebble_soc_all() {};
+	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	~_MAPFSAT_AtPebbleSocAll() {};
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
 
-class Pass_parallel_mks_all : public ISolver
+class _MAPFSAT_PassParallelMksAll : public _MAPFSAT_ISolver
 {
 public:
-	using ISolver::ISolver;
-	~Pass_parallel_mks_all() {};
+	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	~_MAPFSAT_PassParallelMksAll() {};
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
 
-class Pass_parallel_soc_all : public ISolver
+class _MAPFSAT_PassParallelSocAll : public _MAPFSAT_ISolver
 {
 public:
-	using ISolver::ISolver;
-	~Pass_parallel_soc_all() {};
+	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	~_MAPFSAT_PassParallelSocAll() {};
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
 
-class Pass_pebble_mks_all : public ISolver
+class _MAPFSAT_PassPebbleMksAll : public _MAPFSAT_ISolver
 {
 public:
-	using ISolver::ISolver;
-	~Pass_pebble_mks_all() {};
+	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	~_MAPFSAT_PassPebbleMksAll() {};
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
 
-class Pass_pebble_soc_all : public ISolver
+class _MAPFSAT_PassPebbleSocAll : public _MAPFSAT_ISolver
 {
 public:
-	using ISolver::ISolver;
-	~Pass_pebble_soc_all() {};
+	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	~_MAPFSAT_PassPebbleSocAll() {};
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);

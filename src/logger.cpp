@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Logger::Logger(Instance* i, string enc, int type, string log_f)
+_MAPFSAT_Logger::_MAPFSAT_Logger(_MAPFSAT_Instance* i, string enc, int type, string log_f)
 {
 	inst = i;
 	log_file = log_f;
@@ -12,7 +12,7 @@ Logger::Logger(Instance* i, string enc, int type, string log_f)
 	print_type = type;
 }
 
-void Logger::PrintStatistics(bool solved)
+void _MAPFSAT_Logger::PrintStatistics(bool solved)
 {
 	if (print_type == 0) // no print
 		return;
@@ -84,7 +84,7 @@ void Logger::PrintStatistics(bool solved)
 		fout.close();
 }
 
-void Logger::NewInstance(int ags)
+void _MAPFSAT_Logger::NewInstance(int ags)
 {
 	agents = ags;
 	mksLB = inst->GetMksLB(ags);

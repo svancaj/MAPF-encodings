@@ -10,12 +10,12 @@
 #include <queue>
 #include <algorithm>
 
-struct Vertex
+struct _MAPFSAT_Vertex
 {
 	size_t x;
 	size_t y;
 
-	bool operator==(const Vertex &rhs) const
+	bool operator==(const _MAPFSAT_Vertex &rhs) const
 	{
 		if (rhs.x == x && rhs.y == y)
 			return true;
@@ -23,25 +23,25 @@ struct Vertex
     }
 };
 
-struct Agent
+struct _MAPFSAT_Agent
 {
-	Vertex start;
-	Vertex goal;
+	_MAPFSAT_Vertex start;
+	_MAPFSAT_Vertex goal;
 };
 
-class Instance
+class _MAPFSAT_Instance
 {
 public:
-	Instance(std::string, std::string);
-	Instance(std::vector<std::vector<int> >&, std::vector<std::pair<int,int> >&, std::vector<std::pair<int,int> >&, std::string = "scen", std::string = "map");
+	_MAPFSAT_Instance(std::string, std::string);
+	_MAPFSAT_Instance(std::vector<std::vector<int> >&, std::vector<std::pair<int,int> >&, std::vector<std::pair<int,int> >&, std::string = "scen", std::string = "map");
 
 	void SetAgents(int);
 	
 	int GetMksLB(size_t);
 	int GetSocLB(size_t);
 
-	Vertex IDtoCoords(int);
-	bool HasNeighbor(Vertex, int);
+	_MAPFSAT_Vertex IDtoCoords(int);
+	bool HasNeighbor(_MAPFSAT_Vertex, int);
 	bool HasNeighbor(int, int);
 	int GetNeighbor(int, int);
 	
@@ -51,9 +51,9 @@ public:
 
 	void DebugPrint(std::vector<std::vector<int> >&);
 	void DebugPrint(std::vector<int>&);
-	void DebugPrint(std::vector<Vertex>&);
+	void DebugPrint(std::vector<_MAPFSAT_Vertex>&);
 
-	std::vector<Agent> agents;
+	std::vector<_MAPFSAT_Agent> agents;
 	std::vector<std::vector<int> > length_from_start;
 	std::vector<std::vector<int> > length_from_goal;
 	std::vector<int> SP_lengths;
@@ -71,11 +71,11 @@ private:
 	void LoadAgentsData(std::vector<std::pair<int,int> >&, std::vector<std::pair<int,int> >&);
 	void LoadMap(std::string);
 	void LoadMapData(std::vector<std::vector<int> >&);
-	void BFS(std::vector<int>&, Vertex);
+	void BFS(std::vector<int>&, _MAPFSAT_Vertex);
 	
 	std::vector<int> mks_LBs;
 	std::vector<int> soc_LBs;
-	std::vector<Vertex> coord_list;
+	std::vector<_MAPFSAT_Vertex> coord_list;
 
 	size_t last_number_of_agents;
 };

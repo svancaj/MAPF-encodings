@@ -5,7 +5,7 @@ using namespace std;
 /* Constructor */
 
 // instance from file
-Instance::Instance(string map_dir, string agents_file)
+_MAPFSAT_Instance::_MAPFSAT_Instance(string map_dir, string agents_file)
 {
 	LoadAgents(agents_file, map_dir);
 	last_number_of_agents = 0;
@@ -13,7 +13,7 @@ Instance::Instance(string map_dir, string agents_file)
 }
 
 // instance from data
-Instance::Instance(vector<vector<int> >& map_vector, vector<pair<int,int> >& starts, vector<pair<int,int> >& goals,
+_MAPFSAT_Instance::_MAPFSAT_Instance(vector<vector<int> >& map_vector, vector<pair<int,int> >& starts, vector<pair<int,int> >& goals,
 					string scenstr, string mapstr)
 {
 	LoadAgentsData(starts, goals);
@@ -26,7 +26,7 @@ Instance::Instance(vector<vector<int> >& map_vector, vector<pair<int,int> >& sta
 
 /* Public functions */
 
-int Instance::GetMksLB(size_t ags)
+int _MAPFSAT_Instance::GetMksLB(size_t ags)
 {
 	if (mks_LBs[ags] >= 0)
 		return mks_LBs[ags];
@@ -34,7 +34,7 @@ int Instance::GetMksLB(size_t ags)
 	return -1;
 }
 
-int Instance::GetSocLB(size_t ags)
+int _MAPFSAT_Instance::GetSocLB(size_t ags)
 {
 	if (soc_LBs[ags] >= 0)
 		return soc_LBs[ags];
@@ -42,7 +42,7 @@ int Instance::GetSocLB(size_t ags)
 	return -1;
 }
 
-void Instance::SetAgents(int ags)
+void _MAPFSAT_Instance::SetAgents(int ags)
 {
 	for (int i = last_number_of_agents; i < ags; i++)
 	{
@@ -60,12 +60,12 @@ void Instance::SetAgents(int ags)
 	last_number_of_agents = ags;
 }
 
-Vertex Instance::IDtoCoords(int vertex)
+_MAPFSAT_Vertex _MAPFSAT_Instance::IDtoCoords(int vertex)
 {
 	return coord_list[vertex];
 }
 
-bool Instance::HasNeighbor(Vertex v, int dir)
+bool _MAPFSAT_Instance::HasNeighbor(_MAPFSAT_Vertex v, int dir)
 {
 	if (dir == 0) // self loop
 		return true;
@@ -81,19 +81,19 @@ bool Instance::HasNeighbor(Vertex v, int dir)
 	return false;
 }
 
-bool Instance::HasNeighbor(int v, int dir)
+bool _MAPFSAT_Instance::HasNeighbor(int v, int dir)
 {
 	if (dir == 0) // self loop
 		return true;
 	return HasNeighbor(IDtoCoords(v), dir);
 }
 
-int Instance::GetNeighbor(int ver, int dir) // assumes the neighbor exists
+int _MAPFSAT_Instance::GetNeighbor(int ver, int dir) // assumes the neighbor exists
 {
 	if (dir == 0) // self loop
 		return ver;
 
-	Vertex v = IDtoCoords(ver);
+	_MAPFSAT_Vertex v = IDtoCoords(ver);
 
 	if (dir == 1 && v.x > 0)
 		return map[v.x - 1][v.y];
@@ -106,12 +106,12 @@ int Instance::GetNeighbor(int ver, int dir) // assumes the neighbor exists
 	return -1;
 }
 
-int Instance::FirstTimestep(int agent, int vertex)
+int _MAPFSAT_Instance::FirstTimestep(int agent, int vertex)
 {
 	return length_from_start[agent][vertex];
 }
 
-int Instance::LastTimestep(int agent, int vertex, int timelimit, int delta, int cost_function)
+int _MAPFSAT_Instance::LastTimestep(int agent, int vertex, int timelimit, int delta, int cost_function)
 {
 	if (cost_function == 1) // makespan
 		return timelimit - length_from_goal[agent][vertex] - 1;
@@ -122,7 +122,7 @@ int Instance::LastTimestep(int agent, int vertex, int timelimit, int delta, int 
 	return -1; // should not get here
 }
 
-int Instance::OppositeDir(int dir)
+int _MAPFSAT_Instance::OppositeDir(int dir)
 {
 	if (dir == 1)
 		return 2;
@@ -138,7 +138,7 @@ int Instance::OppositeDir(int dir)
 
 /* Private functions */
 
-void Instance::LoadAgents(string agents_path, string map_dir)
+void _MAPFSAT_Instance::LoadAgents(string agents_path, string map_dir)
 {
 	// Read input
 	bool map_loaded = false;
@@ -168,7 +168,7 @@ void Instance::LoadAgents(string agents_path, string map_dir)
 			map_loaded = true;
 		}
 
-		Agent new_agent;
+		_MAPFSAT_Agent new_agent;
 		new_agent.start = {size_t(stoi(parsed_line[5])), size_t(stoi(parsed_line[4]))};
 		new_agent.goal = {size_t(stoi(parsed_line[7])), size_t(stoi(parsed_line[6]))};
 
@@ -186,11 +186,11 @@ void Instance::LoadAgents(string agents_path, string map_dir)
 	in.close();
 }
 
-void Instance::LoadAgentsData(vector<pair<int,int> >& start, vector<pair<int,int> >& goal)
+void _MAPFSAT_Instance::LoadAgentsData(vector<pair<int,int> >& start, vector<pair<int,int> >& goal)
 {
 	for (size_t i = 0; i < start.size(); i++)
 	{
-		Agent new_agent;
+		_MAPFSAT_Agent new_agent;
 		new_agent.start = {size_t(start[i].first), size_t(start[i].second)};
 		new_agent.goal = {size_t(goal[i].first), size_t(goal[i].second)};
 
@@ -206,7 +206,7 @@ void Instance::LoadAgentsData(vector<pair<int,int> >& start, vector<pair<int,int
 	length_from_goal = vector<vector<int> >(agents.size());
 }
 
-void Instance::LoadMap(string map_path)
+void _MAPFSAT_Instance::LoadMap(string map_path)
 {
 	ifstream in;
 	in.open(map_path);
@@ -245,7 +245,7 @@ void Instance::LoadMap(string map_path)
 	in.close();
 }
 
-void Instance::LoadMapData(std::vector<std::vector<int> >& map_vector)
+void _MAPFSAT_Instance::LoadMapData(std::vector<std::vector<int> >& map_vector)
 {
 	map = map_vector;
 	height = map.size();
@@ -267,16 +267,16 @@ void Instance::LoadMapData(std::vector<std::vector<int> >& map_vector)
 	}
 }
 
-void Instance::BFS(vector<int>& length_from, Vertex start)
+void _MAPFSAT_Instance::BFS(vector<int>& length_from, _MAPFSAT_Vertex start)
 {
-	queue<Vertex> que;
+	queue<_MAPFSAT_Vertex> que;
 
 	length_from[map[start.x][start.y]] = 0;
 	que.push(start);
 
 	while(!que.empty())
 	{
-		Vertex v = que.front();
+		_MAPFSAT_Vertex v = que.front();
 		que.pop();
 
 		if (HasNeighbor(v,1) && length_from[map[v.x - 1][v.y]] == -1)
@@ -305,7 +305,7 @@ void Instance::BFS(vector<int>& length_from, Vertex start)
 
 /* DEBUG */
 
-void Instance::DebugPrint(vector<vector<int> >& map_to_print)
+void _MAPFSAT_Instance::DebugPrint(vector<vector<int> >& map_to_print)
 {
 	for (size_t i = 0; i < map_to_print.size(); i++)
 	{
@@ -320,14 +320,14 @@ void Instance::DebugPrint(vector<vector<int> >& map_to_print)
 	}
 }
 
-void Instance::DebugPrint(vector<int>& vc_to_print)
+void _MAPFSAT_Instance::DebugPrint(vector<int>& vc_to_print)
 {
 	for (size_t i = 0; i < vc_to_print.size(); i++)
 		cout << vc_to_print[i] << " ";
 	cout << endl;
 }
 
-void Instance::DebugPrint(vector<Vertex>& vc_to_print)
+void _MAPFSAT_Instance::DebugPrint(vector<_MAPFSAT_Vertex>& vc_to_print)
 {
 	for (size_t i = 0; i < vc_to_print.size(); i++)
 		cout << "(" << vc_to_print[i].x << ", " << vc_to_print[i].y << ") ";

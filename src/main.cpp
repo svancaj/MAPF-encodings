@@ -9,8 +9,8 @@ using namespace std;
 
 void PrintIntro(bool);
 void PrintHelp(char**, bool);
-void CleanUp(Instance*, Logger*, ISolver*);
-ISolver* PickEncoding(string);
+void CleanUp(_MAPFSAT_Instance*, _MAPFSAT_Logger*, _MAPFSAT_ISolver*);
+_MAPFSAT_ISolver* PickEncoding(string);
 
 int main(int argc, char** argv) 
 {
@@ -33,9 +33,9 @@ int main(int argc, char** argv)
 	string stat_file = "";
 	int log_option = 0;
 
-	Instance* inst;
-	Logger* log;
-	ISolver* solver;
+	_MAPFSAT_Instance* inst;
+	_MAPFSAT_Logger* log;
+	_MAPFSAT_ISolver* solver;
 
 	// parse arguments
 	opterr = 0;
@@ -138,8 +138,8 @@ int main(int argc, char** argv)
 	}
 
 	// create classes and load map
-	inst = new Instance(map_dir, svalue);
-	log = new Logger(inst, evalue, log_option, stat_file);
+	inst = new _MAPFSAT_Instance(map_dir, svalue);
+	log = new _MAPFSAT_Logger(inst, evalue, log_option, stat_file);
 	solver->SetData(inst, log, timeout, qflag, pflag);
 
 	// check number of agents and increment
@@ -235,7 +235,7 @@ void PrintHelp(char* argv[], bool quiet)
 	cout << endl;
 }
 
-void CleanUp(Instance* inst, Logger* log, ISolver* solver)
+void CleanUp(_MAPFSAT_Instance* inst, _MAPFSAT_Logger* log, _MAPFSAT_ISolver* solver)
 {
 	if (inst != NULL)
 		delete inst;
@@ -245,47 +245,47 @@ void CleanUp(Instance* inst, Logger* log, ISolver* solver)
 		delete solver;
 }
 
-ISolver* PickEncoding(string enc)
+_MAPFSAT_ISolver* PickEncoding(string enc)
 {
-	ISolver* solver = NULL;
+	_MAPFSAT_ISolver* solver = NULL;
 	if (enc.compare("at_parallel_mks_all") == 0)
 	{
-		solver = new At_parallel_mks_all(enc, 1);
+		solver = new _MAPFSAT_AtParallelMksAll(enc, 1);
 		return solver;
 	}
 	if (enc.compare("at_parallel_soc_all") == 0)
 	{
-		solver = new At_parallel_soc_all(enc, 2);
+		solver = new _MAPFSAT_AtParallelSocAll(enc, 2);
 		return solver;
 	}
 	if (enc.compare("at_pebble_mks_all") == 0)
 	{
-		solver = new At_pebble_mks_all(enc, 1);
+		solver = new _MAPFSAT_AtPebbleMksAll(enc, 1);
 		return solver;
 	}
 	if (enc.compare("at_pebble_soc_all") == 0)
 	{
-		solver = new At_pebble_soc_all(enc, 2);
+		solver = new _MAPFSAT_AtPebbleSocAll(enc, 2);
 		return solver;
 	}
 	if (enc.compare("pass_parallel_mks_all") == 0)
 	{
-		solver = new Pass_parallel_mks_all(enc, 1);
+		solver = new _MAPFSAT_PassParallelMksAll(enc, 1);
 		return solver;
 	}
 	if (enc.compare("pass_parallel_soc_all") == 0)
 	{
-		solver = new Pass_parallel_soc_all(enc, 2);
+		solver = new _MAPFSAT_PassParallelSocAll(enc, 2);
 		return solver;
 	}
 	if (enc.compare("pass_pebble_mks_all") == 0)
 	{
-		solver = new Pass_pebble_mks_all(enc, 1);
+		solver = new _MAPFSAT_PassPebbleMksAll(enc, 1);
 		return solver;
 	}
 	if (enc.compare("pass_pebble_soc_all") == 0)
 	{
-		solver = new Pass_pebble_soc_all(enc, 2);
+		solver = new _MAPFSAT_PassPebbleSocAll(enc, 2);
 		return solver;
 	}
 	return solver;

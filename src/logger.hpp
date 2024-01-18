@@ -3,11 +3,11 @@
 
 #include "instance.hpp"
 
-class Logger
+class _MAPFSAT_Logger
 {
 
 public:
-	Logger(Instance*, std::string, int = 0, std::string = "");
+	_MAPFSAT_Logger(_MAPFSAT_Instance*, std::string, int = 0, std::string = "");
 
 	void PrintStatistics(bool = true);
 	void NewInstance(int);
@@ -27,7 +27,7 @@ public:
 	int socLB;	
 	
 private:
-	Instance* inst;
+	_MAPFSAT_Instance* inst;
 	std::string log_file;
 
 	int print_type;
