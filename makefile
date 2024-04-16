@@ -20,7 +20,7 @@ LIBS = $(patsubst %,$(L_DIR)/%,$(_LIBS))
 _DEPS = instance.hpp logger.hpp encodings/solver_common.hpp
 DEPS = $(patsubst %,$(S_DIR)/%,$(_DEPS))
 
-VAR = at pass
+VAR = at pass shift
 MOVE = parallel pebble
 FUNC = mks soc
 COMP = all
@@ -78,7 +78,7 @@ $(B_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/empty08-1.scen -e at_parallel_soc_all -t 100 -p -a 30 -o -l 2
+	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test2.scen -e shift_parallel_mks_all -t 100 -p -a 2 -d 4 -o
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \

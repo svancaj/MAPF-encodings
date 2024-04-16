@@ -27,6 +27,8 @@ void _MAPFSAT_ISolver::SetData(_MAPFSAT_Instance* i, _MAPFSAT_Logger* l, int to,
 	at = NULL;
 	pass = NULL;
 	shift = NULL;
+	shift_times_start = NULL;
+	shift_times_end = NULL;
 };
 
 void _MAPFSAT_ISolver::PrintSolveDetails(int time_left)
@@ -205,6 +207,51 @@ int _MAPFSAT_ISolver::CreatePass(int lit, int timesteps)
 	return lit;
 }
 
+int _MAPFSAT_ISolver::CreateShift(int lit, int timesteps)
+{
+	shift = new _MAPFSAT_Shift*[vertices];
+	shift_times_start = new int[vertices];
+	shift_times_end = new int[vertices];
+
+	for (int v = 0; v < vertices; v++)
+	{
+		shift[v] = new _MAPFSAT_Shift[5];	// 5 directions from a vertex
+		shift_times_start[v] = -1;
+		shift_times_end[v] = -1;
+		for (int dir = 0; dir < 5; dir++)
+		{
+			shift[v][dir].first_varaible = lit;	// does not necessary mean that there are any varaibles, check lenght of .timestep
+			if (!inst->HasNeighbor(v, dir))
+					continue;
+			for (int t = 0; t < timesteps; t++)
+			{
+				for (int a = 0; a < agents; a++)
+				{	
+					// create shift variable only for possition only if any agent can traverse there
+					if (inst->FirstTimestep(a, v) <= t && inst->LastTimestep(a, inst->GetNeighbor(v, dir), timesteps, delta, cost_function) > t)
+					{
+						shift[v][dir].timestep.push_back(t);
+						lit++;
+						cout << "create shift v, dir " << v << " " << dir;
+						cout << " variable ID " << lit-1;
+						cout << " timestep " << t << endl;
+
+						if (shift_times_start[v] == -1 || shift_times_start[v] > t)
+							shift_times_start[v] = t;
+						if (shift_times_end[v] < t)
+							shift_times_end[v] = t;
+
+						break;
+					}
+				}
+			}
+		}
+	}
+	variables = lit;
+
+	return lit;
+}
+
 void _MAPFSAT_ISolver::CreatePossition_Start(std::vector<std::vector<int> >& CNF)
 {
 	for (int a = 0; a < agents; a++)
@@ -347,6 +394,36 @@ void _MAPFSAT_ISolver::CreateConf_Swapping_Pass(std::vector<std::vector<int> >& 
 	}
 }
 
+void _MAPFSAT_ISolver::CreateConf_Swapping_Shift(std::vector<std::vector<int> >& CNF)
+{
+	// No two opposite shifts at the same time
+	for (int v = 0; v < vertices; v++)
+	{
+		for (int dir = 2; dir < 4; dir++)	// no need to check other directions to prevent multiple clauses
+		{
+			if (!inst->HasNeighbor(v, dir))
+				continue;
+			
+			for (size_t t_ind = 0; t_ind < shift[v][dir].timestep.size(); t_ind++)
+			{
+				int op_dir = inst->OppositeDir(dir);
+				int u = inst->GetNeighbor(v, dir);
+				size_t ind = lower_bound(shift[u][op_dir].timestep.begin(), shift[u][op_dir].timestep.end(), shift[v][dir].timestep[t_ind]) - shift[u][op_dir].timestep.begin();
+
+				if (ind == shift[u][op_dir].timestep.size() || shift[u][op_dir].timestep[ind] != shift[v][dir].timestep[t_ind]) // did not find t in opposite dir shift
+					continue;
+				
+				//cout << "swapping conflict at edge (" << v << "," << u << "), timestep " << t << " using shift" << endl;
+				int shift1_var = shift[v][dir].first_varaible + t_ind;
+				int shift2_var = shift[u][op_dir].first_varaible + ind;
+				CNF.push_back(vector<int> {-shift1_var, -shift2_var});
+
+				cout << "swapping conflict at edge (" << v << "," << u << "), timestep " << shift[v][dir].timestep[t_ind] << " using shift {" << -shift1_var << "," << -shift2_var << "}" << endl;
+			}
+		}
+	}
+}
+
 void _MAPFSAT_ISolver::CreateConf_Pebble_At(std::vector<std::vector<int> >& CNF)
 {
 	for (int v = 0; v < vertices; v++)
@@ -418,6 +495,11 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_Pass(std::vector<std::vector<int> >& CN
 	}
 }
 
+void _MAPFSAT_ISolver::CreateConf_Pebble_Shift(std::vector<std::vector<int> >& CNF)
+{
+	// if shift u->v, then there is also shift v->v (vertex conflict will take care of it)
+}
+
 void _MAPFSAT_ISolver::CreateMove_NoDuplicates(std::vector<std::vector<int> >& CNF)
 {
 	for (int a = 0; a < agents; a++)
@@ -464,6 +546,8 @@ void _MAPFSAT_ISolver::CreateMove_NextVertex_At(std::vector<std::vector<int> >& 
 				vector<int> neibs;
 				for (int dir = 0; dir < 5; dir++)
 				{
+					if (!inst->HasNeighbor(v,dir))
+						continue;
 					int u = inst->GetNeighbor(v, dir);
 					if (at[a][u].first_variable == 0)
 						continue;
@@ -546,10 +630,99 @@ void _MAPFSAT_ISolver::CreateMove_LeaveVertex_Pass(std::vector<std::vector<int> 
 				if (neibs.empty())
 					continue;
 				
-				int at_var = at[a][v].first_variable + (t - at[a][v].first_timestep);;
+				int at_var = at[a][v].first_variable + (t - at[a][v].first_timestep);
 				neibs.push_back(-at_var);
 
 				CNF.push_back(neibs);
+			}
+		}
+	}
+}
+
+void _MAPFSAT_ISolver::CreateMove_ExactlyOne_Shift(std::vector<std::vector<int> >& CNF)
+{
+	// all shifts going from v sum up to exactly 1
+	for (int v = 0; v < vertices; v++)
+	{
+		if (shift_times_start[v] == -1)
+			continue; 
+		for (int t = shift_times_start[v]; t <= shift_times_end[v]; t++)
+		{
+			vector<int> vc;
+			for (int dir = 0; dir < 5; dir++)
+			{
+				if (!inst->HasNeighbor(v, dir))
+					continue;
+
+				size_t ind = lower_bound(shift[v][dir].timestep.begin(), shift[v][dir].timestep.end(), t) - shift[v][dir].timestep.begin();
+
+				if (ind != shift[v][dir].timestep.size() && shift[v][dir].timestep[ind] == t)
+				{
+					int shift_var = shift[v][dir].first_varaible + ind;
+					vc.push_back(shift_var);
+					cout << "there is a shift from " << v << ", " << dir << " in timestep " << t << " varaible " <<  shift_var << endl;
+				}
+			}
+
+			if (vc.empty())
+				continue;
+			
+			//CNF.push_back(vc); // at least 1
+
+			cout << "add previous " << vc.size() << " variables" << endl;
+
+			for (size_t i = 0; i < vc.size(); i++)
+			{
+				for (size_t j = i+1; j < vc.size(); j++)
+				{
+					CNF.push_back(vector<int>{-vc[i], -vc[j]}); // at most 1
+				}
+			}
+		}
+	}
+}
+
+void _MAPFSAT_ISolver::CreateMove_NextVertex_Shift(std::vector<std::vector<int> >& CNF)
+{
+	
+	for (int a = 0; a < agents; a++)
+	{
+		for (int v = 0; v < vertices; v++)
+		{
+			if (at[a][v].first_variable == 0)
+				continue;
+
+			int star_t = at[a][v].first_timestep;
+			int end_t = at[a][v].last_timestep + 1;
+
+			for (int t = star_t; t < end_t; t++)
+			{
+				int neib_t = t+1;
+				for (int dir = 0; dir < 5; dir++)
+				{
+					if (!inst->HasNeighbor(v,dir))
+						continue;
+					int u = inst->GetNeighbor(v, dir);
+					if (at[a][u].first_variable == 0)
+						continue;
+					if (at[a][u].first_timestep > neib_t || at[a][u].last_timestep < neib_t)
+						continue;
+					
+					size_t ind = lower_bound(shift[v][dir].timestep.begin(), shift[v][dir].timestep.end(), t) - shift[v][dir].timestep.begin();
+
+					if (ind == shift[v][dir].timestep.size() || shift[v][dir].timestep[ind] != t)
+						continue;
+
+					int at1_var = at[a][v].first_variable + (t - at[a][v].first_timestep);
+					int at2_var = at[a][u].first_variable + (neib_t - at[a][u].first_timestep);
+					int shift_var = shift[v][dir].first_varaible + ind;
+
+					cout << "agent " << a << " is at " << v << " and something is moving to " << u << " at timestep " << t << endl;
+					cout << "agent " << a << " is at " << v << " in " << t << " and at " << u << " in the next timestep, therefore something moved" << endl;
+
+					CNF.push_back(vector<int> {-at1_var, -shift_var, at2_var}); // if at v and v shifts to u then at u in the next timestep
+					CNF.push_back(vector<int> {-at1_var, -at2_var, shift_var}); // if at v and at u in next timestep then v shifted to u 
+				}
 			}
 		}
 	}
@@ -617,6 +790,9 @@ int _MAPFSAT_ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit)
 		vector<bool> eval = vector<bool>(at_vars);
 		for (int var = 1; var < at_vars; var++)
 			eval[var-1] = (kissat_value (solver, var) > 0) ? true : false;
+
+		for (int var = 1; var < variables; var++)
+			cout << kissat_value (solver, var) << " ";
 
 		vector<vector<int> > plan = vector<vector<int> >(agents, vector<int>(max_timestep));
 
@@ -687,8 +863,22 @@ void _MAPFSAT_ISolver::CleanUp(bool keep_at)
 {
 	if (shift != NULL)
 	{
-		// TODO
+		for (int v = 0; v < vertices; v++)
+			delete[] shift[v];
+		delete[] shift;
 		shift = NULL;
+	}
+
+	if (shift_times_start != NULL)
+	{
+		delete shift_times_start;
+		shift_times_start = NULL;
+	}
+
+	if (shift_times_end != NULL)
+	{
+		delete shift_times_end;
+		shift_times_end = NULL;
 	}
 
 	if (pass != NULL)

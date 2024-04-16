@@ -288,5 +288,25 @@ _MAPFSAT_ISolver* PickEncoding(string enc)
 		solver = new _MAPFSAT_PassPebbleSocAll(enc, 2);
 		return solver;
 	}
+	if (enc.compare("shift_parallel_mks_all") == 0)
+	{
+		solver = new _MAPFSAT_ShiftParallelMksAll(enc, 1);
+		return solver;
+	}
+	if (enc.compare("shift_parallel_soc_all") == 0)
+	{
+		solver = new _MAPFSAT_ShiftParallelSocAll(enc, 2);
+		return solver;
+	}
+	if (enc.compare("shift_pebble_mks_all") == 0)
+	{
+		solver = new _MAPFSAT_ShiftPebbleMksAll(enc, 1);
+		return solver;
+	}
+	if (enc.compare("shift_pebble_soc_all") == 0)
+	{
+		solver = new _MAPFSAT_ShiftPebbleSocAll(enc, 2);
+		return solver;
+	}
 	return solver;
 }

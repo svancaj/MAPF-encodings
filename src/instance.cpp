@@ -70,13 +70,13 @@ bool _MAPFSAT_Instance::HasNeighbor(_MAPFSAT_Vertex v, int dir)
 	if (dir == 0) // self loop
 		return true;
 
-	if (dir == 1 && v.x > 0 && map[v.x - 1][v.y] != -1)
+	if (dir == 1 && v.x > 0 && map[v.x - 1][v.y] != -1)				// North
 		return true;
-	if (dir == 2 && v.x < height - 1 && map[v.x + 1][v.y] != -1)
+	if (dir == 2 && v.x < height - 1 && map[v.x + 1][v.y] != -1)	// South
 		return true;
-	if (dir == 3 && v.y > 0 && map[v.x][v.y - 1] != -1 )
+	if (dir == 3 && v.y > 0 && map[v.x][v.y - 1] != -1 )			// West
 		return true;
-	if (dir == 4 && v.y < width - 1 && map[v.x][v.y + 1] != -1 )
+	if (dir == 4 && v.y < width - 1 && map[v.x][v.y + 1] != -1 )	// East
 		return true;
 	return false;
 }

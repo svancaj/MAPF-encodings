@@ -1,0 +1,13 @@
+At encoding
+	- 
+
+Pass encoding
+	-
+
+Shift encoding
+	- taken from "Multi-Agent Path Finding: A New Boolean Encoding"
+	- some contrainst were changed
+		- shift does not sum to 1, but at most 1 - we do not create all possible shifts, only usable shits. In the original paper, some shifts are forced to be 1 unnecessary causing a swapping conflict.
+		- in the original paper they consider only pebble motion, it is uncelar why they model swapping conflict at all
+		- instead of At(a,v,t+1) -> OR At(a,u,t), we use At(a,v,t) -> OR At(a,u,t+1) since it was alreadz implemented for other encodings
+		- cardinality constraints are translated directly to SAT. I.e. Sum x_i = 1 is transalted as {-x_i -x_j} over all pairs.

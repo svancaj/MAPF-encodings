@@ -15,6 +15,12 @@ struct _MAPFSAT_TEGAgent
 	int last_timestep;
 };
 
+struct _MAPFSAT_Shift
+{
+	int first_varaible;
+	std::vector<int> timestep;
+};
+
 class _MAPFSAT_ISolver
 {
 public:
@@ -62,9 +68,13 @@ protected:
 	int delta;
 	int max_timestep;
 
+	int variables;
+
 	_MAPFSAT_TEGAgent** at;
 	_MAPFSAT_TEGAgent*** pass;
-	_MAPFSAT_TEGAgent*** shift;
+	_MAPFSAT_Shift** shift;
+	int* shift_times_start;
+	int* shift_times_end;
 	int at_vars;
 
 	std::vector<std::vector<int> > CNF;
@@ -83,6 +93,7 @@ protected:
 	// creating formula
 	int CreateAt(int, int);
 	int CreatePass(int, int);
+	int CreateShift(int, int);
 
 	void CreatePossition_Start(std::vector<std::vector<int> >&);
 	void CreatePossition_Goal(std::vector<std::vector<int> >&);
@@ -91,13 +102,17 @@ protected:
 	void CreateConf_Vertex(std::vector<std::vector<int> >&);
 	void CreateConf_Swapping_At(std::vector<std::vector<int> >&);
 	void CreateConf_Swapping_Pass(std::vector<std::vector<int> >&);
+	void CreateConf_Swapping_Shift(std::vector<std::vector<int> >&);
 	void CreateConf_Pebble_At(std::vector<std::vector<int> >&);
 	void CreateConf_Pebble_Pass(std::vector<std::vector<int> >&);
+	void CreateConf_Pebble_Shift(std::vector<std::vector<int> >&);
 
 	void CreateMove_NoDuplicates(std::vector<std::vector<int> >&);
 	void CreateMove_NextVertex_At(std::vector<std::vector<int> >&);
 	void CreateMove_EnterVertex_Pass(std::vector<std::vector<int> >&);
 	void CreateMove_LeaveVertex_Pass(std::vector<std::vector<int> >&);
+	void CreateMove_ExactlyOne_Shift(std::vector<std::vector<int> >&);
+	void CreateMove_NextVertex_Shift(std::vector<std::vector<int> >&);
 
 	int CreateConst_LimitSoc(std::vector<std::vector<int> >&, int);
 
@@ -188,6 +203,46 @@ class _MAPFSAT_PassPebbleSocAll : public _MAPFSAT_ISolver
 public:
 	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
 	~_MAPFSAT_PassPebbleSocAll() {};
+
+private:
+	int CreateFormula(std::vector<std::vector<int> >&, int);
+};
+
+class _MAPFSAT_ShiftParallelMksAll : public _MAPFSAT_ISolver
+{
+public:
+	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	~_MAPFSAT_ShiftParallelMksAll() {};
+
+private:
+	int CreateFormula(std::vector<std::vector<int> >&, int);
+};
+
+class _MAPFSAT_ShiftParallelSocAll : public _MAPFSAT_ISolver
+{
+public:
+	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	~_MAPFSAT_ShiftParallelSocAll() {};
+
+private:
+	int CreateFormula(std::vector<std::vector<int> >&, int);
+};
+
+class _MAPFSAT_ShiftPebbleMksAll : public _MAPFSAT_ISolver
+{
+public:
+	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	~_MAPFSAT_ShiftPebbleMksAll() {};
+
+private:
+	int CreateFormula(std::vector<std::vector<int> >&, int);
+};
+
+class _MAPFSAT_ShiftPebbleSocAll : public _MAPFSAT_ISolver
+{
+public:
+	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	~_MAPFSAT_ShiftPebbleSocAll() {};
 
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
