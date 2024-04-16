@@ -495,7 +495,29 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_Pass(std::vector<std::vector<int> >& CN
 
 void _MAPFSAT_ISolver::CreateConf_Pebble_Shift(std::vector<std::vector<int> >& CNF)
 {
-	// if shift u->v, then there is also shift v->v (vertex conflict will take care of it)
+	// if shift v->u, then there is also shift u->u (vertex conflict will take care of it)
+	for (int v = 0; v < vertices; v++)
+	{
+		for (int dir = 0; dir < 5; dir++)
+		{
+			if (!inst->HasNeighbor(v, dir))
+				continue;
+			
+			for (size_t t_ind = 0; t_ind < shift[v][dir].timestep.size(); t_ind++)
+			{
+				int u = inst->GetNeighbor(v, dir);
+				size_t ind = lower_bound(shift[u][0].timestep.begin(), shift[u][0].timestep.end(), shift[v][dir].timestep[t_ind]) - shift[u][0].timestep.begin();
+
+				if (ind == shift[u][0].timestep.size() || shift[u][0].timestep[ind] != shift[v][dir].timestep[t_ind]) // did not find t in neighboring waiting shift
+					continue;
+				
+				//cout << "swapping conflict at edge (" << v << "," << u << "), timestep " << t << " using shift" << endl;
+				int shift1_var = shift[v][dir].first_varaible + t_ind;
+				int shift2_var = shift[u][0].first_varaible + ind;
+				CNF.push_back(vector<int> {-shift1_var, shift2_var});
+			}
+		}
+	}
 }
 
 void _MAPFSAT_ISolver::CreateMove_NoDuplicates(std::vector<std::vector<int> >& CNF)
