@@ -5,3 +5,4 @@ release/example
 release/libmapf.a
 documents/TODO
 log.log
+valgrind-out.txt

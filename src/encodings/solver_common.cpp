@@ -232,9 +232,9 @@ int _MAPFSAT_ISolver::CreateShift(int lit, int timesteps)
 					{
 						shift[v][dir].timestep.push_back(t);
 						lit++;
-						cout << "create shift v, dir " << v << " " << dir;
-						cout << " variable ID " << lit-1;
-						cout << " timestep " << t << endl;
+						//cout << "create shift v, dir " << v << " " << dir;
+						//cout << " variable ID " << lit-1;
+						//cout << " timestep " << t << endl;
 
 						if (shift_times_start[v] == -1 || shift_times_start[v] > t)
 							shift_times_start[v] = t;
@@ -417,8 +417,6 @@ void _MAPFSAT_ISolver::CreateConf_Swapping_Shift(std::vector<std::vector<int> >&
 				int shift1_var = shift[v][dir].first_varaible + t_ind;
 				int shift2_var = shift[u][op_dir].first_varaible + ind;
 				CNF.push_back(vector<int> {-shift1_var, -shift2_var});
-
-				cout << "swapping conflict at edge (" << v << "," << u << "), timestep " << shift[v][dir].timestep[t_ind] << " using shift {" << -shift1_var << "," << -shift2_var << "}" << endl;
 			}
 		}
 	}
@@ -660,16 +658,14 @@ void _MAPFSAT_ISolver::CreateMove_ExactlyOne_Shift(std::vector<std::vector<int> 
 				{
 					int shift_var = shift[v][dir].first_varaible + ind;
 					vc.push_back(shift_var);
-					cout << "there is a shift from " << v << ", " << dir << " in timestep " << t << " varaible " <<  shift_var << endl;
+					//cout << "there is a shift from " << v << ", " << dir << " in timestep " << t << " varaible " <<  shift_var << endl;
 				}
 			}
 
 			if (vc.empty())
 				continue;
 			
-			//CNF.push_back(vc); // at least 1
-
-			cout << "add previous " << vc.size() << " variables" << endl;
+			//CNF.push_back(vc); // at least 1 - do not use!!
 
 			for (size_t i = 0; i < vc.size(); i++)
 			{
@@ -717,8 +713,8 @@ void _MAPFSAT_ISolver::CreateMove_NextVertex_Shift(std::vector<std::vector<int> 
 					int at2_var = at[a][u].first_variable + (neib_t - at[a][u].first_timestep);
 					int shift_var = shift[v][dir].first_varaible + ind;
 
-					cout << "agent " << a << " is at " << v << " and something is moving to " << u << " at timestep " << t << endl;
-					cout << "agent " << a << " is at " << v << " in " << t << " and at " << u << " in the next timestep, therefore something moved" << endl;
+					//cout << "agent " << a << " is at " << v << " and something is moving to " << u << " at timestep " << t << endl;
+					//cout << "agent " << a << " is at " << v << " in " << t << " and at " << u << " in the next timestep, therefore something moved" << endl;
 
 					CNF.push_back(vector<int> {-at1_var, -shift_var, at2_var}); // if at v and v shifts to u then at u in the next timestep
 					CNF.push_back(vector<int> {-at1_var, -at2_var, shift_var}); // if at v and at u in next timestep then v shifted to u 
@@ -790,9 +786,6 @@ int _MAPFSAT_ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit)
 		vector<bool> eval = vector<bool>(at_vars);
 		for (int var = 1; var < at_vars; var++)
 			eval[var-1] = (kissat_value (solver, var) > 0) ? true : false;
-
-		for (int var = 1; var < variables; var++)
-			cout << kissat_value (solver, var) << " ";
 
 		vector<vector<int> > plan = vector<vector<int> >(agents, vector<int>(max_timestep));
 
@@ -871,13 +864,13 @@ void _MAPFSAT_ISolver::CleanUp(bool keep_at)
 
 	if (shift_times_start != NULL)
 	{
-		delete shift_times_start;
+		delete[] shift_times_start;
 		shift_times_start = NULL;
 	}
 
 	if (shift_times_end != NULL)
 	{
-		delete shift_times_end;
+		delete[] shift_times_end;
 		shift_times_end = NULL;
 	}
 
