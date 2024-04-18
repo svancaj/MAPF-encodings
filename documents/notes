@@ -8,6 +8,7 @@ Shift encoding
 	- taken from "Multi-Agent Path Finding: A New Boolean Encoding"
 	- some contrainst were changed
 		- shift does not sum to 1, but at most 1 - we do not create all possible shifts, only usable shits. In the original paper, some shifts are forced to be 1 unnecessary causing a swapping conflict.
-		- swapping conflict is still needed even for pebble motion as shift u->u may not exist (pebble motion is achieved by shift(v,u)->shift(u,u))
-		- instead of At(a,v,t+1) -> OR At(a,u,t), we use At(a,v,t) -> OR At(a,u,t+1) since it was alreadz implemented for other encodings
+		- in the original paper, they deal only with pebble motion. The condition shift(u,v)->shift(v,v) is used. The swapping conflict is still needed even for pebble motion as shift(v,v) may not exist.
+		- we change it to shift(u,v)-> AND -shift(v,w) [shift(v,v) is possible]. The change is since shift(v,v) may not exist. We no longer need swapping conflicts.
+		- instead of At(a,v,t+1) -> OR At(a,u,t), we use At(a,v,t) -> OR At(a,u,t+1) since it was already implemented for other encodings
 		- cardinality constraints are translated directly to SAT. I.e. Sum x_i = 1 is transalted as {-x_i -x_j} over all pairs.

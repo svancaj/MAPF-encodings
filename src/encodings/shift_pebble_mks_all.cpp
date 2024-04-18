@@ -22,7 +22,7 @@ int _MAPFSAT_ShiftPebbleMksAll::CreateFormula(vector<vector<int> >& CNF, int tim
 
 	// conflicts
 	CreateConf_Vertex(CNF);
-	CreateConf_Swapping_Shift(CNF);
+	//CreateConf_Swapping_Shift(CNF);
 	CreateConf_Pebble_Shift(CNF);
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;

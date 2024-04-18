@@ -495,7 +495,8 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_Pass(std::vector<std::vector<int> >& CN
 
 void _MAPFSAT_ISolver::CreateConf_Pebble_Shift(std::vector<std::vector<int> >& CNF)
 {
-	// if shift v->u, then there is also shift u->u (vertex conflict will take care of it)
+	// original paper: if shift v->u, then there is also shift u->u (vertex conflict will take care of it)
+	// our implementation: if shift v->u, then there is no shift u->w (shift u->u is possible)
 	for (int v = 0; v < vertices; v++)
 	{
 		for (int dir = 0; dir < 5; dir++)
@@ -506,15 +507,19 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_Shift(std::vector<std::vector<int> >& C
 			for (size_t t_ind = 0; t_ind < shift[v][dir].timestep.size(); t_ind++)
 			{
 				int u = inst->GetNeighbor(v, dir);
-				size_t ind = lower_bound(shift[u][0].timestep.begin(), shift[u][0].timestep.end(), shift[v][dir].timestep[t_ind]) - shift[u][0].timestep.begin();
-
-				if (ind == shift[u][0].timestep.size() || shift[u][0].timestep[ind] != shift[v][dir].timestep[t_ind]) // did not find t in neighboring waiting shift
-					continue;
-				
-				//cout << "swapping conflict at edge (" << v << "," << u << "), timestep " << t << " using shift" << endl;
 				int shift1_var = shift[v][dir].first_varaible + t_ind;
-				int shift2_var = shift[u][0].first_varaible + ind;
-				CNF.push_back(vector<int> {-shift1_var, shift2_var});
+
+				for (int u_dir = 1; u_dir < 5; u_dir++) // do not check waiting direction
+				{
+					size_t ind = lower_bound(shift[u][u_dir].timestep.begin(), shift[u][u_dir].timestep.end(), shift[v][dir].timestep[t_ind]) - shift[u][u_dir].timestep.begin();
+
+					if (ind == shift[u][u_dir].timestep.size() || shift[u][u_dir].timestep[ind] != shift[v][dir].timestep[t_ind]) // did not find t in neighboring shift
+						continue;
+					
+					//cout << "pebble conflict at edge (" << v << "," << u << "), timestep " << shift[v][dir].timestep[t_ind] << " direction " << u_dir << " using shift" << endl;
+					int shift2_var = shift[u][u_dir].first_varaible + ind;
+					CNF.push_back(vector<int> {-shift1_var, -shift2_var});
+				}
 			}
 		}
 	}
