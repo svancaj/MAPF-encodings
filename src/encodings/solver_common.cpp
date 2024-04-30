@@ -275,13 +275,16 @@ void _MAPFSAT_ISolver::CreatePossition_NoneAtGoal(std::vector<std::vector<int> >
 {
 	for (int a = 0; a < agents; a++)
 	{
-		int star_t = at[a][inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y]].last_timestep + 1;
 		int v = inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y];
-		for (int a2 = a+1; a2 < agents; a2++)
+		
+		for (int a2 = 0; a2 < agents; a2++)
 		{
 			if (at[a2][v].first_variable == 0)
 				continue;
-			int end_t = at[a2][v].last_timestep;
+
+			int star_t = max(at[a2][v].first_timestep, at[a][v].last_timestep + 1);
+			int end_t = at[a2][v].last_timestep + 1;
+
 			for (int t = star_t; t < end_t; t++)
 			{
 				//cout << a2 << " can not be at " << v << ", timestep " << t << " becuase " << a << " is in goal there" << endl;
@@ -793,8 +796,12 @@ int _MAPFSAT_ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit)
 	for (size_t i = 0; i < CNF.size(); i++)
 	{
 		for (size_t j = 0; j < CNF[i].size(); j++)
+		{
+			//cout << CNF[i][j] << " ";
 			kissat_add(solver, CNF[i][j]);
+		}
 		kissat_add(solver, 0);
+		//cout << "0 " << endl;
 	}
 
 	CleanUp(print_plan);	// save memory for kissat

@@ -39,11 +39,11 @@ Final encodings:
 - Pass_parallel_mks_jit
 - Pass_parallel_soc_all		DONE
 - Pass_parallel_soc_jit
-- Shift_pebble_mks_all
+- Shift_pebble_mks_all      DONE
 - Shift_pebble_mks_jit
-- Shift_pebble_soc_all
+- Shift_pebble_soc_all      DONE
 - Shift_pebble_soc_jit
-- Shift_parallel_mks_all
+- Shift_parallel_mks_all    DONE
 - Shift_parallel_mks_jit
-- Shift_parallel_soc_all
+- Shift_parallel_soc_all    DONE
 - Shift_parallel_soc_jit
