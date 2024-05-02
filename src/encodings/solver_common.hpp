@@ -24,12 +24,6 @@ struct _MAPFSAT_Shift
 class _MAPFSAT_ISolver
 {
 public:
-    /** Constructor of _MAPFSAT_ISolver.
-    *
-    * @param solver_name name of the encoding.
-    * @param cost_function cost function to be used - 1 = mks, 2 = soc
-    */
-    _MAPFSAT_ISolver(std::string sn, int opt) : solver_name(sn), cost_function(opt) {}; 
     virtual ~_MAPFSAT_ISolver() {};
     
     /** Perform a solve call.
@@ -59,6 +53,8 @@ protected:
 	_MAPFSAT_Logger* log;
 	std::string solver_name;
 	int cost_function; // 1 = mks, 2 = soc
+	int movement; // 1 = parallel, 2 = pebble
+	int lazy_const; // 1 = all at once, 2 = lazy
 	int timeout;
 	bool quiet;
 	bool print_plan;
@@ -119,6 +115,8 @@ protected:
 
 	// solving
 	int InvokeSolver(std::vector<std::vector<int> >&, int);
+	int normalizePlan(std::vector<std::vector<int> >&);
+	void verifyPlan(std::vector<std::vector<int> >&);
 	static void wait_for_terminate(int, void*, bool&);
 	bool TimesUp(std::chrono::time_point<std::chrono::high_resolution_clock>, std::chrono::time_point<std::chrono::high_resolution_clock>, int);
 	void CleanUp(bool);
@@ -131,9 +129,8 @@ protected:
 class _MAPFSAT_AtParallelMksAll : public _MAPFSAT_ISolver
 {
 public:
-	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	_MAPFSAT_AtParallelMksAll(std::string name = "at_parallel_mks_all");
 	~_MAPFSAT_AtParallelMksAll() {};
-
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
@@ -141,9 +138,8 @@ private:
 class _MAPFSAT_AtParallelSocAll : public _MAPFSAT_ISolver
 {
 public:
-	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	_MAPFSAT_AtParallelSocAll(std::string name = "at_parallel_soc_all");
 	~_MAPFSAT_AtParallelSocAll() {};
-
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
@@ -151,9 +147,8 @@ private:
 class _MAPFSAT_AtPebbleMksAll : public _MAPFSAT_ISolver
 {
 public:
-	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	_MAPFSAT_AtPebbleMksAll(std::string name = "at_pebble_mks_all");
 	~_MAPFSAT_AtPebbleMksAll() {};
-
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
@@ -161,9 +156,8 @@ private:
 class _MAPFSAT_AtPebbleSocAll : public _MAPFSAT_ISolver
 {
 public:
-	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	_MAPFSAT_AtPebbleSocAll(std::string name = "at_pebble_soc_all");
 	~_MAPFSAT_AtPebbleSocAll() {};
-
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
@@ -171,9 +165,8 @@ private:
 class _MAPFSAT_PassParallelMksAll : public _MAPFSAT_ISolver
 {
 public:
-	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	_MAPFSAT_PassParallelMksAll(std::string name = "pass_parallel_mks_all");
 	~_MAPFSAT_PassParallelMksAll() {};
-
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
@@ -181,9 +174,8 @@ private:
 class _MAPFSAT_PassParallelSocAll : public _MAPFSAT_ISolver
 {
 public:
-	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	_MAPFSAT_PassParallelSocAll(std::string name = "pass_parallel_soc_all");
 	~_MAPFSAT_PassParallelSocAll() {};
-
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
@@ -191,9 +183,8 @@ private:
 class _MAPFSAT_PassPebbleMksAll : public _MAPFSAT_ISolver
 {
 public:
-	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	_MAPFSAT_PassPebbleMksAll(std::string name = "pass_pebble_mks_all");
 	~_MAPFSAT_PassPebbleMksAll() {};
-
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
@@ -201,9 +192,8 @@ private:
 class _MAPFSAT_PassPebbleSocAll : public _MAPFSAT_ISolver
 {
 public:
-	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	_MAPFSAT_PassPebbleSocAll(std::string name = "pass_pebble_soc_all");
 	~_MAPFSAT_PassPebbleSocAll() {};
-
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
@@ -211,9 +201,8 @@ private:
 class _MAPFSAT_ShiftParallelMksAll : public _MAPFSAT_ISolver
 {
 public:
-	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	_MAPFSAT_ShiftParallelMksAll(std::string name = "shift_parallel_mks_all");
 	~_MAPFSAT_ShiftParallelMksAll() {};
-
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
@@ -221,9 +210,8 @@ private:
 class _MAPFSAT_ShiftParallelSocAll : public _MAPFSAT_ISolver
 {
 public:
-	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	_MAPFSAT_ShiftParallelSocAll(std::string name = "shift_parallel_soc_all");
 	~_MAPFSAT_ShiftParallelSocAll() {};
-
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
@@ -231,9 +219,8 @@ private:
 class _MAPFSAT_ShiftPebbleMksAll : public _MAPFSAT_ISolver
 {
 public:
-	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	_MAPFSAT_ShiftPebbleMksAll(std::string name = "shift_pebble_mks_all");
 	~_MAPFSAT_ShiftPebbleMksAll() {};
-
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
@@ -241,9 +228,8 @@ private:
 class _MAPFSAT_ShiftPebbleSocAll : public _MAPFSAT_ISolver
 {
 public:
-	using _MAPFSAT_ISolver::_MAPFSAT_ISolver;
+	_MAPFSAT_ShiftPebbleSocAll(std::string name = "shift_pebble_soc_all");
 	~_MAPFSAT_ShiftPebbleSocAll() {};
-
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
 };

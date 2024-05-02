@@ -250,62 +250,62 @@ _MAPFSAT_ISolver* PickEncoding(string enc)
 	_MAPFSAT_ISolver* solver = NULL;
 	if (enc.compare("at_parallel_mks_all") == 0)
 	{
-		solver = new _MAPFSAT_AtParallelMksAll(enc, 1);
+		solver = new _MAPFSAT_AtParallelMksAll();
 		return solver;
 	}
 	if (enc.compare("at_parallel_soc_all") == 0)
 	{
-		solver = new _MAPFSAT_AtParallelSocAll(enc, 2);
+		solver = new _MAPFSAT_AtParallelSocAll();
 		return solver;
 	}
 	if (enc.compare("at_pebble_mks_all") == 0)
 	{
-		solver = new _MAPFSAT_AtPebbleMksAll(enc, 1);
+		solver = new _MAPFSAT_AtPebbleMksAll();
 		return solver;
 	}
 	if (enc.compare("at_pebble_soc_all") == 0)
 	{
-		solver = new _MAPFSAT_AtPebbleSocAll(enc, 2);
+		solver = new _MAPFSAT_AtPebbleSocAll();
 		return solver;
 	}
 	if (enc.compare("pass_parallel_mks_all") == 0)
 	{
-		solver = new _MAPFSAT_PassParallelMksAll(enc, 1);
+		solver = new _MAPFSAT_PassParallelMksAll();
 		return solver;
 	}
 	if (enc.compare("pass_parallel_soc_all") == 0)
 	{
-		solver = new _MAPFSAT_PassParallelSocAll(enc, 2);
+		solver = new _MAPFSAT_PassParallelSocAll();
 		return solver;
 	}
 	if (enc.compare("pass_pebble_mks_all") == 0)
 	{
-		solver = new _MAPFSAT_PassPebbleMksAll(enc, 1);
+		solver = new _MAPFSAT_PassPebbleMksAll();
 		return solver;
 	}
 	if (enc.compare("pass_pebble_soc_all") == 0)
 	{
-		solver = new _MAPFSAT_PassPebbleSocAll(enc, 2);
+		solver = new _MAPFSAT_PassPebbleSocAll();
 		return solver;
 	}
 	if (enc.compare("shift_parallel_mks_all") == 0)
 	{
-		solver = new _MAPFSAT_ShiftParallelMksAll(enc, 1);
+		solver = new _MAPFSAT_ShiftParallelMksAll();
 		return solver;
 	}
 	if (enc.compare("shift_parallel_soc_all") == 0)
 	{
-		solver = new _MAPFSAT_ShiftParallelSocAll(enc, 2);
+		solver = new _MAPFSAT_ShiftParallelSocAll();
 		return solver;
 	}
 	if (enc.compare("shift_pebble_mks_all") == 0)
 	{
-		solver = new _MAPFSAT_ShiftPebbleMksAll(enc, 1);
+		solver = new _MAPFSAT_ShiftPebbleMksAll();
 		return solver;
 	}
 	if (enc.compare("shift_pebble_soc_all") == 0)
 	{
-		solver = new _MAPFSAT_ShiftPebbleSocAll(enc, 2);
+		solver = new _MAPFSAT_ShiftPebbleSocAll();
 		return solver;
 	}
 	return solver;

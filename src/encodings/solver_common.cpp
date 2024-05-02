@@ -839,11 +839,14 @@ int _MAPFSAT_ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit)
 			}
 		}
 
-		cout << "Found plan [agents = " << agents << "] [timesteps = " << max_timestep << "]" << endl;
-		for (int a = 0; a < agents; a++)
+		int final_timesteps = normalizePlan(plan);
+		verifyPlan(plan);
+
+		cout << "Found plan [agents = " << agents << "] [timesteps = " << final_timesteps << "]" << endl;
+		for (size_t a = 0; a < plan.size(); a++)
 		{
 			cout << "Agent #" << a << " : ";
-			for (int t = 0; t < max_timestep; t++)
+			for (size_t t = 0; t < plan[a].size(); t++)
 				cout << plan[a][t] << " ";
 			cout << endl;
 		}	
@@ -855,6 +858,54 @@ int _MAPFSAT_ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit)
 	waiting_thread.join();
 
 	return (ret == 10) ? 0 : 1;
+}
+
+int _MAPFSAT_ISolver::normalizePlan(vector<vector<int> >& plan)
+{
+	int max_t = 0;
+	for (size_t a = 0; a < plan.size(); a++)
+	{
+		int goal = inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y];
+		for (size_t t = plan[a].size() - 1; t > 0; t--)
+		{
+			if (plan[a][t] == 0)
+				plan[a][t] = goal;
+			if (plan[a][t] != goal)
+			{
+				max_t = max(max_t, (int)t + 2);
+				break;
+			}
+		}
+	}
+
+	for (size_t a = 0; a < plan.size(); a++)
+		plan[a].resize(max_t);
+
+	return max_t;
+}
+
+void _MAPFSAT_ISolver::verifyPlan(vector<vector<int> >& plan)
+{
+	for (size_t a1 = 0; a1 < plan.size(); a1++)
+	{
+		for (size_t a2 = a1+1; a2 < plan.size(); a2++)
+		{
+			for (size_t t = 0; t < plan[a1].size(); t++)
+			{
+				if (plan[a1][t] == plan[a2][t])
+					cout << "Vertex conflict! Agents " << a1 << ", " << a2 << ", timestep " << t << ", location " << plan[a1][t] << endl;
+				
+				if (t < plan[a1].size() - 1 && plan[a1][t] == plan[a2][t+1] && plan[a1][t+1] == plan[a2][t])
+					cout << "Swapping conflict! Agents " << a1 << ", " << a2 << ", timestep " << t << ", edge (" << plan[a1][t] << "," << plan[a1][t+1] << ")" << endl;
+				
+				if (movement == 2 && t < plan[a1].size() - 1 && plan[a1][t] == plan[a2][t+1])
+					cout << "Pebble conflict! Agent " << a2 << " moved into " << plan[a2][t+1] << " in " << t+1 << ", but " << a1 << " was present in previous timestep." << endl;
+				
+				if (movement == 2 && t < plan[a1].size() - 1 && plan[a1][t+1] == plan[a2][t])
+					cout << "Pebble conflict! Agent " << a1 << " moved into " << plan[a1][t+1] << " in " << t+1 << ", but " << a2 << " was present in previous timestep." << endl;
+			}
+		}
+	}
 }
 
 void _MAPFSAT_ISolver::wait_for_terminate(int time_left_ms, void* solver, bool& ended)

@@ -2,6 +2,18 @@
 
 using namespace std;
 
+/** Constructor of _MAPFSAT_AtPebbleSocAll.
+*
+* @param sol_name name of the encoding used in log. Defualt value is at_pebble_soc_all.
+*/
+_MAPFSAT_AtPebbleSocAll::_MAPFSAT_AtPebbleSocAll(string sol_name)
+{
+	solver_name = sol_name;
+	cost_function = 2; // 1 = mks, 2 = soc
+	movement = 2; // 1 = parallel, 2 = pebble
+	lazy_const = 1; // 1 = all at once, 2 = lazy
+};
+
 int _MAPFSAT_AtPebbleSocAll::CreateFormula(vector<vector<int> >& CNF, int time_left)
 {
 	int timesteps = inst->GetMksLB(agents) + delta;
