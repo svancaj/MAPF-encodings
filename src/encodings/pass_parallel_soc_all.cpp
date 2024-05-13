@@ -52,6 +52,11 @@ int _MAPFSAT_PassParallelSocAll::CreateFormula(vector<vector<int> >& CNF, int ti
 	if (delta > 0)
 		lit = CreateConst_LimitSoc(CNF, lit);
 
+	// avoid locations
+	CreateConst_Avoid(CNF);
+	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
+		return -1;
+
 	// Deallocate memory
 	CleanUp(print_plan);
 

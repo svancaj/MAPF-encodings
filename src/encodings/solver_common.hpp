@@ -46,7 +46,7 @@ public:
     * @param quiet option to suppress any print to stdout. Default is false.
     * @param print_paths option to print found paths. Default is false.
     */
-    void SetData(_MAPFSAT_Instance*, _MAPFSAT_Logger*, int, bool = false, bool = false);
+    void SetData(_MAPFSAT_Instance*, _MAPFSAT_Logger*, int, bool = false, bool = false, bool = false);
 
 protected:
 	_MAPFSAT_Instance* inst;
@@ -58,6 +58,7 @@ protected:
 	int timeout;
 	bool quiet;
 	bool print_plan;
+	bool use_avoid;
 
 	int agents;
 	int vertices;
@@ -111,6 +112,7 @@ protected:
 	void CreateMove_NextVertex_Shift(std::vector<std::vector<int> >&);
 
 	int CreateConst_LimitSoc(std::vector<std::vector<int> >&, int);
+	void CreateConst_Avoid(std::vector<std::vector<int> >&);
 
 
 	// solving

@@ -60,6 +60,15 @@ void _MAPFSAT_Instance::SetAgents(int ags)
 	last_number_of_agents = ags;
 }
 
+void _MAPFSAT_Instance::LoadAvoidData(vector<pair<pair<int,int> ,int> >& avoid)
+{
+	if (avoid.empty())
+		return;
+	avoid_locations.resize(avoid.size());
+	for (size_t i = 0; i < avoid.size(); i++)
+		avoid_locations[i] = {{(size_t)avoid[i].first.first, (size_t)avoid[i].first.second}, avoid[i].second};
+}
+
 _MAPFSAT_Vertex _MAPFSAT_Instance::IDtoCoords(int vertex)
 {
 	return coord_list[vertex];

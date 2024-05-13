@@ -29,6 +29,12 @@ struct _MAPFSAT_Agent
 	_MAPFSAT_Vertex goal;
 };
 
+struct _MAPFSAT_Avoid
+{
+	_MAPFSAT_Vertex v;
+	int t;
+};
+
 class _MAPFSAT_Instance
 {
 public:
@@ -60,6 +66,14 @@ public:
     * @param ags number of agents.
     */
     void SetAgents(int);
+
+	/** Set locations to be avoided.
+    *
+    * Stores the provided argument.
+    *
+    * @param avoid x,y coords in time to be avoided by all agents.
+    */
+	void LoadAvoidData(std::vector<std::pair<std::pair<int,int>,int> >&);
 	
 	int GetMksLB(size_t);
 	int GetSocLB(size_t);
@@ -81,6 +95,7 @@ public:
 	std::vector<std::vector<int> > length_from_start;
 	std::vector<std::vector<int> > length_from_goal;
 	std::vector<int> SP_lengths;
+	std::vector<_MAPFSAT_Avoid> avoid_locations;
 
 	std::vector<std::vector<int> > map;
 	size_t height;

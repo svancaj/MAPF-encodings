@@ -13,13 +13,14 @@ using namespace std;
 /****** before solving ******/
 /****************************/
 
-void _MAPFSAT_ISolver::SetData(_MAPFSAT_Instance* i, _MAPFSAT_Logger* l, int to, bool q, bool p)
+void _MAPFSAT_ISolver::SetData(_MAPFSAT_Instance* i, _MAPFSAT_Logger* l, int to, bool q, bool p, bool av)
 {
 	inst = i;
 	log = l;
 	timeout = to; // in s
 	quiet = q;
 	print_plan = p;
+	use_avoid = av;
 
 	if (quiet)
 		print_plan = false;
@@ -781,6 +782,27 @@ int _MAPFSAT_ISolver::CreateConst_LimitSoc(vector<vector<int>>& CNF, int lit)
 		CNF.push_back(formula[i]);
 
 	return lit;
+}
+
+void _MAPFSAT_ISolver::CreateConst_Avoid(std::vector<std::vector<int> >& CNF)
+{
+	for (size_t i = 0; i < inst->avoid_locations.size(); i++)
+	{
+		if (inst->avoid_locations[i].t < max_timestep)
+		{
+			int v = inst->map[inst->avoid_locations[i].v.y][inst->avoid_locations[i].v.x];
+			int t = inst->avoid_locations[i].t;
+
+			for (int a = 0; a < agents; a++)
+			{
+				if (at[a][v].first_variable == 0)
+					continue;
+				
+				int at_var = at[a][v].first_variable + (t - at[a][v].first_timestep);
+				CNF.push_back(vector<int> {-at_var});
+			}
+		}
+	}
 }
 
 /*******************************/

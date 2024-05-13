@@ -43,6 +43,11 @@ int _MAPFSAT_AtParallelMksAll::CreateFormula(vector<vector<int> >& CNF, int time
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
+	// avoid locations
+	CreateConst_Avoid(CNF);
+	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
+		return -1;
+
 	// Deallocate memory
 	CleanUp(print_plan);
 
