@@ -54,6 +54,11 @@ int _MAPFSAT_ShiftPebbleSocAll::CreateFormula(vector<vector<int> >& CNF, int tim
 	if (delta > 0)
 		lit = CreateConst_LimitSoc(CNF, lit);
 
+	// avoid locations - user has to make sure the avoid locations are pebble movement compatible
+	CreateConst_Avoid(CNF);
+	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
+		return -1;
+
 	// Deallocate memory
 	CleanUp(print_plan);
 
