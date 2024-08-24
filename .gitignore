@@ -6,3 +6,4 @@ release/libmapf.a
 documents/TODO
 log.log
 valgrind-out.txt
+*.cnf

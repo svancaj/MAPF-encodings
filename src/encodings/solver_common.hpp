@@ -46,7 +46,7 @@ public:
     * @param quiet option to suppress any print to stdout. Default is false.
     * @param print_paths option to print found paths. Default is false.
     */
-    void SetData(_MAPFSAT_Instance*, _MAPFSAT_Logger*, int, bool = false, bool = false, bool = false);
+    void SetData(_MAPFSAT_Instance*, _MAPFSAT_Logger*, int, std::string = "", bool = false, bool = false, bool = false);
 
 protected:
 	_MAPFSAT_Instance* inst;
@@ -56,6 +56,7 @@ protected:
 	int movement; // 1 = parallel, 2 = pebble
 	int lazy_const; // 1 = all at once, 2 = lazy
 	int timeout;
+	std::string cnf_file;
 	bool quiet;
 	bool print_plan;
 	bool use_avoid;

@@ -27,10 +27,12 @@ int main(int argc, char** argv)
 	char *dvalue = NULL;
 	char *fvalue = NULL;
 	char *lvalue = NULL;
+	char *cvalue = NULL;
 
 	int timeout = 300;
 	string map_dir = "instances/maps";
 	string stat_file = "";
+	string cnf_file = "";
 	int log_option = 0;
 
 	_MAPFSAT_Instance* inst;
@@ -40,7 +42,7 @@ int main(int argc, char** argv)
 	// parse arguments
 	opterr = 0;
 	char c;
-	while ((c = getopt (argc, argv, "hqpoe:s:m:a:i:t:d:f:l:")) != -1)
+	while ((c = getopt (argc, argv, "hqpoe:s:m:a:i:t:d:f:l:c:")) != -1)
 	{
 		switch (c)
 		{
@@ -83,8 +85,11 @@ int main(int argc, char** argv)
 			case 'l':
 				lvalue = optarg;
 				break;
+			case 'c':
+				cvalue = optarg;
+				break;
 			case '?':
-				if (optopt == 'e' || optopt == 's' || optopt == 'm' || optopt == 'a' || optopt == 'i' || optopt == 't' || optopt == 'd' || optopt == 'f' || optopt == 'l')
+				if (optopt == 'e' || optopt == 's' || optopt == 'm' || optopt == 'a' || optopt == 'i' || optopt == 't' || optopt == 'd' || optopt == 'f' || optopt == 'l' || optopt == 'c')
 				{
 					cout << "Option -" << (char)optopt << " requires an argument!" << endl;
 					return -1;
@@ -137,10 +142,13 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
+	if (cvalue != NULL)
+		cnf_file = cvalue;
+
 	// create classes and load map
 	inst = new _MAPFSAT_Instance(map_dir, svalue);
 	log = new _MAPFSAT_Logger(inst, evalue, log_option, stat_file);
-	solver->SetData(inst, log, timeout, qflag, pflag);
+	solver->SetData(inst, log, timeout, cnf_file, qflag, pflag);
 
 	// check number of agents and increment
 	size_t current_agents = inst->agents.size();
@@ -232,6 +240,7 @@ void PrintHelp(char* argv[], bool quiet)
 	cout << "	-o                  : Oneshot solving. Ie. do not increment cost in case of unsat call. Default is to optimize." << endl;
 	cout << "	-f log_file         : log file. If not specified, output to stdout." << endl;
 	cout << "	-l log_level        : logging option. 0 = no log, 1 = inline log, 2 = human readable log. if -f log_file is not specified in combination with -l 1 or -l 2 overrides -q. Default is 0." << endl;
+	cout << "	-c cnf_file         : print the created CNF into cnf_file. If not specified, the created CNF is not printed." << endl;
 	cout << endl;
 }
 

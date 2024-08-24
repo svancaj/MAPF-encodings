@@ -13,7 +13,7 @@ using namespace std;
 /****** before solving ******/
 /****************************/
 
-void _MAPFSAT_ISolver::SetData(_MAPFSAT_Instance* i, _MAPFSAT_Logger* l, int to, bool q, bool p, bool av)
+void _MAPFSAT_ISolver::SetData(_MAPFSAT_Instance* i, _MAPFSAT_Logger* l, int to, string cf, bool q, bool p, bool av)
 {
 	inst = i;
 	log = l;
@@ -21,6 +21,7 @@ void _MAPFSAT_ISolver::SetData(_MAPFSAT_Instance* i, _MAPFSAT_Logger* l, int to,
 	quiet = q;
 	print_plan = p;
 	use_avoid = av;
+	cnf_file = cf;
 
 	if (quiet)
 		print_plan = false;
@@ -248,7 +249,6 @@ int _MAPFSAT_ISolver::CreateShift(int lit, int timesteps)
 			}
 		}
 	}
-	variables = lit;
 
 	return lit;
 }
@@ -813,17 +813,28 @@ int _MAPFSAT_ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit)
 {
 	kissat* solver = kissat_init();
     kissat_set_option(solver, "quiet", 1);
-	
+
+	std::ofstream out;
+	bool print_cnf = false;
+	if (cnf_file.compare("") != 0)
+	{
+		print_cnf = true;
+		out.open(cnf_file);
+		out << "p cnf " << nr_vars-1 << " " << CNF.size() << endl;
+	}
+
 	// CNF to solver
 	for (size_t i = 0; i < CNF.size(); i++)
 	{
 		for (size_t j = 0; j < CNF[i].size(); j++)
 		{
-			//cout << CNF[i][j] << " ";
+			if (print_cnf)
+				out << CNF[i][j] << " ";
 			kissat_add(solver, CNF[i][j]);
 		}
 		kissat_add(solver, 0);
-		//cout << "0 " << endl;
+		if (print_cnf)
+			out << "0 " << endl;
 	}
 
 	CleanUp(print_plan);	// save memory for kissat

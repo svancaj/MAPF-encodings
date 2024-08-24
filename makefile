@@ -78,7 +78,7 @@ $(B_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test2.scen -e at_parallel_soc_all -t 100 -p -a 2 -o -d 10
+	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test4.scen -e pass_parallel_mks_all -t 100 -p -a 2 -d 2 -o -c formula.cnf
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \
@@ -105,4 +105,4 @@ experiment: $(PROJECT_NAME)
 clean:
 	rm -rf $(B_DIR)
 	rm -f $(R_DIR)/$(PROJECT_NAME) $(R_DIR)/$(EX_NAME) $(R_DIR)/$(OUTPUT_LIB) $(R_DIR)/$(HEADER_NAME)
-	rm -f valgrind-out.txt log.log
+	rm -f valgrind-out.txt log.log *.cnf
