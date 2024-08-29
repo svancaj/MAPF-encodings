@@ -43,6 +43,7 @@ public:
     * @param instance pointer to a _MAPFSAT_Instance.
     * @param logger pointer to a _MAPFSAT_Logger.
     * @param timeout timeout for each solve call in [s]. Gets reseted after each solve call.
+	* @param CNF_file file name to print the created CNF formula. If no file is specified, the formula is not printed. Default is "".
     * @param quiet option to suppress any print to stdout. Default is false.
     * @param print_paths option to print found paths. Default is false.
     */

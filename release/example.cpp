@@ -19,7 +19,7 @@ int main()
 	_MAPFSAT_Logger* log = new _MAPFSAT_Logger(inst, "encoding_name", 2);
 	_MAPFSAT_PassParallelMksAll* solver = new _MAPFSAT_PassParallelMksAll();
 
-	solver->SetData(inst, log, 300, false, true);
+	solver->SetData(inst, log, 300, "", false, true);
 	inst->SetAgents(2);
 	log->NewInstance(2);
 
