@@ -591,7 +591,7 @@ void _MAPFSAT_ISolver::CreateMove_NextVertex_At(std::vector<std::vector<int> >& 
 				if (neibs.empty())
 					continue;
 				
-				int at_var = at[a][v].first_variable + (t - at[a][v].first_timestep);;
+				int at_var = at[a][v].first_variable + (t - at[a][v].first_timestep);
 				neibs.push_back(-at_var);
 
 				CNF.push_back(neibs);
