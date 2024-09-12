@@ -211,11 +211,11 @@ void PrintIntro(bool quiet)
 		return;
 
 	cout << endl;
-	cout << "*****************************************" << endl;
-	cout << "* This is a reduction-based MAPF solver *" << endl;
-	cout << "*   Created by Jiri Svancara @ MFF UK   *" << endl;
-	cout << "*       Used SAT solver is Kissat       *" << endl;
-	cout << "*****************************************" << endl;
+	cout << "*******************************************************" << endl;
+	cout << "*        This is a reduction-based MAPF solver        *" << endl;
+	cout << "*          Created by Jiri Svancara @ MFF UK          *" << endl;
+	cout << "*       Used SAT solvers are Kissat and Monosat       *" << endl;
+	cout << "*******************************************************" << endl;
 	cout << endl;
 }
 
@@ -230,7 +230,7 @@ void PrintHelp(char* argv[], bool quiet)
 	cout << "	-h                  : Prints help and exits" << endl;
 	cout << "	-q                  : Suppress print on stdout" << endl;
 	cout << "	-p                  : Print found plan. If q flag is set, p flag is overwritten." << endl;
-	cout << "	-e encoding         : Encoding to be used. Available options are {at|pass|shift}_{pebble|parallel}_{mks|soc}_{all|jit}" << endl;
+	cout << "	-e encoding         : Encoding to be used. Available options are {at|pass|shift|monosat}_{pebble|parallel}_{mks|soc}_{all|jit}" << endl;
 	cout << "	-s scenario_file    : Path to a scenario file" << endl;
 	cout << "	-m map_dir          : Directory containing map files. Default is instances/maps" << endl;
 	cout << "	-a number_of_agents : Number of agents to solve. If not specified, all agents in the scenario file are used." << endl;
@@ -315,6 +315,11 @@ _MAPFSAT_ISolver* PickEncoding(string enc)
 	if (enc.compare("shift_pebble_soc_all") == 0)
 	{
 		solver = new _MAPFSAT_ShiftPebbleSocAll();
+		return solver;
+	}
+	if (enc.compare("monosat_parallel_mks_all") == 0)
+	{
+		solver = new _MAPFSAT_MonosatParallelMksAll();
 		return solver;
 	}
 	return solver;

@@ -10,7 +10,7 @@
 using namespace std;
 
 /****************************/
-/****** before solving ******/
+// MARK: before solving
 /****************************/
 
 void _MAPFSAT_ISolver::SetData(_MAPFSAT_Instance* i, _MAPFSAT_Logger* l, int to, string cf, bool q, bool p, bool av)
@@ -42,6 +42,7 @@ void _MAPFSAT_ISolver::PrintSolveDetails(int time_left)
 	cout << "Instance name: " << inst->scen_name << endl;
 	cout << "Map name: " << inst->map_name << endl;
 	cout << "Encoding used: " << solver_name << endl;
+	cout << "SAT solver used: " << ((solver_to_use == 1) ? "Kissat" : "Monosat") << endl;
 	cout << "Optimizing function: " << ((cost_function == 1) ? "makespan" : "sum of costs") << endl;
 	cout << "Number of agents: " << agents << endl;
 	cout << "Mks LB: " << inst->GetMksLB(agents) << endl;
@@ -65,7 +66,7 @@ void _MAPFSAT_ISolver::DebugPrint(vector<vector<int> >& CNF)
 }
 
 /********************************/
-/********* SOLVING MAPF *********/
+// MARK: solving MAPF
 /********************************/
 
 int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot)
@@ -104,7 +105,10 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot)
 
 		// solve formula
 		start = chrono::high_resolution_clock::now();
-		res = InvokeSolver(CNF, time_left + 100);
+		if (solver_to_use == 1)
+			res = InvokeSolver_Kissat(CNF, time_left + 100);
+		if (solver_to_use == 2)
+			res = InvokeSolver_Monosat(CNF, time_left + 100);
 		stop = chrono::high_resolution_clock::now();
 		if (TimesUp(start, stop, time_left))
 			return 1;
@@ -137,7 +141,7 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot)
 }
 
 /****************************/
-/***** creating formula *****/
+// MARK: create varaibles
 /****************************/
 
 int _MAPFSAT_ISolver::CreateAt(int lit, int timesteps)
@@ -252,6 +256,10 @@ int _MAPFSAT_ISolver::CreateShift(int lit, int timesteps)
 
 	return lit;
 }
+
+/****************************/
+// MARK: create constraints
+/****************************/
 
 void _MAPFSAT_ISolver::CreatePossition_Start(std::vector<std::vector<int> >& CNF)
 {
@@ -755,6 +763,89 @@ void _MAPFSAT_ISolver::CreateMove_NextVertex_Shift(std::vector<std::vector<int> 
 	}
 }
 
+void _MAPFSAT_ISolver::CreateMove_Graph_Monosat()
+{
+	// `digraph <weight type> <# nodes> <# edges> <GraphID>`
+	// `edge <GraphID> <from> <to> <CNF Variable>`
+	// `reach <GraphID> <a> <b> <CNF Variable>`
+
+	std::ofstream out;
+	out.open(cnf_file, ios_base::app);
+
+	for (int a = 0; a < agents; a++)
+	{
+		out << "digraph int 0 0 " << a << endl;
+		
+		int vertex_id = 0;
+		unordered_map<int, int> dict;
+
+		// turn vertices into edges
+		for (int v = 0; v < vertices; v++)
+		{
+			if (at[a][v].first_variable == 0)
+				continue;
+
+			int star_t = at[a][v].first_timestep;
+			int end_t = at[a][v].last_timestep + 1;
+
+			for (int t = star_t; t < end_t; t++)
+			{
+				int at_var = at[a][v].first_variable + (t - at[a][v].first_timestep);
+
+				int v1 = VarToID(at_var, false, vertex_id, dict);
+				int v2 = VarToID(at_var, true, vertex_id, dict);
+
+				out << "edge " << a << " " << v1 << " " << v2 << " " << at_var <<  endl;
+			}
+		}
+
+		// connect vertices based on pass varaibles
+		for (int v = 0; v < vertices; v++)
+		{
+			if (at[a][v].first_variable == 0)
+				continue;
+
+			for (int dir = 0; dir < 5; dir++)
+			{
+				if (!inst->HasNeighbor(v, dir))
+					continue;
+				
+				if (pass[a][v][dir].first_variable == 0)
+					continue;
+
+				int u = inst->GetNeighbor(v, dir);
+
+				int star_t = pass[a][v][dir].first_timestep;
+				int end_t = pass[a][v][dir].last_timestep + 1;
+
+				for (int t = star_t; t < end_t; t++)
+				{
+					int at_var = at[a][v].first_variable + (t - at[a][v].first_timestep);
+					int pass_var = pass[a][v][dir].first_variable + (t - pass[a][v][dir].first_timestep);
+					int neib_var = at[a][u].first_variable + (t + 1 - at[a][u].first_timestep);
+
+					int v2 = VarToID(at_var, true, vertex_id, dict);
+					int u1 = VarToID(neib_var, false, vertex_id, dict);
+
+					out << "edge " << a << " " << v2 << " " << u1 << " " << pass_var <<  endl;
+				}
+			}
+		}
+
+		// reachability requirement
+		int at_start_var = at[a][inst->map[inst->agents[a].start.x][inst->agents[a].start.y]].first_variable;
+		_MAPFSAT_TEGAgent AV_goal = at[a][inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y]];
+		int at_goal_var = AV_goal.first_variable + (AV_goal.last_timestep - AV_goal.first_timestep);
+
+		int start_v = VarToID(at_start_var, false, vertex_id, dict);
+		int goal_v = VarToID(at_goal_var, true, vertex_id, dict);
+
+		out << "reach " << a << " " << start_v << " " << goal_v << " " << at_start_var << endl;
+	}
+
+	out.close();
+}
+
 int _MAPFSAT_ISolver::CreateConst_LimitSoc(vector<vector<int>>& CNF, int lit)
 {
 	vector<int> late_variables;
@@ -805,11 +896,11 @@ void _MAPFSAT_ISolver::CreateConst_Avoid(std::vector<std::vector<int> >& CNF)
 	}
 }
 
-/*******************************/
-/********* solving CNF *********/
-/*******************************/
+/****************************/
+// MARK: solving CNF
+/****************************/
 
-int _MAPFSAT_ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit)
+int _MAPFSAT_ISolver::InvokeSolver_Kissat(vector<vector<int>> &CNF, int timelimit)
 {
 	kissat* solver = kissat_init();
     kissat_set_option(solver, "quiet", 1);
@@ -837,11 +928,14 @@ int _MAPFSAT_ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit)
 			out << "0 " << endl;
 	}
 
+	if (print_cnf)
+		out.close();
+
 	CleanUp(print_plan);	// save memory for kissat
 	CNF = vector<vector<int> >();
 
 	bool ended = false;
-	thread waiting_thread = thread(wait_for_terminate, timelimit, solver, ref(ended));
+	thread waiting_thread = thread(WaitForTerminate, timelimit, solver, ref(ended));
 	
     int ret = kissat_solve(solver); // Start solver
 
@@ -872,8 +966,8 @@ int _MAPFSAT_ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit)
 			}
 		}
 
-		int final_timesteps = normalizePlan(plan);
-		verifyPlan(plan);
+		int final_timesteps = NormalizePlan(plan);
+		VerifyPlan(plan);
 
 		cout << "Found plan [agents = " << agents << "] [timesteps = " << final_timesteps << "]" << endl;
 		for (size_t a = 0; a < plan.size(); a++)
@@ -893,7 +987,80 @@ int _MAPFSAT_ISolver::InvokeSolver(vector<vector<int>> &CNF, int timelimit)
 	return (ret == 10) ? 0 : 1;
 }
 
-int _MAPFSAT_ISolver::normalizePlan(vector<vector<int> >& plan)
+int _MAPFSAT_ISolver::InvokeSolver_Monosat(std::vector<std::vector<int> >&, int)
+{
+	std::ofstream out;
+	bool print_cnf = false;
+	if (cnf_file.compare("") != 0)
+	{
+		print_cnf = true;
+		out.open(cnf_file);
+		out << "p cnf " << nr_vars-1 << " " << CNF.size() << endl;
+	}
+	else
+	{
+		cout << "Must specify file for printing!" << endl;
+		return -1;
+	}
+
+	// CNF to solver
+	for (size_t i = 0; i < CNF.size(); i++)
+	{
+		for (size_t j = 0; j < CNF[i].size(); j++)
+			out << CNF[i][j] << " ";
+		out << "0 " << endl;
+	}
+
+	out.close();
+
+	CreateMove_Graph_Monosat();
+
+	stringstream exec;
+	exec << "./libs/monosat " << cnf_file;
+
+	int ret = system(exec.str().c_str());
+
+	cout << ret << endl;
+
+	return (ret == 2560) ? 0 : 1;
+}
+
+void _MAPFSAT_ISolver::WaitForTerminate(int time_left_ms, void* solver, bool& ended)
+{
+	while (time_left_ms > 0)
+	{
+		if (ended)
+			return;
+
+		this_thread::sleep_for(std::chrono::milliseconds(50));
+		time_left_ms -= 50;
+	}
+
+	if (ended)
+		return;
+		
+	kissat_terminate((kissat*)solver);	// Trusting in kissat implementation
+}
+
+/****************************/
+// MARK: auxiliary functions
+/****************************/
+
+int _MAPFSAT_ISolver::VarToID(int var, bool duplicate, int& freshID, unordered_map<int, int>& dict)
+{
+	if (duplicate)
+		var = -var;
+	
+	if (dict.find(var) == dict.end())
+	{
+		dict[var] = freshID;
+		freshID++;
+	}
+
+	return dict[var];
+}
+
+int _MAPFSAT_ISolver::NormalizePlan(vector<vector<int> >& plan)
 {
 	int max_t = 0;
 	for (size_t a = 0; a < plan.size(); a++)
@@ -917,7 +1084,7 @@ int _MAPFSAT_ISolver::normalizePlan(vector<vector<int> >& plan)
 	return max_t;
 }
 
-void _MAPFSAT_ISolver::verifyPlan(vector<vector<int> >& plan)
+void _MAPFSAT_ISolver::VerifyPlan(vector<vector<int> >& plan)
 {
 	for (size_t a1 = 0; a1 < plan.size(); a1++)
 	{
@@ -939,23 +1106,6 @@ void _MAPFSAT_ISolver::verifyPlan(vector<vector<int> >& plan)
 			}
 		}
 	}
-}
-
-void _MAPFSAT_ISolver::wait_for_terminate(int time_left_ms, void* solver, bool& ended)
-{
-	while (time_left_ms > 0)
-	{
-		if (ended)
-			return;
-
-		this_thread::sleep_for(std::chrono::milliseconds(50));
-		time_left_ms -= 50;
-	}
-
-	if (ended)
-		return;
-		
-	kissat_terminate((kissat*)solver);	// Trusting in kissat implementation
 }
 
 bool _MAPFSAT_ISolver::TimesUp(	std::chrono::time_point<std::chrono::high_resolution_clock> start_time,

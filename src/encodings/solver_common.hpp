@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <chrono>
 #include <thread>
+#include <unordered_map>
 
 #include "../instance.hpp"
 #include "../logger.hpp"
@@ -61,13 +62,12 @@ protected:
 	bool quiet;
 	bool print_plan;
 	bool use_avoid;
+	int solver_to_use = 1; // 1 = kissat, 2 = monosat
 
 	int agents;
 	int vertices;
 	int delta;
 	int max_timestep;
-
-	int variables;
 
 	_MAPFSAT_TEGAgent** at;
 	_MAPFSAT_TEGAgent*** pass;
@@ -113,15 +113,20 @@ protected:
 	void CreateMove_ExactlyOne_Shift(std::vector<std::vector<int> >&);
 	void CreateMove_NextVertex_Shift(std::vector<std::vector<int> >&);
 
+	void CreateMove_Graph_Monosat();
+
 	int CreateConst_LimitSoc(std::vector<std::vector<int> >&, int);
 	void CreateConst_Avoid(std::vector<std::vector<int> >&);
 
-
 	// solving
-	int InvokeSolver(std::vector<std::vector<int> >&, int);
-	int normalizePlan(std::vector<std::vector<int> >&);
-	void verifyPlan(std::vector<std::vector<int> >&);
-	static void wait_for_terminate(int, void*, bool&);
+	int InvokeSolver_Kissat(std::vector<std::vector<int> >&, int);
+	int InvokeSolver_Monosat(std::vector<std::vector<int> >&, int);
+	static void WaitForTerminate(int, void*, bool&);
+
+	// auxiliary functions
+	int VarToID(int, bool, int&, std::unordered_map<int, int>&);
+	int NormalizePlan(std::vector<std::vector<int> >&);
+	void VerifyPlan(std::vector<std::vector<int> >&);
 	bool TimesUp(std::chrono::time_point<std::chrono::high_resolution_clock>, std::chrono::time_point<std::chrono::high_resolution_clock>, int);
 	void CleanUp(bool);
 };
@@ -236,6 +241,20 @@ public:
 	~_MAPFSAT_ShiftPebbleSocAll() {};
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
+};
+
+/*****************************************************************/
+/*********************** Monosat Encodings ***********************/
+/*****************************************************************/
+
+class _MAPFSAT_MonosatParallelMksAll : public _MAPFSAT_ISolver
+{
+public:
+	_MAPFSAT_MonosatParallelMksAll(std::string name = "monosat_parallel_mks_all");
+	~_MAPFSAT_MonosatParallelMksAll() {};
+private:
+	int CreateFormula(std::vector<std::vector<int> >&, int);
+	int InvokeSolver(std::vector<std::vector<int> >&, int);
 };
 
 #endif
