@@ -32,3 +32,13 @@ https://github.com/arminbiere/kissat
   year      = 2020,
 }
 
+Monosat SAT solver with graph propagator
+
+https://github.com/sambayless/monosat
+
+@article{monosat2015,
+  author	= {Sam Bayless and Noah Bayless and Holger H. Hoos and Alan J. Hu},
+  title		= {{SAT Modulo Monotonic Theories}},
+  booktitle	= {Proceedings of the 29th AAAI Conference on Artificial Intelligence},
+  year		= {2015}
+}

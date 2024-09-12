@@ -47,3 +47,11 @@ Final encodings:
 - Shift_parallel_mks_jit
 - Shift_parallel_soc_all    DONE
 - Shift_parallel_soc_jit
+- Monosat_pebble_mks_all
+- Monosat_pebble_mks_jit
+- Monosat_pebble_soc_all
+- Monosat_pebble_soc_jit
+- Monosat_parallel_mks_all		DONE
+- Monosat_parallel_mks_jit
+- Monosat_parallel_soc_all
+- Monosat_parallel_soc_jit
