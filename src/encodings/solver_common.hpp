@@ -254,7 +254,33 @@ public:
 	~_MAPFSAT_MonosatParallelMksAll() {};
 private:
 	int CreateFormula(std::vector<std::vector<int> >&, int);
-	int InvokeSolver(std::vector<std::vector<int> >&, int);
+};
+
+class _MAPFSAT_MonosatParallelSocAll : public _MAPFSAT_ISolver
+{
+public:
+	_MAPFSAT_MonosatParallelSocAll(std::string name = "monosat_parallel_soc_all");
+	~_MAPFSAT_MonosatParallelSocAll() {};
+private:
+	int CreateFormula(std::vector<std::vector<int> >&, int);
+};
+
+class _MAPFSAT_MonosatPebbleMksAll : public _MAPFSAT_ISolver
+{
+public:
+	_MAPFSAT_MonosatPebbleMksAll(std::string name = "monosat_pebble_mks_all");
+	~_MAPFSAT_MonosatPebbleMksAll() {};
+private:
+	int CreateFormula(std::vector<std::vector<int> >&, int);
+};
+
+class _MAPFSAT_MonosatPebbleSocAll : public _MAPFSAT_ISolver
+{
+public:
+	_MAPFSAT_MonosatPebbleSocAll(std::string name = "monosat_pebble_soc_all");
+	~_MAPFSAT_MonosatPebbleSocAll() {};
+private:
+	int CreateFormula(std::vector<std::vector<int> >&, int);
 };
 
 #endif

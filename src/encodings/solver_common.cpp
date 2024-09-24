@@ -1016,11 +1016,71 @@ int _MAPFSAT_ISolver::InvokeSolver_Monosat(std::vector<std::vector<int> >&, int)
 	CreateMove_Graph_Monosat();
 
 	stringstream exec;
-	exec << "./libs/monosat " << cnf_file;
+	exec << "./libs/monosat -witness " << cnf_file << " > res.txt";
 
 	int ret = system(exec.str().c_str());
 
-	cout << ret << endl;
+	if (print_plan && ret == 2560)
+	{
+		ifstream input("res.txt");
+
+		if (input.is_open())
+		{
+			vector<bool> eval = vector<bool>(at_vars, false);
+			string line;
+			while (getline(input, line))
+			{
+				if (line.rfind("v", 0) == 0)	// assignemnt
+				{
+					stringstream ssline(line);
+					string part;
+					while (getline(ssline, part, ' '))
+					{
+						if (part.compare("v") == 0)
+							continue;
+						int var = stoi(part);
+						if (abs(var) > at_vars)
+							continue;
+						eval[abs(var)-1] = (var > 0) ? true : false;
+					}
+
+				}
+			}
+
+			vector<vector<int> > plan = vector<vector<int> >(agents, vector<int>(max_timestep));
+
+			for (int a = 0; a < agents; a++)
+			{
+				for (int v = 0; v < vertices; v++)
+				{
+					if (at[a][v].first_variable == 0)
+						continue;
+
+					for (int t = at[a][v].first_timestep; t < at[a][v].last_timestep + 1; t++)
+					{
+						int var = at[a][v].first_variable + (t - at[a][v].first_timestep);
+						if (eval[var-1])
+							plan[a][t] = v;
+					}
+				}
+			}
+
+			int final_timesteps = NormalizePlan(plan);
+			VerifyPlan(plan);
+
+			cout << "Found plan [agents = " << agents << "] [timesteps = " << final_timesteps << "]" << endl;
+			for (size_t a = 0; a < plan.size(); a++)
+			{
+				cout << "Agent #" << a << " : ";
+				for (size_t t = 0; t < plan[a].size(); t++)
+					cout << plan[a][t] << " ";
+				cout << endl;
+			}	
+			cout << endl;	
+		}
+	}
+
+	solver_calls++;
 
 	return (ret == 2560) ? 0 : 1;
 }

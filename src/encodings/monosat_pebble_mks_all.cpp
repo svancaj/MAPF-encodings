@@ -8,16 +8,16 @@ int VarToID(int var, bool duplicate, int& freshID, unordered_map<int, int>& dict
 *
 * @param sol_name name of the encoding used in log. Defualt value is pass_parallel_mks_all.
 */
-_MAPFSAT_MonosatParallelMksAll::_MAPFSAT_MonosatParallelMksAll(string sol_name)
+_MAPFSAT_MonosatPebbleMksAll::_MAPFSAT_MonosatPebbleMksAll(string sol_name)
 {
 	solver_name = sol_name;
 	cost_function = 1; // 1 = mks, 2 = soc
-	movement = 1; // 1 = parallel, 2 = pebble
+	movement = 2; // 1 = parallel, 2 = pebble
 	lazy_const = 1; // 1 = all at once, 2 = lazy
 	solver_to_use = 2; // 1 = kissat, 2 = monosat
 };
 
-int _MAPFSAT_MonosatParallelMksAll::CreateFormula(vector<vector<int> >& CNF, int time_left)
+int _MAPFSAT_MonosatPebbleMksAll::CreateFormula(vector<vector<int> >& CNF, int time_left)
 {
 	int timesteps = inst->GetMksLB(agents) + delta;
 
@@ -37,7 +37,7 @@ int _MAPFSAT_MonosatParallelMksAll::CreateFormula(vector<vector<int> >& CNF, int
 
 	// conflicts
 	CreateConf_Vertex(CNF);
-	CreateConf_Swapping_Pass(CNF);
+	CreateConf_Pebble_Pass(CNF);
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
@@ -47,7 +47,7 @@ int _MAPFSAT_MonosatParallelMksAll::CreateFormula(vector<vector<int> >& CNF, int
 	// create graph
 	//CreateMove_Graph_Monosat();
 
-	// avoid locations
+	// avoid locations - user has to make sure the avoid locations are pebble movement compatible
 	CreateConst_Avoid(CNF);
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;

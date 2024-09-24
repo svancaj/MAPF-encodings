@@ -1,14 +1,14 @@
 #!/bin/bash
 
-timeout=30
+timeout=100
 
-for instance in instances/scenarios/random32-1.scen
+for instance in instances/scenarios/random08-1.scen
 do
-	for vars in monosat at pass shift
+	for vars in monosat at #pass shift
 	do
-		for movement in parallel #pebble
+		for movement in parallel pebble
 		do
-			for cost in mks #soc 
+			for cost in soc mks 
 			do
 				for lazy in all
 				do

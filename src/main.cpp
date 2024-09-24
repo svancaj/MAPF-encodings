@@ -322,5 +322,20 @@ _MAPFSAT_ISolver* PickEncoding(string enc)
 		solver = new _MAPFSAT_MonosatParallelMksAll();
 		return solver;
 	}
+	if (enc.compare("monosat_parallel_soc_all") == 0)
+	{
+		solver = new _MAPFSAT_MonosatParallelSocAll();
+		return solver;
+	}
+	if (enc.compare("monosat_pebble_mks_all") == 0)
+	{
+		solver = new _MAPFSAT_MonosatPebbleMksAll();
+		return solver;
+	}
+	if (enc.compare("monosat_pebble_soc_all") == 0)
+	{
+		solver = new _MAPFSAT_MonosatPebbleSocAll();
+		return solver;
+	}
 	return solver;
 }
