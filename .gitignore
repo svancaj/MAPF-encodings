@@ -1,9 +1,11 @@
 .vscode
-.build
+.object_files
 release/MAPF*
 release/example
 release/libmapf.a
+release/libs
 documents/TODO
 log.log
 valgrind-out.txt
 *.cnf
+*.txt

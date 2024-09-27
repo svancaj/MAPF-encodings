@@ -6,7 +6,7 @@ CC = g++
 CFLAGS = -std=c++11 -O3 -Wall -Wextra -pedantic
 S_DIR = src
 E_DIR = $(S_DIR)/encodings
-B_DIR = .build
+O_DIR = .object_files
 L_DIR = libs
 R_DIR = release
 PROJECT_NAME = MAPF
@@ -14,8 +14,9 @@ OUTPUT_LIB = libmapf.a
 HEADER_NAME = MAPF.hpp
 EX_NAME = example
 
-_LIBS = libpb.a libkissat.a
+_LIBS = libpb.a libkissat.a libmonosat.a
 LIBS = $(patsubst %,$(L_DIR)/%,$(_LIBS))
+RELEASE_LIBS = $(patsubst %,$(R_DIR)/$(L_DIR)/%,$(OUTPUT_LIB)) $(patsubst %,$(R_DIR)/$(L_DIR)/%,$(_LIBS))
 
 _DEPS = instance.hpp logger.hpp encodings/solver_common.hpp
 DEPS = $(patsubst %,$(S_DIR)/%,$(_DEPS))
@@ -27,12 +28,12 @@ COMP = all
 
 _ENC_OBJ = solver_common.o $(foreach v, $(VAR), $(foreach m, $(MOVE), $(foreach f, $(FUNC), $(foreach c, $(COMP), $v_$m_$f_$c.o))))
 _OBJ = instance.o logger.o
-OBJ = $(patsubst %,$(B_DIR)/%,$(_OBJ)) $(patsubst %, $(B_DIR)/%,$(_ENC_OBJ))
+OBJ = $(patsubst %,$(O_DIR)/%,$(_OBJ)) $(patsubst %, $(O_DIR)/%,$(_ENC_OBJ))
 _MAIN = main.o
-MAIN = $(patsubst %,$(B_DIR)/%,$(_MAIN))
+MAIN = $(patsubst %,$(O_DIR)/%,$(_MAIN))
 
 _OBJ_EXAMPLE = $(EX_NAME).o
-OBJ_EXAMPLE = $(patsubst %,$(B_DIR)/%,$(_OBJ_EXAMPLE))
+OBJ_EXAMPLE = $(patsubst %,$(O_DIR)/%,$(_OBJ_EXAMPLE))
 
 ###################
 # project targets #
@@ -48,9 +49,14 @@ $(PROJECT_NAME): $(OBJ) $(MAIN)
 
 # library and header only
 lib: $(OBJ) $(DEPS)
-	rm -f $(R_DIR)/$(OUTPUT_LIB)
-	ar cqT $(R_DIR)/$(OUTPUT_LIB) $(OBJ) $(LIBS)
-	@echo 'create $(R_DIR)/$(OUTPUT_LIB)\naddlib $(R_DIR)/$(OUTPUT_LIB)\nsave\nend' | ar -M
+#	rm -f $(R_DIR)/$(OUTPUT_LIB)
+#	ar cqT $(R_DIR)/$(OUTPUT_LIB) $(OBJ) $(LIBS)
+#	@echo 'create $(R_DIR)/$(OUTPUT_LIB)\naddlib $(R_DIR)/$(OUTPUT_LIB)\nsave\nend' | ar -M
+
+	rm -rf $(R_DIR)/$(L_DIR)
+	mkdir $(R_DIR)/$(L_DIR)
+	cp $(L_DIR)/*.a $(R_DIR)/$(L_DIR)
+	ar -rcs $(R_DIR)/$(L_DIR)/$(OUTPUT_LIB) $(OBJ)
 
 	cat $(DEPS) > $(R_DIR)/$(HEADER_NAME)
 	sed -i '/#include "/d' $(R_DIR)/$(HEADER_NAME)
@@ -58,20 +64,20 @@ lib: $(OBJ) $(DEPS)
 # example only
 $(EX_NAME): $(R_DIR)/$(EX_NAME).cpp lib 
 	$(CC) $(CFLAGS) -c -o $(OBJ_EXAMPLE) $(R_DIR)/$@.cpp
-	$(CC) $(CFLAGS) -o $(R_DIR)/$@ $(OBJ_EXAMPLE) $(R_DIR)/$(OUTPUT_LIB)
+	$(CC) $(CFLAGS) -o $(R_DIR)/$@ $(OBJ_EXAMPLE) $(RELEASE_LIBS)
 
 ################
 # object files #
 ################
 
-$(B_DIR)/%.o: $(E_DIR)/%.cpp $(DEPS) | $(B_DIR)_exists
+$(O_DIR)/%.o: $(E_DIR)/%.cpp $(DEPS) | $(O_DIR)_exists
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(B_DIR)/%.o: $(S_DIR)/%.cpp $(DEPS) | $(B_DIR)_exists
+$(O_DIR)/%.o: $(S_DIR)/%.cpp $(DEPS) | $(O_DIR)_exists
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(B_DIR)_exists:
-	mkdir -p $(B_DIR)
+$(O_DIR)_exists:
+	mkdir -p $(O_DIR)
 
 ###########
 # testing #
@@ -103,6 +109,7 @@ experiment: $(PROJECT_NAME)
 #########
 
 clean:
-	rm -rf $(B_DIR)
-	rm -f $(R_DIR)/$(PROJECT_NAME) $(R_DIR)/$(EX_NAME) $(R_DIR)/$(OUTPUT_LIB) $(R_DIR)/$(HEADER_NAME)
+	rm -rf $(O_DIR)
+	rm -rf $(R_DIR)/$(L_DIR)
+	rm -f $(R_DIR)/$(PROJECT_NAME) $(R_DIR)/$(EX_NAME) $(R_DIR)/$(HEADER_NAME)
 	rm -f valgrind-out.txt log.log *.cnf
