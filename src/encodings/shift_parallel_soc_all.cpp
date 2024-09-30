@@ -14,7 +14,7 @@ _MAPFSAT_ShiftParallelSocAll::_MAPFSAT_ShiftParallelSocAll(string sol_name)
 	lazy_const = 1; // 1 = all at once, 2 = lazy
 };
 
-int _MAPFSAT_ShiftParallelSocAll::CreateFormula(vector<vector<int> >& CNF, int time_left)
+int _MAPFSAT_ShiftParallelSocAll::CreateFormula(int time_left)
 {
 	int timesteps = inst->GetMksLB(agents) + delta;
 
@@ -29,32 +29,32 @@ int _MAPFSAT_ShiftParallelSocAll::CreateFormula(vector<vector<int> >& CNF, int t
 		return -1;
 
 	// start - goal possitions
-	CreatePossition_Start(CNF);
-	CreatePossition_Goal(CNF);
-	CreatePossition_NoneAtGoal(CNF);
+	CreatePossition_Start();
+	CreatePossition_Goal();
+	CreatePossition_NoneAtGoal();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
 	// conflicts
-	CreateConf_Vertex(CNF);
-	CreateConf_Swapping_Shift(CNF);
+	CreateConf_Vertex();
+	CreateConf_Swapping_Shift();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 	
 	// movement 
-	CreateMove_NoDuplicates(CNF);
-	CreateMove_NextVertex_At(CNF);
-	CreateMove_ExactlyOne_Shift(CNF);
-	CreateMove_NextVertex_Shift(CNF);
+	CreateMove_NoDuplicates();
+	CreateMove_NextVertex_At();
+	CreateMove_ExactlyOne_Shift();
+	CreateMove_NextVertex_Shift();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
 	// soc limit
 	if (delta > 0)
-		lit = CreateConst_LimitSoc(CNF, lit);
+		lit = CreateConst_LimitSoc(lit);
 
 	// avoid locations
-	CreateConst_Avoid(CNF);
+	CreateConst_Avoid();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 

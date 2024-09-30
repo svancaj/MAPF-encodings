@@ -14,7 +14,7 @@ _MAPFSAT_AtPebbleMksAll::_MAPFSAT_AtPebbleMksAll(string sol_name)
 	lazy_const = 1; // 1 = all at once, 2 = lazy
 };
 
-int _MAPFSAT_AtPebbleMksAll::CreateFormula(vector<vector<int> >& CNF, int time_left)
+int _MAPFSAT_AtPebbleMksAll::CreateFormula(int time_left)
 {
 	int timesteps = inst->GetMksLB(agents) + delta;
 
@@ -28,23 +28,23 @@ int _MAPFSAT_AtPebbleMksAll::CreateFormula(vector<vector<int> >& CNF, int time_l
 		return -1;
 
 	// start - goal possitions
-	CreatePossition_Start(CNF);
-	CreatePossition_Goal(CNF);
+	CreatePossition_Start();
+	CreatePossition_Goal();
 
 	// conflicts
-	CreateConf_Vertex(CNF);
-	CreateConf_Pebble_At(CNF);
+	CreateConf_Vertex();
+	CreateConf_Pebble_At();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 	
 	// movement 
-	CreateMove_NoDuplicates(CNF);
-	CreateMove_NextVertex_At(CNF);
+	CreateMove_NoDuplicates();
+	CreateMove_NextVertex_At();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
 	// avoid locations - user has to make sure the avoid locations are pebble movement compatible
-	CreateConst_Avoid(CNF);
+	CreateConst_Avoid();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 

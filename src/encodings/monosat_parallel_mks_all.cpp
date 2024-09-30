@@ -17,7 +17,7 @@ _MAPFSAT_MonosatParallelMksAll::_MAPFSAT_MonosatParallelMksAll(string sol_name)
 	solver_to_use = 2; // 1 = kissat, 2 = monosat
 };
 
-int _MAPFSAT_MonosatParallelMksAll::CreateFormula(vector<vector<int> >& CNF, int time_left)
+int _MAPFSAT_MonosatParallelMksAll::CreateFormula(int time_left)
 {
 	int timesteps = inst->GetMksLB(agents) + delta;
 
@@ -32,23 +32,23 @@ int _MAPFSAT_MonosatParallelMksAll::CreateFormula(vector<vector<int> >& CNF, int
 		return -1;
 
 	// start - goal possitions
-	CreatePossition_Start(CNF);
-	CreatePossition_Goal(CNF);
+	CreatePossition_Start();
+	CreatePossition_Goal();
 
 	// conflicts
-	CreateConf_Vertex(CNF);
-	CreateConf_Swapping_Pass(CNF);
+	CreateConf_Vertex();
+	CreateConf_Swapping_Pass();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
 	// not needed!!!
-	CreateMove_NoDuplicates(CNF);
+	CreateMove_NoDuplicates();
 
 	// create graph
 	//CreateMove_Graph_Monosat();
 
 	// avoid locations
-	CreateConst_Avoid(CNF);
+	CreateConst_Avoid();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 

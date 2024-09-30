@@ -52,19 +52,6 @@ void _MAPFSAT_ISolver::PrintSolveDetails(int time_left)
 	cout << endl;
 };
 
-void _MAPFSAT_ISolver::DebugPrint(vector<vector<int> >& CNF)
-{
-	for (size_t i = 0; i < CNF.size(); i++)
-	{
-		for (size_t j = 0; j < CNF[i].size(); j++)
-		{
-			cout << CNF[i][j] << " ";
-		}
-		cout << "0\n";
-	}
-	cout << "0" << endl;
-}
-
 /********************************/
 // MARK: solving MAPF
 /********************************/
@@ -76,6 +63,8 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot)
 	long long building_time = 0;
 	long long solving_time = 0;
 	solver_calls = 0;
+	nr_clauses = 0;
+	cnf_printable.clear();	// store cnf here if specified to print in cnf_file
 
 	at = NULL;
 	pass = NULL;
@@ -89,26 +78,22 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot)
 		long long current_building_time = 0;
 		long long current_solving_time = 0;
 		PrintSolveDetails(time_left);
-		CNF = vector<vector<int> >();
+		CreateSolver();
 
 		// create formula
 		auto start = chrono::high_resolution_clock::now();
-		nr_vars = CreateFormula(CNF, time_left);
+		nr_vars = CreateFormula(time_left);
 		auto stop = chrono::high_resolution_clock::now();
 		if (TimesUp(start, stop, time_left))
 			return 1;
 
-		nr_clauses = CNF.size();
 		current_building_time = chrono::duration_cast<chrono::milliseconds>(stop - start).count();
 		building_time += current_building_time;
 		time_left -= current_building_time;
 
 		// solve formula
 		start = chrono::high_resolution_clock::now();
-		if (solver_to_use == 1)
-			res = InvokeSolver_Kissat(CNF, time_left + 100);
-		if (solver_to_use == 2)
-			res = InvokeSolver_Monosat(CNF, time_left + 100);
+		res = InvokeSolver(time_left + 100);
 		stop = chrono::high_resolution_clock::now();
 		if (TimesUp(start, stop, time_left))
 			return 1;
@@ -117,6 +102,7 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot)
 		solving_time += current_solving_time;
 		time_left -= current_solving_time;
 		
+		// log statistics
 		log->nr_vars = nr_vars;
 		log->nr_clauses = nr_clauses;
 		log->building_time = building_time;
@@ -261,26 +247,26 @@ int _MAPFSAT_ISolver::CreateShift(int lit, int timesteps)
 // MARK: create constraints
 /****************************/
 
-void _MAPFSAT_ISolver::CreatePossition_Start(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreatePossition_Start()
 {
 	for (int a = 0; a < agents; a++)
 	{
 		int start_var = at[a][inst->map[inst->agents[a].start.x][inst->agents[a].start.y]].first_variable;
-		CNF.push_back(vector<int> {start_var});
+		AddClause(vector<int> {start_var});
 	}
 }
 
-void _MAPFSAT_ISolver::CreatePossition_Goal(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreatePossition_Goal()
 {
 	for (int a = 0; a < agents; a++)
 	{
 		_MAPFSAT_TEGAgent AV_goal = at[a][inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y]];
 		int goal_var = AV_goal.first_variable + (AV_goal.last_timestep - AV_goal.first_timestep);
-		CNF.push_back(vector<int> {goal_var});
+		AddClause(vector<int> {goal_var});
 	}
 }
 
-void _MAPFSAT_ISolver::CreatePossition_NoneAtGoal(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreatePossition_NoneAtGoal()
 {
 	for (int a = 0; a < agents; a++)
 	{
@@ -298,13 +284,13 @@ void _MAPFSAT_ISolver::CreatePossition_NoneAtGoal(std::vector<std::vector<int> >
 			{
 				//cout << a2 << " can not be at " << v << ", timestep " << t << " becuase " << a << " is in goal there" << endl;
 				int a2_var = at[a2][v].first_variable + (t - at[a2][v].first_timestep);
-				CNF.push_back(vector<int> {-a2_var});
+				AddClause(vector<int> {-a2_var});
 			}
 		}
 	}
 }
 
-void _MAPFSAT_ISolver::CreateConf_Vertex(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateConf_Vertex()
 {
 	for (int v = 0; v < vertices; v++)
 	{
@@ -324,14 +310,14 @@ void _MAPFSAT_ISolver::CreateConf_Vertex(std::vector<std::vector<int> >& CNF)
 					//cout << "vertex conflict at vertex " << v << ", timestep " << t << " between " << a1 << " and " << a2 << endl;
 					int a1_var = at[a1][v].first_variable + (t - at[a1][v].first_timestep);
 					int a2_var = at[a2][v].first_variable + (t - at[a2][v].first_timestep);
-					CNF.push_back(vector<int> {-a1_var, -a2_var});
+					AddClause(vector<int> {-a1_var, -a2_var});
 				}
 			}
 		}
 	}
 }
 
-void _MAPFSAT_ISolver::CreateConf_Swapping_At(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateConf_Swapping_At()
 {
 	for (int v = 0; v < vertices; v++)
 	{
@@ -362,7 +348,7 @@ void _MAPFSAT_ISolver::CreateConf_Swapping_At(std::vector<std::vector<int> >& CN
 						int a1_u_var = at[a1][u].first_variable + (t + 1 - at[a1][u].first_timestep);
 						int a2_v_var = at[a2][v].first_variable + (t + 1 - at[a2][v].first_timestep);
 						int a2_u_var = at[a2][u].first_variable + (t - at[a2][u].first_timestep);
-						CNF.push_back(vector<int> {-a1_v_var, -a1_u_var, -a2_v_var, -a2_u_var});
+						AddClause(vector<int> {-a1_v_var, -a1_u_var, -a2_v_var, -a2_u_var});
 					}
 				}
 			}
@@ -370,7 +356,7 @@ void _MAPFSAT_ISolver::CreateConf_Swapping_At(std::vector<std::vector<int> >& CN
 	}
 }
 
-void _MAPFSAT_ISolver::CreateConf_Swapping_Pass(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateConf_Swapping_Pass()
 {
 	for (int v = 0; v < vertices; v++)
 	{
@@ -398,7 +384,7 @@ void _MAPFSAT_ISolver::CreateConf_Swapping_Pass(std::vector<std::vector<int> >& 
 						//cout << "swapping conflict at edge (" << v << "," << u << "), timestep " << t << " between " << a1 << " and " << a2 << endl;
 						int a1_var = pass[a1][v][dir].first_variable + (t - pass[a1][v][dir].first_timestep);
 						int a2_var = pass[a2][u][op_dir].first_variable + (t - pass[a2][u][op_dir].first_timestep);
-						CNF.push_back(vector<int> {-a1_var, -a2_var});
+						AddClause(vector<int> {-a1_var, -a2_var});
 					}
 				}
 			}
@@ -406,7 +392,7 @@ void _MAPFSAT_ISolver::CreateConf_Swapping_Pass(std::vector<std::vector<int> >& 
 	}
 }
 
-void _MAPFSAT_ISolver::CreateConf_Swapping_Shift(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateConf_Swapping_Shift()
 {
 	// No two opposite shifts at the same time
 	for (int v = 0; v < vertices; v++)
@@ -428,13 +414,13 @@ void _MAPFSAT_ISolver::CreateConf_Swapping_Shift(std::vector<std::vector<int> >&
 				//cout << "swapping conflict at edge (" << v << "," << u << "), timestep " << t << " using shift" << endl;
 				int shift1_var = shift[v][dir].first_varaible + t_ind;
 				int shift2_var = shift[u][op_dir].first_varaible + ind;
-				CNF.push_back(vector<int> {-shift1_var, -shift2_var});
+				AddClause(vector<int> {-shift1_var, -shift2_var});
 			}
 		}
 	}
 }
 
-void _MAPFSAT_ISolver::CreateConf_Pebble_At(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateConf_Pebble_At()
 {
 	for (int v = 0; v < vertices; v++)
 	{
@@ -458,7 +444,7 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_At(std::vector<std::vector<int> >& CNF)
 					//cout << "pebble conflict at vertex " << v << ", timestep " << t << " between " << a1 << " and " << a2 << endl;
 					int a1_var = at[a1][v].first_variable + (t - at[a1][v].first_timestep);
 					int a2_var = at[a2][v].first_variable + (t - 1 - at[a2][v].first_timestep);
-					CNF.push_back(vector<int> {-a1_var, -a2_var});
+					AddClause(vector<int> {-a1_var, -a2_var});
 				}
 
 			}
@@ -467,7 +453,7 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_At(std::vector<std::vector<int> >& CNF)
 	}
 }
 
-void _MAPFSAT_ISolver::CreateConf_Pebble_Pass(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateConf_Pebble_Pass()
 {
 	// Pass(a1,t,u,v) -> forall a2: -At(a2,t,v)
 	for (int v = 0; v < vertices; v++)
@@ -497,7 +483,7 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_Pass(std::vector<std::vector<int> >& CN
 						//cout << "pebble conflict at edge (" << v << "," << u << "), timestep " << t << " between moving agent " << a1 << " and " << a2 << endl;
 						int a1_var = pass[a1][v][dir].first_variable + (t - pass[a1][v][dir].first_timestep);
 						int a2_var = at[a2][u].first_variable + (t - at[a2][u].first_timestep);
-						CNF.push_back(vector<int> {-a1_var, -a2_var});
+						AddClause(vector<int> {-a1_var, -a2_var});
 					}
 				}
 			}
@@ -505,7 +491,7 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_Pass(std::vector<std::vector<int> >& CN
 	}
 }
 
-void _MAPFSAT_ISolver::CreateConf_Pebble_Shift(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateConf_Pebble_Shift()
 {
 	// original paper: if shift v->u, then there is also shift u->u (vertex conflict will take care of it)
 	// our implementation: if shift v->u, then there is no shift u->w (shift u->u is possible)
@@ -530,14 +516,14 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_Shift(std::vector<std::vector<int> >& C
 					
 					//cout << "pebble conflict at edge (" << v << "," << u << "), timestep " << shift[v][dir].timestep[t_ind] << " direction " << u_dir << " using shift" << endl;
 					int shift2_var = shift[u][u_dir].first_varaible + ind;
-					CNF.push_back(vector<int> {-shift1_var, -shift2_var});
+					AddClause(vector<int> {-shift1_var, -shift2_var});
 				}
 			}
 		}
 	}
 }
 
-void _MAPFSAT_ISolver::CreateMove_NoDuplicates(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateMove_NoDuplicates()
 {
 	for (int a = 0; a < agents; a++)
 	{
@@ -558,14 +544,14 @@ void _MAPFSAT_ISolver::CreateMove_NoDuplicates(std::vector<std::vector<int> >& C
 					//cout << "forbid agent " << a << " at vertices " << v << ", " << u << " at time " << t << endl;
 					int v_var = at[a][v].first_variable + (t - at[a][v].first_timestep);
 					int u_var = at[a][u].first_variable + (t - at[a][u].first_timestep);
-					CNF.push_back(vector<int> {-v_var, -u_var});
+					AddClause(vector<int> {-v_var, -u_var});
 				}
 			}
 		}
 	}
 }
 
-void _MAPFSAT_ISolver::CreateMove_NextVertex_At(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateMove_NextVertex_At()
 {
 	for (int a = 0; a < agents; a++)
 	{
@@ -602,13 +588,13 @@ void _MAPFSAT_ISolver::CreateMove_NextVertex_At(std::vector<std::vector<int> >& 
 				int at_var = at[a][v].first_variable + (t - at[a][v].first_timestep);
 				neibs.push_back(-at_var);
 
-				CNF.push_back(neibs);
+				AddClause(neibs);
 			}
 		}
 	}
 }
 
-void _MAPFSAT_ISolver::CreateMove_EnterVertex_Pass(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateMove_EnterVertex_Pass()
 {
 	for (int v = 0; v < vertices; v++)
 	{
@@ -630,14 +616,14 @@ void _MAPFSAT_ISolver::CreateMove_EnterVertex_Pass(std::vector<std::vector<int> 
 					int at_var = at[a][u].first_variable + (t + 1 - at[a][u].first_timestep);
 
 					//cout << "moving agent " << a << " over (" << v << ", " << u << ") at timestep " << t << " will lead to " << u << endl;
-					CNF.push_back(vector<int> {-pass_var, at_var});
+					AddClause(vector<int> {-pass_var, at_var});
 				}
 			}
 		}
 	}
 }
 
-void _MAPFSAT_ISolver::CreateMove_LeaveVertex_Pass(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateMove_LeaveVertex_Pass()
 {
 	for (int a = 0; a < agents; a++)
 	{
@@ -670,13 +656,13 @@ void _MAPFSAT_ISolver::CreateMove_LeaveVertex_Pass(std::vector<std::vector<int> 
 				int at_var = at[a][v].first_variable + (t - at[a][v].first_timestep);
 				neibs.push_back(-at_var);
 
-				CNF.push_back(neibs);
+				AddClause(neibs);
 			}
 		}
 	}
 }
 
-void _MAPFSAT_ISolver::CreateMove_ExactlyOne_Shift(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateMove_ExactlyOne_Shift()
 {
 	// all shifts going from v sum up to exactly 1
 	for (int v = 0; v < vertices; v++)
@@ -704,20 +690,20 @@ void _MAPFSAT_ISolver::CreateMove_ExactlyOne_Shift(std::vector<std::vector<int> 
 			if (vc.empty())
 				continue;
 			
-			//CNF.push_back(vc); // at least 1 - do not use!!
+			//AddClause(vc); // at least 1 - do not use!!
 
 			for (size_t i = 0; i < vc.size(); i++)
 			{
 				for (size_t j = i+1; j < vc.size(); j++)
 				{
-					CNF.push_back(vector<int>{-vc[i], -vc[j]}); // at most 1
+					AddClause(vector<int>{-vc[i], -vc[j]}); // at most 1
 				}
 			}
 		}
 	}
 }
 
-void _MAPFSAT_ISolver::CreateMove_NextVertex_Shift(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateMove_NextVertex_Shift()
 {
 	
 	for (int a = 0; a < agents; a++)
@@ -755,8 +741,8 @@ void _MAPFSAT_ISolver::CreateMove_NextVertex_Shift(std::vector<std::vector<int> 
 					//cout << "agent " << a << " is at " << v << " and something is moving to " << u << " at timestep " << t << endl;
 					//cout << "agent " << a << " is at " << v << " in " << t << " and at " << u << " in the next timestep, therefore something moved" << endl;
 
-					CNF.push_back(vector<int> {-at1_var, -shift_var, at2_var}); // if at v and v shifts to u then at u in the next timestep
-					CNF.push_back(vector<int> {-at1_var, -at2_var, shift_var}); // if at v and at u in next timestep then v shifted to u 
+					AddClause(vector<int> {-at1_var, -shift_var, at2_var}); // if at v and v shifts to u then at u in the next timestep
+					AddClause(vector<int> {-at1_var, -at2_var, shift_var}); // if at v and at u in next timestep then v shifted to u 
 				}
 			}
 		}
@@ -846,7 +832,7 @@ void _MAPFSAT_ISolver::CreateMove_Graph_Monosat()
 	out.close();
 }
 
-int _MAPFSAT_ISolver::CreateConst_LimitSoc(vector<vector<int>>& CNF, int lit)
+int _MAPFSAT_ISolver::CreateConst_LimitSoc(int lit)
 {
 	vector<int> late_variables;
 
@@ -856,9 +842,9 @@ int _MAPFSAT_ISolver::CreateConst_LimitSoc(vector<vector<int>>& CNF, int lit)
 		int at_var = at[a][goal_v].first_variable;
 		for (int d = 0; d < delta; d++)
 		{
-			CNF.push_back(vector<int> {at_var + d, lit});	// if agent is not at goal, it is late
+			AddClause(vector<int> {at_var + d, lit});	// if agent is not at goal, it is late
 			if (d < delta - 1)
-				CNF.push_back(vector<int> {lit, -(lit + 1)});	// if agent is late at t, it is late at t+1
+				AddClause(vector<int> {lit, -(lit + 1)});	// if agent is late at t, it is late at t+1
 			late_variables.push_back(lit);
 			lit++;
 		}
@@ -870,12 +856,12 @@ int _MAPFSAT_ISolver::CreateConst_LimitSoc(vector<vector<int>>& CNF, int lit)
 	lit = pb2cnf.encodeAtMostK(late_variables, delta, formula, lit) + 1;
 
 	for (size_t i = 0; i < formula.size(); i++)
-		CNF.push_back(formula[i]);
+		AddClause(formula[i]);
 
 	return lit;
 }
 
-void _MAPFSAT_ISolver::CreateConst_Avoid(std::vector<std::vector<int> >& CNF)
+void _MAPFSAT_ISolver::CreateConst_Avoid()
 {
 	for (size_t i = 0; i < inst->avoid_locations.size(); i++)
 	{
@@ -890,54 +876,22 @@ void _MAPFSAT_ISolver::CreateConst_Avoid(std::vector<std::vector<int> >& CNF)
 					continue;
 				
 				int at_var = at[a][v].first_variable + (t - at[a][v].first_timestep);
-				CNF.push_back(vector<int> {-at_var});
+				AddClause(vector<int> {-at_var});
 			}
 		}
 	}
 }
 
 /****************************/
-// MARK: solving CNF
+// MARK: KISSAT solving
 /****************************/
 
-int _MAPFSAT_ISolver::InvokeSolver_Kissat(vector<vector<int>> &CNF, int timelimit)
+int _MAPFSAT_ISolver::InvokeSolver_Kissat(int timelimit, vector<vector<int> >& plan)
 {
-	kissat* solver = kissat_init();
-    kissat_set_option(solver, "quiet", 1);
-
-	std::ofstream out;
-	bool print_cnf = false;
-	if (cnf_file.compare("") != 0)
-	{
-		print_cnf = true;
-		out.open(cnf_file);
-		out << "p cnf " << nr_vars-1 << " " << CNF.size() << endl;
-	}
-
-	// CNF to solver
-	for (size_t i = 0; i < CNF.size(); i++)
-	{
-		for (size_t j = 0; j < CNF[i].size(); j++)
-		{
-			if (print_cnf)
-				out << CNF[i][j] << " ";
-			kissat_add(solver, CNF[i][j]);
-		}
-		kissat_add(solver, 0);
-		if (print_cnf)
-			out << "0 " << endl;
-	}
-
-	if (print_cnf)
-		out.close();
-
-	CleanUp(print_plan);	// save memory for kissat
-	CNF = vector<vector<int> >();
-
 	bool ended = false;
-	thread waiting_thread = thread(WaitForTerminate, timelimit, solver, ref(ended));
+	thread waiting_thread = thread(WaitForTerminate, timelimit, SAT_solver, ref(ended));
 	
-    int ret = kissat_solve(solver); // Start solver
+    int ret = kissat_solve((kissat*)SAT_solver); // Start solver
 
 	ended = true;
 	solver_calls++;
@@ -946,9 +900,9 @@ int _MAPFSAT_ISolver::InvokeSolver_Kissat(vector<vector<int>> &CNF, int timelimi
 	{
 		vector<bool> eval = vector<bool>(at_vars);
 		for (int var = 1; var < at_vars; var++)
-			eval[var-1] = (kissat_value (solver, var) > 0) ? true : false;
+			eval[var-1] = (kissat_value((kissat*)SAT_solver, var) > 0) ? true : false;
 
-		vector<vector<int> > plan = vector<vector<int> >(agents, vector<int>(max_timestep));
+		plan = vector<vector<int> >(agents, vector<int>(max_timestep));
 
 		for (int a = 0; a < agents; a++)
 		{
@@ -965,29 +919,20 @@ int _MAPFSAT_ISolver::InvokeSolver_Kissat(vector<vector<int>> &CNF, int timelimi
 				}
 			}
 		}
-
-		int final_timesteps = NormalizePlan(plan);
-		VerifyPlan(plan);
-
-		cout << "Found plan [agents = " << agents << "] [timesteps = " << final_timesteps << "]" << endl;
-		for (size_t a = 0; a < plan.size(); a++)
-		{
-			cout << "Agent #" << a << " : ";
-			for (size_t t = 0; t < plan[a].size(); t++)
-				cout << plan[a][t] << " ";
-			cout << endl;
-		}	
-		cout << endl;	
 	}
 
 	CleanUp(false);
-	kissat_release(solver);
+	kissat_release((kissat*)SAT_solver);
 	waiting_thread.join();
 
 	return (ret == 10) ? 0 : 1;
 }
 
-int _MAPFSAT_ISolver::InvokeSolver_Monosat(std::vector<std::vector<int> >&, int)
+/****************************/
+// MARK: MONOSAT solving
+/****************************/
+/*
+int _MAPFSAT_ISolver::InvokeSolver_Monosat(int timelimit)
 {
 	std::ofstream out;
 	bool print_cnf = false;
@@ -1083,6 +1028,89 @@ int _MAPFSAT_ISolver::InvokeSolver_Monosat(std::vector<std::vector<int> >&, int)
 	solver_calls++;
 
 	return (ret == 2560) ? 0 : 1;
+}*/
+
+/****************************/
+// MARK: aux SAT functions
+/****************************/
+
+void _MAPFSAT_ISolver::CreateSolver()
+{
+	if (solver_to_use == 1)	// kissat
+	{
+		SAT_solver = kissat_init();
+		kissat_set_option((kissat*)SAT_solver, "quiet", 1);
+	}
+	if (solver_to_use == 2) // monosat
+	{
+		SAT_solver = NULL; // TODO
+	}
+}
+
+int _MAPFSAT_ISolver::InvokeSolver(int timelimit)
+{
+	if (cnf_file.compare("") != 0)	// print cnf into file
+	{
+		std::ofstream out(cnf_file);
+		if (out.is_open())
+		{
+			out << "p cnf " << nr_vars-1 << " " << nr_clauses << endl;
+			out << cnf_printable.rdbuf() << endl;
+			out.close();
+		}
+	}
+
+	// save memory for SAT solver
+	CleanUp(print_plan);	
+	cnf_printable.clear();
+
+	int res = -1;
+	vector<vector<int> > plan;
+
+	if (solver_to_use == 1)	// kissat
+		res = InvokeSolver_Kissat(timelimit, plan);
+	if (solver_to_use == 2) // monosat
+	{}//	return InvokeSolver_Monosat(timelimit);
+
+	// print found plan
+	if (!plan.empty())
+	{
+		int final_timesteps = NormalizePlan(plan);
+		VerifyPlan(plan);
+
+		cout << "Found plan [agents = " << agents << "] [timesteps = " << final_timesteps << "]" << endl;
+		for (size_t a = 0; a < plan.size(); a++)
+		{
+			cout << "Agent #" << a << " : ";
+			for (size_t t = 0; t < plan[a].size(); t++)
+				cout << plan[a][t] << " ";
+			cout << endl;
+		}	
+		cout << endl;	
+	}
+
+	return res;
+}
+
+void _MAPFSAT_ISolver::AddClause(vector<int> clause)
+{
+	if (solver_to_use == 1)	// kissat
+	{
+		for (size_t i = 0; i < clause.size(); i++)
+			kissat_add((kissat*)SAT_solver, clause[i]);
+		kissat_add((kissat*)SAT_solver, 0);
+	}
+
+	if (solver_to_use == 2) // monosat
+	{}
+
+	if (cnf_file.compare("") != 0)
+	{
+		for (size_t i = 0; i < clause.size(); i++)
+			cnf_printable << clause[i] << " ";
+		cnf_printable << "0\n";
+	}
+	nr_clauses++;
 }
 
 void _MAPFSAT_ISolver::WaitForTerminate(int time_left_ms, void* solver, bool& ended)
@@ -1102,10 +1130,6 @@ void _MAPFSAT_ISolver::WaitForTerminate(int time_left_ms, void* solver, bool& en
 	kissat_terminate((kissat*)solver);	// Trusting in kissat implementation
 }
 
-/****************************/
-// MARK: auxiliary functions
-/****************************/
-
 int _MAPFSAT_ISolver::VarToID(int var, bool duplicate, int& freshID, unordered_map<int, int>& dict)
 {
 	if (duplicate)
@@ -1120,13 +1144,17 @@ int _MAPFSAT_ISolver::VarToID(int var, bool duplicate, int& freshID, unordered_m
 	return dict[var];
 }
 
+/****************************/
+// MARK: plan output
+/****************************/
+
 int _MAPFSAT_ISolver::NormalizePlan(vector<vector<int> >& plan)
 {
 	int max_t = 0;
 	for (size_t a = 0; a < plan.size(); a++)
 	{
 		int goal = inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y];
-		for (size_t t = plan[a].size() - 1; t > 0; t--)
+		for (size_t t = plan[a].size() - 1; true; t--)
 		{
 			if (plan[a][t] == 0)
 				plan[a][t] = goal;
@@ -1167,6 +1195,10 @@ void _MAPFSAT_ISolver::VerifyPlan(vector<vector<int> >& plan)
 		}
 	}
 }
+
+/****************************/
+// MARK: cleanup functions
+/****************************/
 
 bool _MAPFSAT_ISolver::TimesUp(	std::chrono::time_point<std::chrono::high_resolution_clock> start_time,
 						std::chrono::time_point<std::chrono::high_resolution_clock> current_time,

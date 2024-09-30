@@ -17,7 +17,7 @@ _MAPFSAT_MonosatPebbleMksAll::_MAPFSAT_MonosatPebbleMksAll(string sol_name)
 	solver_to_use = 2; // 1 = kissat, 2 = monosat
 };
 
-int _MAPFSAT_MonosatPebbleMksAll::CreateFormula(vector<vector<int> >& CNF, int time_left)
+int _MAPFSAT_MonosatPebbleMksAll::CreateFormula(int time_left)
 {
 	int timesteps = inst->GetMksLB(agents) + delta;
 
@@ -32,23 +32,23 @@ int _MAPFSAT_MonosatPebbleMksAll::CreateFormula(vector<vector<int> >& CNF, int t
 		return -1;
 
 	// start - goal possitions
-	CreatePossition_Start(CNF);
-	CreatePossition_Goal(CNF);
+	CreatePossition_Start();
+	CreatePossition_Goal();
 
 	// conflicts
-	CreateConf_Vertex(CNF);
-	CreateConf_Pebble_Pass(CNF);
+	CreateConf_Vertex();
+	CreateConf_Pebble_Pass();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
 	// not needed!!!
-	CreateMove_NoDuplicates(CNF);
+	CreateMove_NoDuplicates();
 
 	// create graph
 	//CreateMove_Graph_Monosat();
 
 	// avoid locations - user has to make sure the avoid locations are pebble movement compatible
-	CreateConst_Avoid(CNF);
+	CreateConst_Avoid();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
