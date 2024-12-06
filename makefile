@@ -90,14 +90,14 @@ test: $(PROJECT_NAME)
 #	gdb --args $(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random08-1.scen -e at_parallel_mks_lazy -p -t 100 -a 25 -l 1 -f results.res
 #	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random08-1.scen -e at_parallel_mks_lazy -p -t 100 -a 25 -l 1 -f results.res
 
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_parallel_soc_all -p -t 100 -a 20 -l 1 -f results.res
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_parallel_soc_lazy -p -t 100 -a 20 -l 1 -f results.res
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_parallel_mks_all -p -t 100 -a 20 -l 1 -f results.res
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_parallel_mks_lazy -p -t 100 -a 20 -l 1 -f results.res
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_pebble_soc_all -p -t 100 -a 20 -l 1 -f results.res
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_pebble_soc_lazy -p -t 100 -a 20 -l 1 -f results.res
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_pebble_mks_all -p -t 100 -a 20 -l 1 -f results.res
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_pebble_mks_lazy -p -t 100 -a 20 -l 1 -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_parallel_soc_all -p -t 100 -a 30 -l 1 -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_parallel_soc_lazy -p -t 100 -a 30 -l 1 -f results.res
+#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_parallel_mks_all -p -t 100 -a 20 -l 1 -f results.res
+#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_parallel_mks_lazy -p -t 100 -a 20 -l 1 -f results.res
+#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_pebble_soc_all -p -t 100 -a 20 -l 1 -f results.res
+#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_pebble_soc_lazy -p -t 100 -a 20 -l 1 -f results.res
+#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_pebble_mks_all -p -t 100 -a 20 -l 1 -f results.res
+#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_pebble_mks_lazy -p -t 100 -a 20 -l 1 -f results.res
 
 
 valgrind: $(PROJECT_NAME)

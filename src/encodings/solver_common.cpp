@@ -942,7 +942,7 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_At_OnDemand()
 		int a1, a2, u, v, t;
 		tie(a1, a2, u, v, t) = pebble_conflicts[i];
 
-		cout << "extra pebble conflict at vertex " << v << ", timestep " << t << " between " << a1 << " and " << a2 << endl;
+		//cout << "extra pebble conflict at vertex " << v << ", timestep " << t << " between " << a1 << " and " << a2 << endl;
 		int a1_var = at[a1][v].first_variable + (t - at[a1][v].first_timestep);
 		int a2_var = at[a2][v].first_variable + (t - 1 - at[a2][v].first_timestep);
 		AddClause(vector<int> {-a1_var, -a2_var});
@@ -968,7 +968,7 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_Pass_OnDemand()
 			}
 		}
 
-		cout << "extra pebble conflict at edge (" << v << "," << u << "), timestep " << t << " between moving agent " << a1 << " and " << a2 << endl;
+		//cout << "extra pebble conflict at edge (" << v << "," << u << "), timestep " << t << " between moving agent " << a1 << " and " << a2 << endl;
 		int a1_var = pass[a1][v][dir].first_variable + (t - pass[a1][v][dir].first_timestep);
 		int a2_var = at[a2][u].first_variable + (t - at[a2][u].first_timestep);
 		AddClause(vector<int> {-a1_var, -a2_var});
@@ -1289,7 +1289,7 @@ void _MAPFSAT_ISolver::GenerateConflicts()
 				{
 					conflicts_present = true;
 					swap_conflicts.push_back(make_tuple(a1,a2,plan[a1][t],plan[a1][t+1],t));
-					cout << "Swapping conflict! Agents " << a1 << ", " << a2 << ", timestep " << t << ", edge (" << plan[a1][t] << "," << plan[a1][t+1] << ")" << endl;
+					//cout << "Swapping conflict! Agents " << a1 << ", " << a2 << ", timestep " << t << ", edge (" << plan[a1][t] << "," << plan[a1][t+1] << ")" << endl;
 				}
 
 				if (movement == 2 && t < plan[a1].size() - 1 && plan[a1][t] == plan[a2][t+1])
