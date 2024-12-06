@@ -4,20 +4,20 @@ using namespace std;
 
 int VarToID(int var, bool duplicate, int& freshID, unordered_map<int, int>& dict);
 
-/** Constructor of _MAPFSAT_PassParallelMksAll.
+/** Constructor of _MAPFSAT_PassParallelMksLazy.
 *
 * @param sol_name name of the encoding used in log. Defualt value is pass_parallel_mks_all.
 */
-_MAPFSAT_MonosatParallelSocAll::_MAPFSAT_MonosatParallelSocAll(string sol_name)
+_MAPFSAT_MonosatParallelSocLazy::_MAPFSAT_MonosatParallelSocLazy(string sol_name)
 {
 	solver_name = sol_name;
 	cost_function = 2; // 1 = mks, 2 = soc
 	movement = 1; // 1 = parallel, 2 = pebble
-	lazy_const = 1; // 1 = all at once, 2 = lazy
+	lazy_const = 2; // 1 = all at once, 2 = lazy
 	solver_to_use = 2; // 1 = kissat, 2 = monosat
 };
 
-int _MAPFSAT_MonosatParallelSocAll::CreateFormula(int time_left)
+int _MAPFSAT_MonosatParallelSocLazy::CreateFormula(int time_left)
 {
 	int timesteps = inst->GetMksLB(agents) + delta;
 

@@ -14,6 +14,8 @@ OUTPUT_LIB = libmapf.a
 HEADER_NAME = MAPF.hpp
 EX_NAME = example
 
+_SHARED_LIBS = z gmpxx gmp
+SHARED_LIBS = $(patsubst %,-l%,$(_SHARED_LIBS))
 _LIBS = libpb.a libkissat.a libmonosat.a
 LIBS = $(patsubst %,$(L_DIR)/%,$(_LIBS))
 RELEASE_LIBS = $(patsubst %,$(R_DIR)/$(L_DIR)/%,$(OUTPUT_LIB)) $(patsubst %,$(R_DIR)/$(L_DIR)/%,$(_LIBS))
@@ -24,7 +26,7 @@ DEPS = $(patsubst %,$(S_DIR)/%,$(_DEPS))
 VAR = at pass shift monosat
 MOVE = parallel pebble
 FUNC = mks soc
-COMP = all
+COMP = all lazy
 
 _ENC_OBJ = solver_common.o $(foreach v, $(VAR), $(foreach m, $(MOVE), $(foreach f, $(FUNC), $(foreach c, $(COMP), $v_$m_$f_$c.o))))
 _OBJ = instance.o logger.o
@@ -45,7 +47,7 @@ release: $(PROJECT_NAME) lib
 
 # binary only
 $(PROJECT_NAME): $(OBJ) $(MAIN)
-	$(CC) $(CFLAGS) -o $(R_DIR)/$@ $^ $(LIBS)
+	$(CC) $(CFLAGS) -o $(R_DIR)/$@ $^ $(LIBS) $(SHARED_LIBS)
 
 # library and header only
 lib: $(OBJ) $(DEPS)
@@ -64,7 +66,7 @@ lib: $(OBJ) $(DEPS)
 # example only
 $(EX_NAME): $(R_DIR)/$(EX_NAME).cpp lib 
 	$(CC) $(CFLAGS) -c -o $(OBJ_EXAMPLE) $(R_DIR)/$@.cpp
-	$(CC) $(CFLAGS) -o $(R_DIR)/$@ $(OBJ_EXAMPLE) $(RELEASE_LIBS)
+	$(CC) $(CFLAGS) -o $(R_DIR)/$@ $(OBJ_EXAMPLE) $(RELEASE_LIBS) $(SHARED_LIBS)
 
 ################
 # object files #
@@ -84,7 +86,19 @@ $(O_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test6.scen -e monosat_pebble_soc_all -t 1000 -p -a 8 -c formula.cnf -l 1 -f results.res -d 24
+#	error:
+#	gdb --args $(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random08-1.scen -e at_parallel_mks_lazy -p -t 100 -a 25 -l 1 -f results.res
+#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random08-1.scen -e at_parallel_mks_lazy -p -t 100 -a 25 -l 1 -f results.res
+
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_parallel_soc_all -p -t 100 -a 20 -l 1 -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_parallel_soc_lazy -p -t 100 -a 20 -l 1 -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_parallel_mks_all -p -t 100 -a 20 -l 1 -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_parallel_mks_lazy -p -t 100 -a 20 -l 1 -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_pebble_soc_all -p -t 100 -a 20 -l 1 -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_pebble_soc_lazy -p -t 100 -a 20 -l 1 -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_pebble_mks_all -p -t 100 -a 20 -l 1 -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_pebble_mks_lazy -p -t 100 -a 20 -l 1 -f results.res
+
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \
@@ -92,7 +106,8 @@ valgrind: $(PROJECT_NAME)
 	--track-origins=yes \
 	--verbose \
 	--log-file=valgrind-out.txt \
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/empty08-1.scen -e shift_parallel_mks_all -t 60 -p -a 5 -i 5 -l 1 -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random08-1.scen -e at_parallel_mks_lazy -p -t 10000 -a 25 -l 1 -f results.res
+#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/empty08-1.scen -e shift_parallel_mks_all -t 60 -p -a 5 -i 5 -l 1 -f results.res
 
 test_example: $(EX_NAME)
 	$(R_DIR)/$^

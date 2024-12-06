@@ -230,7 +230,7 @@ void PrintHelp(char* argv[], bool quiet)
 	cout << "	-h                  : Prints help and exits" << endl;
 	cout << "	-q                  : Suppress print on stdout" << endl;
 	cout << "	-p                  : Print found plan. If q flag is set, p flag is overwritten." << endl;
-	cout << "	-e encoding         : Encoding to be used. Available options are {at|pass|shift|monosat}_{pebble|parallel}_{mks|soc}_{all|jit}" << endl;
+	cout << "	-e encoding         : Encoding to be used. Available options are {at|pass|shift|monosat}_{pebble|parallel}_{mks|soc}_{all|lazy}" << endl;
 	cout << "	-s scenario_file    : Path to a scenario file" << endl;
 	cout << "	-m map_dir          : Directory containing map files. Default is instances/maps" << endl;
 	cout << "	-a number_of_agents : Number of agents to solve. If not specified, all agents in the scenario file are used." << endl;
@@ -315,6 +315,66 @@ _MAPFSAT_ISolver* PickEncoding(string enc)
 	if (enc.compare("shift_pebble_soc_all") == 0)
 	{
 		solver = new _MAPFSAT_ShiftPebbleSocAll();
+		return solver;
+	}
+	if (enc.compare("at_parallel_mks_lazy") == 0)
+	{
+		solver = new _MAPFSAT_AtParallelMksLazy();
+		return solver;
+	}
+	if (enc.compare("at_parallel_soc_lazy") == 0)
+	{
+		solver = new _MAPFSAT_AtParallelSocLazy();
+		return solver;
+	}
+	if (enc.compare("at_pebble_mks_lazy") == 0)
+	{
+		solver = new _MAPFSAT_AtPebbleMksLazy();
+		return solver;
+	}
+	if (enc.compare("at_pebble_soc_lazy") == 0)
+	{
+		solver = new _MAPFSAT_AtPebbleSocLazy();
+		return solver;
+	}
+	if (enc.compare("pass_parallel_mks_lazy") == 0)
+	{
+		solver = new _MAPFSAT_PassParallelMksLazy();
+		return solver;
+	}
+	if (enc.compare("pass_parallel_soc_lazy") == 0)
+	{
+		solver = new _MAPFSAT_PassParallelSocLazy();
+		return solver;
+	}
+	if (enc.compare("pass_pebble_mks_lazy") == 0)
+	{
+		solver = new _MAPFSAT_PassPebbleMksLazy();
+		return solver;
+	}
+	if (enc.compare("pass_pebble_soc_lazy") == 0)
+	{
+		solver = new _MAPFSAT_PassPebbleSocLazy();
+		return solver;
+	}
+	if (enc.compare("shift_parallel_mks_lazy") == 0)
+	{
+		solver = new _MAPFSAT_ShiftParallelMksLazy();
+		return solver;
+	}
+	if (enc.compare("shift_parallel_soc_lazy") == 0)
+	{
+		solver = new _MAPFSAT_ShiftParallelSocLazy();
+		return solver;
+	}
+	if (enc.compare("shift_pebble_mks_lazy") == 0)
+	{
+		solver = new _MAPFSAT_ShiftPebbleMksLazy();
+		return solver;
+	}
+	if (enc.compare("shift_pebble_soc_lazy") == 0)
+	{
+		solver = new _MAPFSAT_ShiftPebbleSocLazy();
 		return solver;
 	}
 	if (enc.compare("monosat_parallel_mks_all") == 0)

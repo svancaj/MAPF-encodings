@@ -2,32 +2,30 @@
 
 using namespace std;
 
-int VarToID(int var, bool duplicate, int& freshID, unordered_map<int, int>& dict);
-
-/** Constructor of _MAPFSAT_PassParallelMksAll.
+/** Constructor of _MAPFSAT_ShiftPebbleSocLazy.
 *
-* @param sol_name name of the encoding used in log. Defualt value is pass_parallel_mks_all.
+* @param sol_name name of the encoding used in log. Defualt value is shift_pebble_soc_all.
 */
-_MAPFSAT_MonosatParallelSocAll::_MAPFSAT_MonosatParallelSocAll(string sol_name)
+_MAPFSAT_ShiftPebbleSocLazy::_MAPFSAT_ShiftPebbleSocLazy(string sol_name)
 {
 	solver_name = sol_name;
 	cost_function = 2; // 1 = mks, 2 = soc
-	movement = 1; // 1 = parallel, 2 = pebble
-	lazy_const = 1; // 1 = all at once, 2 = lazy
-	solver_to_use = 2; // 1 = kissat, 2 = monosat
+	movement = 2; // 1 = parallel, 2 = pebble
+	lazy_const = 2; // 1 = all at once, 2 = lazy
 };
 
-int _MAPFSAT_MonosatParallelSocAll::CreateFormula(int time_left)
+int _MAPFSAT_ShiftPebbleSocLazy::CreateFormula(int time_left)
 {
 	int timesteps = inst->GetMksLB(agents) + delta;
 
 	int lit = 1;
+	conflicts_present = false;
 
 	auto start = chrono::high_resolution_clock::now();
 
 	// create variables
 	lit = CreateAt(lit, timesteps);
-	lit = CreatePass(lit, timesteps);
+	lit = CreateShift(lit, timesteps);
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
@@ -39,28 +37,31 @@ int _MAPFSAT_MonosatParallelSocAll::CreateFormula(int time_left)
 		return -1;
 
 	// conflicts
-	CreateConf_Vertex();
-	CreateConf_Swapping_Pass();
+	CreateConf_Vertex_OnDemand();
+	//CreateConf_Swapping_Shift(CNF);
+	CreateConf_Pebble_Shift_OnDemand();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
-
-	// agents do not duplicate
+	
+	// movement 
 	CreateMove_NoDuplicates();
-
-	// create movement graph
-	CreateMove_Graph_MonosatPass();
+	CreateMove_NextVertex_At();
+	CreateMove_ExactlyOne_Shift();
+	CreateMove_NextVertex_Shift();
+	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
+		return -1;
 
 	// soc limit
 	if (delta > 0)
 		lit = CreateConst_LimitSoc(lit);
 
-	// avoid locations
+	// avoid locations - user has to make sure the avoid locations are pebble movement compatible
 	CreateConst_Avoid();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
 	// Deallocate memory
-	//CleanUp(print_plan);
+	CleanUp(true); // always keep at variables in lazy encoding to figure out the conflicts
 
 	return lit;
 }

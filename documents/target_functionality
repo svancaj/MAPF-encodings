@@ -1,6 +1,5 @@
 Compare reduction-based models (reduction to SAT). Implement all in C++.
 
-
 Encodings:
 
 Variables
@@ -24,34 +23,34 @@ Conflicts
 Final encodings:
 
 - At_pebble_mks_all			DONE
-- At_pebble_mks_jit
+- At_pebble_mks_lazy
 - At_pebble_soc_all			DONE
-- At_pebble_soc_jit
+- At_pebble_soc_lazy
 - At_parallel_mks_all		DONE
-- At_parallel_mks_jit
+- At_parallel_mks_lazy
 - At_parallel_soc_all		DONE
-- At_parallel_soc_jit
+- At_parallel_soc_lazy
 - Pass_pebble_mks_all		DONE
-- Pass_pebble_mks_jit
+- Pass_pebble_mks_lazy
 - Pass_pebble_soc_all		DONE
-- Pass_pebble_soc_jit
+- Pass_pebble_soc_lazy
 - Pass_parallel_mks_all		DONE
-- Pass_parallel_mks_jit
+- Pass_parallel_mks_lazy
 - Pass_parallel_soc_all		DONE
-- Pass_parallel_soc_jit
+- Pass_parallel_soc_lazy
 - Shift_pebble_mks_all      DONE
-- Shift_pebble_mks_jit
+- Shift_pebble_mks_lazy
 - Shift_pebble_soc_all      DONE
-- Shift_pebble_soc_jit
+- Shift_pebble_soc_lazy
 - Shift_parallel_mks_all    DONE
-- Shift_parallel_mks_jit
+- Shift_parallel_mks_lazy
 - Shift_parallel_soc_all    DONE
-- Shift_parallel_soc_jit
+- Shift_parallel_soc_lazy
 - Monosat_pebble_mks_all
-- Monosat_pebble_mks_jit
+- Monosat_pebble_mks_lazy
 - Monosat_pebble_soc_all
-- Monosat_pebble_soc_jit
+- Monosat_pebble_soc_lazy
 - Monosat_parallel_mks_all		DONE
-- Monosat_parallel_mks_jit
+- Monosat_parallel_mks_lazy
 - Monosat_parallel_soc_all
-- Monosat_parallel_soc_jit
+- Monosat_parallel_soc_lazy

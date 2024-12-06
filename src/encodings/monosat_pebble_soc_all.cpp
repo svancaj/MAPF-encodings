@@ -44,11 +44,11 @@ int _MAPFSAT_MonosatPebbleSocAll::CreateFormula(int time_left)
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
-	// not needed!!!
+	// agents do not duplicate
 	CreateMove_NoDuplicates();
 
-	// create graph
-	//CreateMove_Graph_Monosat();
+	// create movement graph
+	CreateMove_Graph_MonosatPass();
 
 	// soc limit
 	if (delta > 0)
