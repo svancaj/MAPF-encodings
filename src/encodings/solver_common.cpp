@@ -418,7 +418,7 @@ void _MAPFSAT_ISolver::CreateConf_Swapping_Shift()
 			{
 				int op_dir = inst->OppositeDir(dir);
 				int u = inst->GetNeighbor(v, dir);
-				size_t ind = lower_bound(shift[u][op_dir].timestep.begin(), shift[u][op_dir].timestep.end(), shift[v][dir].timestep[t_ind]) - shift[u][op_dir].timestep.begin();
+				size_t ind = find(shift[u][op_dir].timestep.begin(), shift[u][op_dir].timestep.end(), shift[v][dir].timestep[t_ind]) - shift[u][op_dir].timestep.begin();
 
 				if (ind == shift[u][op_dir].timestep.size() || shift[u][op_dir].timestep[ind] != shift[v][dir].timestep[t_ind]) // did not find t in opposite dir shift
 					continue;
@@ -521,7 +521,7 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_Shift()
 
 				for (int u_dir = 1; u_dir < 5; u_dir++) // do not check waiting direction
 				{
-					size_t ind = lower_bound(shift[u][u_dir].timestep.begin(), shift[u][u_dir].timestep.end(), shift[v][dir].timestep[t_ind]) - shift[u][u_dir].timestep.begin();
+					size_t ind = find(shift[u][u_dir].timestep.begin(), shift[u][u_dir].timestep.end(), shift[v][dir].timestep[t_ind]) - shift[u][u_dir].timestep.begin();
 
 					if (ind == shift[u][u_dir].timestep.size() || shift[u][u_dir].timestep[ind] != shift[v][dir].timestep[t_ind]) // did not find t in neighboring shift
 						continue;
@@ -689,7 +689,7 @@ void _MAPFSAT_ISolver::CreateMove_ExactlyOne_Shift()
 				if (!inst->HasNeighbor(v, dir))
 					continue;
 
-				size_t ind = lower_bound(shift[v][dir].timestep.begin(), shift[v][dir].timestep.end(), t) - shift[v][dir].timestep.begin();
+				size_t ind = find(shift[v][dir].timestep.begin(), shift[v][dir].timestep.end(), t) - shift[v][dir].timestep.begin();
 
 				if (ind != shift[v][dir].timestep.size() && shift[v][dir].timestep[ind] == t)
 				{
@@ -741,7 +741,7 @@ void _MAPFSAT_ISolver::CreateMove_NextVertex_Shift()
 					if (at[a][u].first_timestep > neib_t || at[a][u].last_timestep < neib_t)
 						continue;
 					
-					size_t ind = lower_bound(shift[v][dir].timestep.begin(), shift[v][dir].timestep.end(), t) - shift[v][dir].timestep.begin();
+					size_t ind = find(shift[v][dir].timestep.begin(), shift[v][dir].timestep.end(), t) - shift[v][dir].timestep.begin();
 
 					if (ind == shift[v][dir].timestep.size() || shift[v][dir].timestep[ind] != t)
 						continue;
@@ -917,12 +917,6 @@ void _MAPFSAT_ISolver::CreateConf_Swapping_Pass_OnDemand()
 			}
 		}
 
-		if (u == v)
-		{
-			cout << "!!!!" << endl;
-			cout << "extra swapping conflict at edge (" << v << "," << u << "), timestep " << t << " between " << a1 << " and " << a2 << endl;
-		}
-
 		//cout << "extra swapping conflict at edge (" << v << "," << u << "), timestep " << t << " between " << a1 << " and " << a2 << endl;
 		int a1_var = pass[a1][v][dir].first_variable + (t - pass[a1][v][dir].first_timestep);
 		int a2_var = pass[a2][u][op_dir].first_variable + (t - pass[a2][u][op_dir].first_timestep);
@@ -932,7 +926,32 @@ void _MAPFSAT_ISolver::CreateConf_Swapping_Pass_OnDemand()
 
 void _MAPFSAT_ISolver::CreateConf_Swapping_Shift_OnDemand()
 {
+	for (size_t i = 0; i < swap_conflicts.size(); i++)
+	{
+		int a1, a2, v, u, t;
+		tie(a1, a2, v, u, t) = swap_conflicts[i];
 
+		int dir = -1, op_dir = -1;
+
+		for (int d = 1; d < 5; d++)
+		{
+			if (inst->GetNeighbor(v, d) == u)
+			{
+				dir = d;
+				op_dir = inst->OppositeDir(dir);
+				break;
+			}
+		}
+		
+		size_t t_ind1 = find(shift[v][dir].timestep.begin(), shift[v][dir].timestep.end(), t) - shift[v][dir].timestep.begin();
+		size_t t_ind2 = find(shift[u][op_dir].timestep.begin(), shift[u][op_dir].timestep.end(), t) - shift[u][op_dir].timestep.begin();
+		
+		//cout << "extra swapping conflict at edge (" << v << "," << u << "), timestep " << t << " using shift" << endl;
+		int shift1_var = shift[v][dir].first_varaible + t_ind1;
+		int shift2_var = shift[u][op_dir].first_varaible + t_ind2;
+		AddClause(vector<int> {-shift1_var, -shift2_var});
+
+	}
 }
 
 void _MAPFSAT_ISolver::CreateConf_Pebble_At_OnDemand()
@@ -977,7 +996,38 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_Pass_OnDemand()
 
 void _MAPFSAT_ISolver::CreateConf_Pebble_Shift_OnDemand()
 {
+	for (size_t i = 0; i < pebble_conflicts.size(); i++)
+	{
+		int a1, a2, v, u, t;
+		tie(a1, a2, v, u, t) = pebble_conflicts[i];
+		t--;
 
+		int dir = -1;
+
+		for (int d = 1; d < 5; d++)
+		{
+			if (inst->GetNeighbor(v, d) == u)
+			{
+				dir = d;
+				break;
+			}
+		}
+
+		size_t t_ind = find(shift[v][dir].timestep.begin(), shift[v][dir].timestep.end(), t) - shift[v][dir].timestep.begin();
+		int shift1_var = shift[v][dir].first_varaible + t_ind;
+
+		for (int u_dir = 1; u_dir < 5; u_dir++) // do not check waiting direction
+		{
+			size_t ind = find(shift[u][u_dir].timestep.begin(), shift[u][u_dir].timestep.end(), shift[v][dir].timestep[t_ind]) - shift[u][u_dir].timestep.begin();
+
+			if (ind == shift[u][u_dir].timestep.size() || shift[u][u_dir].timestep[ind] != shift[v][dir].timestep[t_ind]) // did not find t in neighboring shift
+				continue;
+			
+			//cout << "extra pebble conflict at edge (" << v << "," << u << "), timestep " << shift[v][dir].timestep[t_ind] << " direction " << u_dir << " using shift" << endl;
+			int shift2_var = shift[u][u_dir].first_varaible + ind;
+			AddClause(vector<int> {-shift1_var, -shift2_var});
+		}
+	}
 }
 
 void _MAPFSAT_ISolver::CreateConst_Avoid()
@@ -1292,14 +1342,14 @@ void _MAPFSAT_ISolver::GenerateConflicts()
 					//cout << "Swapping conflict! Agents " << a1 << ", " << a2 << ", timestep " << t << ", edge (" << plan[a1][t] << "," << plan[a1][t+1] << ")" << endl;
 				}
 
-				if (movement == 2 && t < plan[a1].size() - 1 && plan[a1][t] == plan[a2][t+1])
+				if (movement == 2 && t < plan[a1].size() - 1 && plan[a1][t] == plan[a2][t+1] && plan[a2][t] != plan[a2][t+1])
 				{
 					conflicts_present = true;
 					pebble_conflicts.push_back(make_tuple(a2,a1,plan[a2][t],plan[a2][t+1],t+1));
 					//cout << "Pebble conflict! Agent " << a2 << " moved into " << plan[a2][t+1] << " in " << t+1 << ", but " << a1 << " was present in previous timestep." << endl;
 				}
 
-				if (movement == 2 && t < plan[a1].size() - 1 && plan[a1][t+1] == plan[a2][t])
+				if (movement == 2 && t < plan[a1].size() - 1 && plan[a1][t+1] == plan[a2][t] && plan[a1][t] != plan[a1][t+1])
 				{
 					conflicts_present = true;
 					pebble_conflicts.push_back(make_tuple(a1,a2,plan[a1][t],plan[a1][t+1],t+1));

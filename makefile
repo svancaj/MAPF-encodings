@@ -91,13 +91,7 @@ test: $(PROJECT_NAME)
 #	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random08-1.scen -e at_parallel_mks_lazy -p -t 100 -a 25 -l 1 -f results.res
 
 	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_parallel_soc_all -p -t 100 -a 30 -l 1 -f results.res
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_parallel_soc_lazy -p -t 100 -a 30 -l 1 -f results.res
-#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_parallel_mks_all -p -t 100 -a 20 -l 1 -f results.res
-#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_parallel_mks_lazy -p -t 100 -a 20 -l 1 -f results.res
-#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_pebble_soc_all -p -t 100 -a 20 -l 1 -f results.res
-#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_pebble_soc_lazy -p -t 100 -a 20 -l 1 -f results.res
-#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_pebble_mks_all -p -t 100 -a 20 -l 1 -f results.res
-#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_pebble_mks_lazy -p -t 100 -a 20 -l 1 -f results.res
+
 
 
 valgrind: $(PROJECT_NAME)
@@ -106,8 +100,9 @@ valgrind: $(PROJECT_NAME)
 	--track-origins=yes \
 	--verbose \
 	--log-file=valgrind-out.txt \
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random08-1.scen -e at_parallel_mks_lazy -p -t 10000 -a 25 -l 1 -f results.res
-#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/empty08-1.scen -e shift_parallel_mks_all -t 60 -p -a 5 -i 5 -l 1 -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/empty08-1.scen -e shift_parallel_mks_all -t 60 -p -a 5 -i 5 -l 1 -f results.res
+#	error:
+#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random08-1.scen -e at_parallel_mks_lazy -p -t 10000 -a 25 -l 1 -f results.res
 
 test_example: $(EX_NAME)
 	$(R_DIR)/$^
@@ -127,4 +122,4 @@ clean:
 	rm -rf $(O_DIR)
 	rm -rf $(R_DIR)/$(L_DIR)
 	rm -f $(R_DIR)/$(PROJECT_NAME) $(R_DIR)/$(EX_NAME) $(R_DIR)/$(HEADER_NAME)
-	rm -f valgrind-out.txt log.log *.cnf
+	rm -f valgrind-out.txt log.log *.cnf tmp
