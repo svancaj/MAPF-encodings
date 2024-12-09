@@ -3,9 +3,10 @@
 ####################
 
 CC = g++
-CFLAGS = -I src/externals -std=c++11 -O3 -Wall -Wextra -pedantic
+CFLAGS = -std=c++11 -O3 -Wall -Wextra -pedantic
 S_DIR = src
 E_DIR = $(S_DIR)/encodings
+EX_DIR = $(S_DIR)/externals
 O_DIR = .object_files
 L_DIR = libs
 R_DIR = release
@@ -73,10 +74,10 @@ $(EX_NAME): $(R_DIR)/$(EX_NAME).cpp lib
 ################
 
 $(O_DIR)/%.o: $(E_DIR)/%.cpp $(DEPS) | $(O_DIR)_exists
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -I $(EX_DIR) -c -o $@ $<
 
 $(O_DIR)/%.o: $(S_DIR)/%.cpp $(DEPS) | $(O_DIR)_exists
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -I $(EX_DIR) -c -o $@ $<
 
 $(O_DIR)_exists:
 	mkdir -p $(O_DIR)

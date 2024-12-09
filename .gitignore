@@ -9,3 +9,4 @@ log.log
 valgrind-out.txt
 *.cnf
 *.txt
+tmp

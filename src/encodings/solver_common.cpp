@@ -1,12 +1,22 @@
 #include "solver_common.hpp"
 
 // hide includes form user
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-compare"	// pblib has some warnings, lets ignore them
-#include "../externals/pblib/pb2cnf.h" // https://github.com/master-keying/pblib
-#pragma GCC diagnostic pop	// do not ignore warnings in our code!
 #include "../externals/kissat.h" // https://github.com/arminbiere/kissat
+#pragma GCC diagnostic push // external libs have some warnings, lets ignore them
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#pragma GCC diagnostic ignored "-Wpedantic"
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#pragma GCC diagnostic ignored "-Woverflow"
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#include "../externals/pblib/pb2cnf.h" // https://github.com/master-keying/pblib
 #include "../externals/monosat/api/Monosat.h" //https://github.com/sambayless/monosat
+#pragma GCC diagnostic pop	// do not ignore warnings in our code!
 
 using namespace std;
 
