@@ -23,29 +23,29 @@ Conflicts
 Final encodings:
 
 - At_pebble_mks_all			DONE
-- At_pebble_mks_lazy
+- At_pebble_mks_lazy    	DONE
 - At_pebble_soc_all			DONE
-- At_pebble_soc_lazy
+- At_pebble_soc_lazy	    DONE
 - At_parallel_mks_all		DONE
-- At_parallel_mks_lazy
+- At_parallel_mks_lazy	    DONE
 - At_parallel_soc_all		DONE
-- At_parallel_soc_lazy
+- At_parallel_soc_lazy	    DONE
 - Pass_pebble_mks_all		DONE
-- Pass_pebble_mks_lazy
+- Pass_pebble_mks_lazy	    DONE
 - Pass_pebble_soc_all		DONE
-- Pass_pebble_soc_lazy
+- Pass_pebble_soc_lazy	    DONE
 - Pass_parallel_mks_all		DONE
-- Pass_parallel_mks_lazy
+- Pass_parallel_mks_lazy	DONE
 - Pass_parallel_soc_all		DONE
-- Pass_parallel_soc_lazy
+- Pass_parallel_soc_lazy	DONE
 - Shift_pebble_mks_all      DONE
-- Shift_pebble_mks_lazy
+- Shift_pebble_mks_lazy	    DONE
 - Shift_pebble_soc_all      DONE
-- Shift_pebble_soc_lazy
+- Shift_pebble_soc_lazy	    DONE
 - Shift_parallel_mks_all    DONE
-- Shift_parallel_mks_lazy
+- Shift_parallel_mks_lazy	DONE
 - Shift_parallel_soc_all    DONE
-- Shift_parallel_soc_lazy
+- Shift_parallel_soc_lazy	DONE
 - Monosat_pebble_mks_all
 - Monosat_pebble_mks_lazy
 - Monosat_pebble_soc_all
