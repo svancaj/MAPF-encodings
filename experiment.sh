@@ -2,7 +2,7 @@
 
 timeout=300
 
-for instance in instances/scenarios/random08-1.scen instances/scenarios/random32-1.scen instances/scenarios/random64-1.scen
+for instance in instances/scenarios/*
 do
 	for vars in at pass shift #monosat
 	do

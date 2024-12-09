@@ -3,7 +3,7 @@
 ####################
 
 CC = g++
-CFLAGS = -std=c++11 -O3 -Wall -Wextra -pedantic
+CFLAGS = -I src/externals -std=c++11 -O3 -Wall -Wextra -pedantic
 S_DIR = src
 E_DIR = $(S_DIR)/encodings
 O_DIR = .object_files
