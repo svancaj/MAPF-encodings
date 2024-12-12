@@ -159,6 +159,7 @@ protected:
 
 	// plan outputting functions
 	int NormalizePlan();
+	void PrintPlan();
 	void VerifyPlan();
 	void GenerateConflicts();
 

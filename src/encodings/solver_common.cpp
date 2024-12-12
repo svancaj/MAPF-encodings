@@ -1100,7 +1100,9 @@ int _MAPFSAT_ISolver::InvokeSolver_Kissat(int timelimit)
 				}
 			}
 		}
-		NormalizePlan();
+
+		if (cost_function == 2)
+			NormalizePlan();
 	}
 
 	CleanUp(false);
@@ -1197,20 +1199,7 @@ int _MAPFSAT_ISolver::InvokeSolver(int timelimit)
 
 	// print found plan
 	if (!plan.empty() && print_plan && !conflicts_present)
-	{
-		int final_timesteps = plan[0].size();
-		VerifyPlan();
-
-		cout << "Found plan [agents = " << agents << "] [timesteps = " << final_timesteps << "]" << endl;
-		for (size_t a = 0; a < plan.size(); a++)
-		{
-			cout << "Agent #" << a << " : ";
-			for (size_t t = 0; t < plan[a].size(); t++)
-				cout << plan[a][t] << " ";
-			cout << endl;
-		}	
-		cout << endl;	
-	}
+		PrintPlan();
 
 	return res;
 }
@@ -1279,11 +1268,11 @@ int _MAPFSAT_ISolver::VarToID(int var, bool duplicate, int& freshID, unordered_m
 
 int _MAPFSAT_ISolver::NormalizePlan()
 {
-	int max_t = 0;
+	int max_t = 1;
 	for (size_t a = 0; a < plan.size(); a++)
 	{
 		int goal = inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y];
-		for (size_t t = plan[a].size() - 1; true; t--)
+		for (size_t t = plan[a].size() - 1; t > 0; t--)
 		{
 			if (plan[a][t] == 0)
 				plan[a][t] = goal;
@@ -1299,6 +1288,25 @@ int _MAPFSAT_ISolver::NormalizePlan()
 		plan[a].resize(max_t);
 
 	return max_t;
+}
+
+void _MAPFSAT_ISolver::PrintPlan()
+{
+	int final_timesteps = 0;
+	if (plan.size() > 0)
+		final_timesteps = plan[0].size();
+
+	VerifyPlan();
+
+	cout << "Found plan [agents = " << agents << "] [timesteps = " << final_timesteps << "]" << endl;
+	for (size_t a = 0; a < plan.size(); a++)
+	{
+		cout << "Agent #" << a << " : ";
+		for (size_t t = 0; t < plan[a].size(); t++)
+			cout << plan[a][t] << " ";
+		cout << endl;
+	}	
+	cout << endl;	
 }
 
 void _MAPFSAT_ISolver::VerifyPlan()

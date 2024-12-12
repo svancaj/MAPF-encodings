@@ -87,13 +87,7 @@ $(O_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-#	error:
-#	gdb --args $(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random08-1.scen -e at_parallel_mks_lazy -p -t 100 -a 25 -l 1 -f results.res
-#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random08-1.scen -e at_parallel_mks_lazy -p -t 100 -a 25 -l 1 -f results.res
-
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random24-1.scen -e pass_parallel_soc_all -p -t 100 -a 30 -l 1 -f results.res
-
-
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random_10_1.scen -e at_parallel_soc_lazy -p -t 100 -a 10 -l 1 -f results.res
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \
@@ -101,9 +95,7 @@ valgrind: $(PROJECT_NAME)
 	--track-origins=yes \
 	--verbose \
 	--log-file=valgrind-out.txt \
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/empty08-1.scen -e shift_parallel_mks_all -t 60 -p -a 5 -i 5 -l 1 -f results.res
-#	error:
-#	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random08-1.scen -e at_parallel_mks_lazy -p -t 10000 -a 25 -l 1 -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random_10_1.scen -e at_parallel_soc_lazy -p -t 100000 -a 10 -l 1 -f results.res
 
 test_example: $(EX_NAME)
 	$(R_DIR)/$^
