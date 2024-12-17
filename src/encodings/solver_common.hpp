@@ -144,6 +144,7 @@ protected:
 	void CreateMove_Graph_MonosatPass();
 
 	int CreateConst_LimitSoc(int);
+	int CreateConst_LimitSoc_Disappear(int);
 	void CreateConst_Avoid();
 
 	// solving
@@ -460,6 +461,19 @@ class _MAPFSAT_MonosatPebbleSocLazy : public _MAPFSAT_ISolver
 public:
 	_MAPFSAT_MonosatPebbleSocLazy(std::string name = "monosat_pebble_soc_lazy");
 	~_MAPFSAT_MonosatPebbleSocLazy() {};
+private:
+	int CreateFormula(int);
+};
+
+/**************************************************************************/
+/*********************** Disappear at goal encoding ***********************/
+/**************************************************************************/
+
+class _MAPFSAT_DisappearAtGoal : public _MAPFSAT_ISolver
+{
+public:
+	_MAPFSAT_DisappearAtGoal(std::string name = "disappear_at_goal");
+	~_MAPFSAT_DisappearAtGoal() {};
 private:
 	int CreateFormula(int);
 };

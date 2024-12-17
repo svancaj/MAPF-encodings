@@ -878,6 +878,37 @@ int _MAPFSAT_ISolver::CreateConst_LimitSoc(int lit)
 	return lit;
 }
 
+int _MAPFSAT_ISolver::CreateConst_LimitSoc_Disappear(int lit)
+{
+	// sum only not-at-goal Ats 
+
+	vector<int> late_variables;
+
+	for (int a = 0; a < agents; a++)
+	{
+		int goal_v = inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y];
+		int at_var = at[a][goal_v].first_variable;
+		for (int d = 0; d < delta; d++)
+		{
+			AddClause(vector<int> {at_var + d, lit});	// if agent is not at goal, it is late
+			if (d < delta - 1)
+				AddClause(vector<int> {lit, -(lit + 1)});	// if agent is late at t, it is late at t+1
+			late_variables.push_back(lit);
+			lit++;
+		}
+	}
+
+	// add constraint on sum of delays
+	PB2CNF pb2cnf;
+	vector<vector<int> > formula;
+	lit = pb2cnf.encodeAtMostK(late_variables, delta, formula, lit) + 1;
+
+	for (size_t i = 0; i < formula.size(); i++)
+		AddClause(formula[i]);
+
+	return lit;
+}
+
 void _MAPFSAT_ISolver::CreateConf_Vertex_OnDemand()
 {
 	for (size_t i = 0; i < vertex_conflicts.size(); i++)

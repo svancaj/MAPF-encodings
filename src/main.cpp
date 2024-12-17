@@ -230,7 +230,7 @@ void PrintHelp(char* argv[], bool quiet)
 	cout << "	-h                  : Prints help and exits" << endl;
 	cout << "	-q                  : Suppress print on stdout" << endl;
 	cout << "	-p                  : Print found plan. If q flag is set, p flag is overwritten." << endl;
-	cout << "	-e encoding         : Encoding to be used. Available options are {at|pass|shift|monosat}_{pebble|parallel}_{mks|soc}_{all|lazy}" << endl;
+	cout << "	-e encoding         : Encoding to be used. Available options are {at|pass|shift|monosat}_{pebble|parallel}_{mks|soc}_{all|lazy} and disappear" << endl;
 	cout << "	-s scenario_file    : Path to a scenario file" << endl;
 	cout << "	-m map_dir          : Directory containing map files. Default is instances/maps" << endl;
 	cout << "	-a number_of_agents : Number of agents to solve. If not specified, all agents in the scenario file are used." << endl;
@@ -395,6 +395,13 @@ _MAPFSAT_ISolver* PickEncoding(string enc)
 	if (enc.compare("monosat_pebble_soc_all") == 0)
 	{
 		solver = new _MAPFSAT_MonosatPebbleSocAll();
+		return solver;
+	}
+
+	/////
+	if (enc.compare("disappear") == 0)
+	{
+		solver = new _MAPFSAT_DisappearAtGoal();
 		return solver;
 	}
 	return solver;

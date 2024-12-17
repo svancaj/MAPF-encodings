@@ -29,7 +29,7 @@ MOVE = parallel pebble
 FUNC = mks soc
 COMP = all lazy
 
-_ENC_OBJ = solver_common.o $(foreach v, $(VAR), $(foreach m, $(MOVE), $(foreach f, $(FUNC), $(foreach c, $(COMP), $v_$m_$f_$c.o))))
+_ENC_OBJ = solver_common.o disappear.o $(foreach v, $(VAR), $(foreach m, $(MOVE), $(foreach f, $(FUNC), $(foreach c, $(COMP), $v_$m_$f_$c.o))))
 _OBJ = instance.o logger.o
 OBJ = $(patsubst %,$(O_DIR)/%,$(_OBJ)) $(patsubst %, $(O_DIR)/%,$(_ENC_OBJ))
 _MAIN = main.o
@@ -87,7 +87,7 @@ $(O_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random_10_1.scen -e at_parallel_soc_lazy -p -t 100 -a 10 -l 1 -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test2.scen -e disappear -p -t 100 -a 2 -l 2 -c formula.cnf -d 2 -o
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \
