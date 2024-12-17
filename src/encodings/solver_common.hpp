@@ -90,6 +90,8 @@ protected:
 
 	int nr_vars;
 	int nr_clauses;
+	int nr_clauses_move;
+	int nr_clauses_conflict;
 	int solver_calls;
 
 	std::vector<std::vector<int> > plan;
