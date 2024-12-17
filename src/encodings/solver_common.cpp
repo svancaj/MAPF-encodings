@@ -75,6 +75,8 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 	long long solving_time = 0;
 	solver_calls = 0;
 	nr_clauses = 0;
+	nr_clauses_move = 0;
+	nr_clauses_conflict = 0;
 	keep_plan = keep;
 	cnf_printable.clear();	// store cnf here if specified to print in cnf_file
 	vertex_conflicts.clear();
@@ -121,6 +123,8 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 		// log statistics
 		log->nr_vars = nr_vars;
 		log->nr_clauses = nr_clauses;
+		log->nr_clauses_move = nr_clauses_move;
+		log->nr_clauses_conflict = nr_clauses_conflict;
 		log->building_time = building_time;
 		log->solving_time = solving_time;
 		log->solution_mks = inst->GetMksLB(agents) + delta;
@@ -275,6 +279,7 @@ void _MAPFSAT_ISolver::CreatePossition_Start()
 	{
 		int start_var = at[a][inst->map[inst->agents[a].start.x][inst->agents[a].start.y]].first_variable;
 		AddClause(vector<int> {start_var});
+		nr_clauses_move++;
 	}
 }
 
@@ -285,6 +290,7 @@ void _MAPFSAT_ISolver::CreatePossition_Goal()
 		_MAPFSAT_TEGAgent AV_goal = at[a][inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y]];
 		int goal_var = AV_goal.first_variable + (AV_goal.last_timestep - AV_goal.first_timestep);
 		AddClause(vector<int> {goal_var});
+		nr_clauses_move++;
 	}
 }
 
@@ -307,6 +313,7 @@ void _MAPFSAT_ISolver::CreatePossition_NoneAtGoal()
 				//cout << a2 << " can not be at " << v << ", timestep " << t << " becuase " << a << " is in goal there" << endl;
 				int a2_var = at[a2][v].first_variable + (t - at[a2][v].first_timestep);
 				AddClause(vector<int> {-a2_var});
+				nr_clauses_move++;
 			}
 		}
 	}
@@ -333,6 +340,7 @@ void _MAPFSAT_ISolver::CreateConf_Vertex()
 					int a1_var = at[a1][v].first_variable + (t - at[a1][v].first_timestep);
 					int a2_var = at[a2][v].first_variable + (t - at[a2][v].first_timestep);
 					AddClause(vector<int> {-a1_var, -a2_var});
+					nr_clauses_conflict++;
 				}
 			}
 		}
@@ -371,6 +379,7 @@ void _MAPFSAT_ISolver::CreateConf_Swapping_At()
 						int a2_v_var = at[a2][v].first_variable + (t + 1 - at[a2][v].first_timestep);
 						int a2_u_var = at[a2][u].first_variable + (t - at[a2][u].first_timestep);
 						AddClause(vector<int> {-a1_v_var, -a1_u_var, -a2_v_var, -a2_u_var});
+						nr_clauses_conflict++;
 					}
 				}
 			}
@@ -407,6 +416,7 @@ void _MAPFSAT_ISolver::CreateConf_Swapping_Pass()
 						int a1_var = pass[a1][v][dir].first_variable + (t - pass[a1][v][dir].first_timestep);
 						int a2_var = pass[a2][u][op_dir].first_variable + (t - pass[a2][u][op_dir].first_timestep);
 						AddClause(vector<int> {-a1_var, -a2_var});
+						nr_clauses_conflict++;
 					}
 				}
 			}
@@ -437,6 +447,7 @@ void _MAPFSAT_ISolver::CreateConf_Swapping_Shift()
 				int shift1_var = shift[v][dir].first_varaible + t_ind;
 				int shift2_var = shift[u][op_dir].first_varaible + ind;
 				AddClause(vector<int> {-shift1_var, -shift2_var});
+				nr_clauses_conflict++;
 			}
 		}
 	}
@@ -467,6 +478,7 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_At()
 					int a1_var = at[a1][v].first_variable + (t - at[a1][v].first_timestep);
 					int a2_var = at[a2][v].first_variable + (t - 1 - at[a2][v].first_timestep);
 					AddClause(vector<int> {-a1_var, -a2_var});
+					nr_clauses_conflict++;
 				}
 
 			}
@@ -506,6 +518,7 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_Pass()
 						int a1_var = pass[a1][v][dir].first_variable + (t - pass[a1][v][dir].first_timestep);
 						int a2_var = at[a2][u].first_variable + (t - at[a2][u].first_timestep);
 						AddClause(vector<int> {-a1_var, -a2_var});
+						nr_clauses_conflict++;
 					}
 				}
 			}
@@ -539,6 +552,7 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_Shift()
 					//cout << "pebble conflict at edge (" << v << "," << u << "), timestep " << shift[v][dir].timestep[t_ind] << " direction " << u_dir << " using shift" << endl;
 					int shift2_var = shift[u][u_dir].first_varaible + ind;
 					AddClause(vector<int> {-shift1_var, -shift2_var});
+					nr_clauses_conflict++;
 				}
 			}
 		}
@@ -567,6 +581,7 @@ void _MAPFSAT_ISolver::CreateMove_NoDuplicates()
 					int v_var = at[a][v].first_variable + (t - at[a][v].first_timestep);
 					int u_var = at[a][u].first_variable + (t - at[a][u].first_timestep);
 					AddClause(vector<int> {-v_var, -u_var});
+					nr_clauses_move++;
 				}
 			}
 		}
@@ -611,6 +626,7 @@ void _MAPFSAT_ISolver::CreateMove_NextVertex_At()
 				neibs.push_back(-at_var);
 
 				AddClause(neibs);
+				nr_clauses_move++;
 			}
 		}
 	}
@@ -639,6 +655,7 @@ void _MAPFSAT_ISolver::CreateMove_EnterVertex_Pass()
 
 					//cout << "moving agent " << a << " over (" << v << ", " << u << ") at timestep " << t << " will lead to " << u << endl;
 					AddClause(vector<int> {-pass_var, at_var});
+					nr_clauses_move++;
 				}
 			}
 		}
@@ -679,6 +696,7 @@ void _MAPFSAT_ISolver::CreateMove_LeaveVertex_Pass()
 				neibs.push_back(-at_var);
 
 				AddClause(neibs);
+				nr_clauses_move++;
 			}
 		}
 	}
@@ -719,6 +737,7 @@ void _MAPFSAT_ISolver::CreateMove_ExactlyOne_Shift()
 				for (size_t j = i+1; j < vc.size(); j++)
 				{
 					AddClause(vector<int>{-vc[i], -vc[j]}); // at most 1
+					nr_clauses_move++;
 				}
 			}
 		}
@@ -764,7 +783,9 @@ void _MAPFSAT_ISolver::CreateMove_NextVertex_Shift()
 					//cout << "agent " << a << " is at " << v << " in " << t << " and at " << u << " in the next timestep, therefore something moved" << endl;
 
 					AddClause(vector<int> {-at1_var, -shift_var, at2_var}); // if at v and v shifts to u then at u in the next timestep
+					nr_clauses_move++;
 					AddClause(vector<int> {-at1_var, -at2_var, shift_var}); // if at v and at u in next timestep then v shifted to u 
+					nr_clauses_move++;
 				}
 			}
 		}
@@ -889,6 +910,7 @@ void _MAPFSAT_ISolver::CreateConf_Vertex_OnDemand()
 		int a1_var = at[a1][v].first_variable + (t - at[a1][v].first_timestep);
 		int a2_var = at[a2][v].first_variable + (t - at[a2][v].first_timestep);
 		AddClause(vector<int> {-a1_var, -a2_var});
+		nr_clauses_conflict++;
 	}
 }
 
@@ -905,6 +927,7 @@ void _MAPFSAT_ISolver::CreateConf_Swapping_At_OnDemand()
 		int a2_v_var = at[a2][v].first_variable + (t + 1 - at[a2][v].first_timestep);
 		int a2_u_var = at[a2][u].first_variable + (t - at[a2][u].first_timestep);
 		AddClause(vector<int> {-a1_v_var, -a1_u_var, -a2_v_var, -a2_u_var});
+		nr_clauses_conflict++;
 	}
 }
 
@@ -931,6 +954,7 @@ void _MAPFSAT_ISolver::CreateConf_Swapping_Pass_OnDemand()
 		int a1_var = pass[a1][v][dir].first_variable + (t - pass[a1][v][dir].first_timestep);
 		int a2_var = pass[a2][u][op_dir].first_variable + (t - pass[a2][u][op_dir].first_timestep);
 		AddClause(vector<int> {-a1_var, -a2_var});
+		nr_clauses_conflict++;
 	}	
 }
 
@@ -960,7 +984,7 @@ void _MAPFSAT_ISolver::CreateConf_Swapping_Shift_OnDemand()
 		int shift1_var = shift[v][dir].first_varaible + t_ind1;
 		int shift2_var = shift[u][op_dir].first_varaible + t_ind2;
 		AddClause(vector<int> {-shift1_var, -shift2_var});
-
+		nr_clauses_conflict++;
 	}
 }
 
@@ -975,6 +999,7 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_At_OnDemand()
 		int a1_var = at[a1][v].first_variable + (t - at[a1][v].first_timestep);
 		int a2_var = at[a2][v].first_variable + (t - 1 - at[a2][v].first_timestep);
 		AddClause(vector<int> {-a1_var, -a2_var});
+		nr_clauses_conflict++;
 	}
 }
 
@@ -1001,6 +1026,7 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_Pass_OnDemand()
 		int a1_var = pass[a1][v][dir].first_variable + (t - pass[a1][v][dir].first_timestep);
 		int a2_var = at[a2][u].first_variable + (t - at[a2][u].first_timestep);
 		AddClause(vector<int> {-a1_var, -a2_var});
+		nr_clauses_conflict++;
 	}
 }
 
@@ -1036,6 +1062,7 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_Shift_OnDemand()
 			//cout << "extra pebble conflict at edge (" << v << "," << u << "), timestep " << shift[v][dir].timestep[t_ind] << " direction " << u_dir << " using shift" << endl;
 			int shift2_var = shift[u][u_dir].first_varaible + ind;
 			AddClause(vector<int> {-shift1_var, -shift2_var});
+			nr_clauses_conflict++;
 		}
 	}
 }
@@ -1056,6 +1083,7 @@ void _MAPFSAT_ISolver::CreateConst_Avoid()
 				
 				int at_var = at[a][v].first_variable + (t - at[a][v].first_timestep);
 				AddClause(vector<int> {-at_var});
+				nr_clauses_conflict++;
 			}
 		}
 	}

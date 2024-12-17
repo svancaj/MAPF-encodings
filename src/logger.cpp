@@ -54,6 +54,8 @@ void _MAPFSAT_Logger::PrintStatistics()
 			solver_calls << sep <<
 			nr_vars << sep <<
 			nr_clauses << sep <<
+			nr_clauses_move << sep <<
+			nr_clauses_conflict << sep <<
 			solution << sep <<
 			endl;
 	}
@@ -75,7 +77,9 @@ void _MAPFSAT_Logger::PrintStatistics()
 			"SAT solving time:   " << solving_time << sep <<
 			"Nr of solver calls: " << solver_calls << sep <<
 			"Nr of variables:    " << nr_vars << sep <<
-			"Nr of clauses:      " << nr_clauses << sep <<
+			"Nr of clauses       " << nr_clauses << sep <<
+			"Nr of move clauses: " << nr_clauses_move << sep <<
+			"Nr of conf clauses: " << nr_clauses_conflict << sep <<
 			"Found solution:     " << solution << sep <<
 			endl << endl;
 	}
