@@ -116,6 +116,7 @@ protected:
 
 	void CreatePossition_Start();
 	void CreatePossition_Goal();
+	void CreatePossition_Goal_Disappear();
 	void CreatePossition_NoneAtGoal();
 
 	void CreateConf_Vertex();
@@ -138,6 +139,7 @@ protected:
 	void CreateMove_NextVertex_At();
 	void CreateMove_EnterVertex_Pass();
 	void CreateMove_LeaveVertex_Pass();
+	void CreateMove_LeaveVertex_Pass_Disappear();
 	void CreateMove_ExactlyOne_Shift();
 	void CreateMove_NextVertex_Shift();
 

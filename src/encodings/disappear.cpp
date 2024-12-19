@@ -30,13 +30,13 @@ int _MAPFSAT_DisappearAtGoal::CreateFormula(int time_left)
 
 	// start - goal possitions
 	CreatePossition_Start();
-	CreatePossition_Goal();
+	CreatePossition_Goal_Disappear();
 	//CreatePossition_NoneAtGoal();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
 	// conflicts
-	CreateConf_Vertex_Disappear();
+	CreateConf_Vertex();
 	CreateConf_Swapping_Pass();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
@@ -44,7 +44,7 @@ int _MAPFSAT_DisappearAtGoal::CreateFormula(int time_left)
 	// movement 
 	CreateMove_NoDuplicates();
 	CreateMove_EnterVertex_Pass();
-	CreateMove_LeaveVertex_Pass();
+	CreateMove_LeaveVertex_Pass_Disappear();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 

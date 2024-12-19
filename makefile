@@ -87,7 +87,7 @@ $(O_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test2.scen -e disappear -p -t 100 -a 2 -l 2 -c formula.cnf -d 2 -o
+	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test1.scen -e disappear -p -t 100 -a 2 -l 2 -c formula.cnf 
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \

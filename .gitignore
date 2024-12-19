@@ -1,5 +1,6 @@
 .vscode
 .object_files
+experiments/*
 release/MAPF*
 release/example
 release/libmapf.a

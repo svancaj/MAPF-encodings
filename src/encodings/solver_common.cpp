@@ -288,6 +288,26 @@ void _MAPFSAT_ISolver::CreatePossition_Goal()
 	}
 }
 
+void _MAPFSAT_ISolver::CreatePossition_Goal_Disappear()
+{
+	for (int a = 0; a < agents; a++)
+	{
+		_MAPFSAT_TEGAgent AV_goal = at[a][inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y]];
+		vector<int> vc;
+
+		int star_t = AV_goal.first_timestep;
+		int end_t = AV_goal.last_timestep + 1;
+
+		for (int t = star_t; t < end_t; t++)
+		{
+			int goal_var = AV_goal.first_variable + (t - AV_goal.first_timestep);
+			vc.push_back(goal_var);
+		}
+
+		AddClause(vc);
+	}
+}
+
 void _MAPFSAT_ISolver::CreatePossition_NoneAtGoal()
 {
 	for (int a = 0; a < agents; a++)
@@ -684,6 +704,49 @@ void _MAPFSAT_ISolver::CreateMove_LeaveVertex_Pass()
 	}
 }
 
+void _MAPFSAT_ISolver::CreateMove_LeaveVertex_Pass_Disappear()
+{
+	for (int a = 0; a < agents; a++)
+	{
+		for (int v = 0; v < vertices; v++)
+		{
+			if (at[a][v].first_variable == 0)
+				continue;
+			
+			// a does not have to move out of its goal
+			if (v == inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y])
+				continue;
+
+			int star_t = at[a][v].first_timestep;
+			int end_t = at[a][v].last_timestep + 1;
+
+			for (int t = star_t; t < end_t; t++)
+			{
+				vector<int> neibs;
+				for (int dir = 0; dir < 5; dir++)
+				{
+					if (pass[a][v][dir].first_variable == 0)
+						continue;
+					if (pass[a][v][dir].first_timestep <= t && pass[a][v][dir].last_timestep >= t)
+					{
+						//cout << a << " can move from " << v << " in " << dir << " at timestep " << t << endl;
+						int pass_var = pass[a][v][dir].first_variable + (t - pass[a][v][dir].first_timestep);
+						neibs.push_back(pass_var);
+					}
+				}
+
+				if (neibs.empty())
+					continue;
+				
+				int at_var = at[a][v].first_variable + (t - at[a][v].first_timestep);
+				neibs.push_back(-at_var);
+
+				AddClause(neibs);
+			}
+		}
+	}
+}
+
 void _MAPFSAT_ISolver::CreateMove_ExactlyOne_Shift()
 {
 	// all shifts going from v sum up to exactly 1
@@ -886,15 +949,25 @@ int _MAPFSAT_ISolver::CreateConst_LimitSoc_Disappear(int lit)
 
 	for (int a = 0; a < agents; a++)
 	{
-		int goal_v = inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y];
-		int at_var = at[a][goal_v].first_variable;
-		for (int d = 0; d < delta; d++)
+		for (int v = 0; v < vertices; v++)
 		{
-			AddClause(vector<int> {at_var + d, lit});	// if agent is not at goal, it is late
-			if (d < delta - 1)
-				AddClause(vector<int> {lit, -(lit + 1)});	// if agent is late at t, it is late at t+1
-			late_variables.push_back(lit);
-			lit++;
+			if (at[a][v].first_variable == 0)
+				continue;
+			
+			int goal_v = inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y];
+			if (v == goal_v)
+				continue;
+
+			int star_t = max(at[a][v].first_timestep, inst->SP_lengths[a]);
+			int end_t = at[a][v].last_timestep + 1;
+
+			for (int t = star_t; t < end_t; t++)
+			{
+				//cout << a << " can be late in vexrtex " << v << " at timestep " << t << endl;
+
+				int late = at[a][v].first_variable + (t - at[a][v].first_timestep);
+				late_variables.push_back(late);
+			}
 		}
 	}
 
