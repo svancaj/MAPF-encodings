@@ -230,7 +230,7 @@ void PrintHelp(char* argv[], bool quiet)
 	cout << "	-h                  : Prints help and exits" << endl;
 	cout << "	-q                  : Suppress print on stdout" << endl;
 	cout << "	-p                  : Print found plan. If q flag is set, p flag is overwritten." << endl;
-	cout << "	-e encoding         : Encoding to be used. Available options are {at|pass|shift|monosat}_{pebble|parallel}_{mks|soc}_{all|lazy}" << endl;
+	cout << "	-e encoding         : Encoding to be used. Available options are {at|pass|shift|monosat-pass|monosat-shift}_{pebble|parallel}_{mks|soc}_{all|lazy}" << endl;
 	cout << "	-s scenario_file    : Path to a scenario file" << endl;
 	cout << "	-m map_dir          : Directory containing map files. Default is instances/maps" << endl;
 	cout << "	-a number_of_agents : Number of agents to solve. If not specified, all agents in the scenario file are used." << endl;
@@ -377,24 +377,24 @@ _MAPFSAT_ISolver* PickEncoding(string enc)
 		solver = new _MAPFSAT_ShiftPebbleSocLazy();
 		return solver;
 	}
-	if (enc.compare("monosat_parallel_mks_all") == 0)
+	if (enc.compare("monosat-pass_parallel_mks_all") == 0)
 	{
-		solver = new _MAPFSAT_MonosatParallelMksAll();
+		solver = new _MAPFSAT_MonosatPassParallelMksAll();
 		return solver;
 	}
-	if (enc.compare("monosat_parallel_soc_all") == 0)
+	if (enc.compare("monosat-pass_parallel_soc_all") == 0)
 	{
-		solver = new _MAPFSAT_MonosatParallelSocAll();
+		solver = new _MAPFSAT_MonosatPassParallelSocAll();
 		return solver;
 	}
-	if (enc.compare("monosat_pebble_mks_all") == 0)
+	if (enc.compare("monosat-shift_parallel_mks_all") == 0)
 	{
-		solver = new _MAPFSAT_MonosatPebbleMksAll();
+		solver = new _MAPFSAT_MonosatShiftParallelMksAll();
 		return solver;
 	}
-	if (enc.compare("monosat_pebble_soc_all") == 0)
+	if (enc.compare("monosat-shift_parallel_soc_all") == 0)
 	{
-		solver = new _MAPFSAT_MonosatPebbleSocAll();
+		solver = new _MAPFSAT_MonosatShiftParallelSocAll();
 		return solver;
 	}
 	return solver;

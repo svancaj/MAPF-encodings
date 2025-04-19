@@ -22,35 +22,43 @@ Conflicts
 
 Final encodings:
 
-- At_pebble_mks_all			DONE
-- At_pebble_mks_lazy    	DONE
-- At_pebble_soc_all			DONE
-- At_pebble_soc_lazy	    DONE
-- At_parallel_mks_all		DONE
-- At_parallel_mks_lazy	    DONE
-- At_parallel_soc_all		DONE
-- At_parallel_soc_lazy	    DONE
-- Pass_pebble_mks_all		DONE
-- Pass_pebble_mks_lazy	    DONE
-- Pass_pebble_soc_all		DONE
-- Pass_pebble_soc_lazy	    DONE
-- Pass_parallel_mks_all		DONE
-- Pass_parallel_mks_lazy	DONE
-- Pass_parallel_soc_all		DONE
-- Pass_parallel_soc_lazy	DONE
-- Shift_pebble_mks_all      DONE
-- Shift_pebble_mks_lazy	    DONE
-- Shift_pebble_soc_all      DONE
-- Shift_pebble_soc_lazy	    DONE
-- Shift_parallel_mks_all    DONE
-- Shift_parallel_mks_lazy	DONE
-- Shift_parallel_soc_all    DONE
-- Shift_parallel_soc_lazy	DONE
-- Monosat_pebble_mks_all
-- Monosat_pebble_mks_lazy
-- Monosat_pebble_soc_all
-- Monosat_pebble_soc_lazy
-- Monosat_parallel_mks_all		DONE
-- Monosat_parallel_mks_lazy
-- Monosat_parallel_soc_all
-- Monosat_parallel_soc_lazy
+- At_pebble_mks_all			            DONE
+- At_pebble_mks_lazy    	            DONE
+- At_pebble_soc_all			            DONE
+- At_pebble_soc_lazy	                DONE
+- At_parallel_mks_all		            DONE
+- At_parallel_mks_lazy	                DONE
+- At_parallel_soc_all		            DONE
+- At_parallel_soc_lazy	                DONE
+- Pass_pebble_mks_all		            DONE
+- Pass_pebble_mks_lazy	                DONE
+- Pass_pebble_soc_all		            DONE
+- Pass_pebble_soc_lazy	                DONE
+- Pass_parallel_mks_all		            DONE
+- Pass_parallel_mks_lazy	            DONE
+- Pass_parallel_soc_all		            DONE
+- Pass_parallel_soc_lazy	            DONE
+- Shift_pebble_mks_all                  DONE
+- Shift_pebble_mks_lazy	                DONE
+- Shift_pebble_soc_all                  DONE
+- Shift_pebble_soc_lazy	                DONE
+- Shift_parallel_mks_all                DONE
+- Shift_parallel_mks_lazy	            DONE
+- Shift_parallel_soc_all                DONE
+- Shift_parallel_soc_lazy	            DONE
+- Monosat-pass_pebble_mks_all
+- Monosat-pass_pebble_mks_lazy
+- Monosat-pass_pebble_soc_all
+- Monosat-pass_pebble_soc_lazy
+- Monosat-pass_parallel_mks_all
+- Monosat-pass_parallel_mks_lazy
+- Monosat-pass_parallel_soc_all
+- Monosat-pass_parallel_soc_lazy
+- Monosat-shift_pebble_mks_all
+- Monosat-shift_pebble_mks_lazy
+- Monosat-shift_pebble_soc_all
+- Monosat-shift_pebble_soc_lazy
+- Monosat-shift_parallel_mks_all
+- Monosat-shift_parallel_mks_lazy
+- Monosat-shift_parallel_soc_all
+- Monosat-shift_parallel_soc_lazy

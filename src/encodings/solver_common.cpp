@@ -792,15 +792,22 @@ void _MAPFSAT_ISolver::CreateMove_NextVertex_Shift()
 	}
 }
 
-void _MAPFSAT_ISolver::CreateMove_Graph_MonosatPass()
+int _MAPFSAT_ISolver::CreateMove_Graph_MonosatPass(int lit)
 {
-	// `digraph <weight type> <# nodes> <# edges> <GraphID>`
-	// `edge <GraphID> <from> <to> <CNF Variable>`
-	// `reach <GraphID> <a> <b> <CNF Variable>`
+	int backup_lit = lit;
+	for (int a = 0; a < agents; a++)
+	{
+		AddClause({lit});
+		lit++;
+	}
+	lit = backup_lit;
 
 	for (int a = 0; a < agents; a++)
 	{
-		cnf_printable << "digraph int 0 0 " << a << endl;
+		GraphTheorySolver_long g_theory = newGraph((SolverPtr)SAT_solver);
+
+		if (cnf_file.compare("") != 0)
+			cnf_printable << "digraph int 0 0 " << a << "\n";
 		
 		int vertex_id = 0;
 		unordered_map<int, int> dict;
@@ -821,7 +828,9 @@ void _MAPFSAT_ISolver::CreateMove_Graph_MonosatPass()
 				int v1 = VarToID(at_var, false, vertex_id, dict);
 				int v2 = VarToID(at_var, true, vertex_id, dict);
 
-				cnf_printable << "edge " << a << " " << v1 << " " << v2 << " " << at_var <<  endl;
+				g_theory->newEdge(v1, v2, at_var);
+				if (cnf_file.compare("") != 0)
+					cnf_printable << "edge " << a << " " << v1 << " " << v2 << " " << at_var << "\n";
 			}
 		}
 
@@ -853,7 +862,9 @@ void _MAPFSAT_ISolver::CreateMove_Graph_MonosatPass()
 					int v2 = VarToID(at_var, true, vertex_id, dict);
 					int u1 = VarToID(neib_var, false, vertex_id, dict);
 
-					cnf_printable << "edge " << a << " " << v2 << " " << u1 << " " << pass_var <<  endl;
+					g_theory->newEdge(v2, u1, pass_var);
+					if (cnf_file.compare("") != 0)
+						cnf_printable << "edge " << a << " " << v2 << " " << u1 << " " << pass_var << "\n";
 				}
 			}
 		}
@@ -866,8 +877,14 @@ void _MAPFSAT_ISolver::CreateMove_Graph_MonosatPass()
 		int start_v = VarToID(at_start_var, false, vertex_id, dict);
 		int goal_v = VarToID(at_goal_var, true, vertex_id, dict);
 
-		cnf_printable << "reach " << a << " " << start_v << " " << goal_v << " " << at_start_var << endl;
+		g_theory->reaches(start_v, goal_v, lit);
+		if (cnf_file.compare("") != 0)
+			cnf_printable << "reach " << a << " " << start_v << " " << goal_v << " " << lit << "\n";
+		//AddClause({lit});
+		lit++;
 	}
+
+	return lit;
 }
 
 int _MAPFSAT_ISolver::CreateConst_LimitSoc(int lit)
@@ -1098,7 +1115,7 @@ int _MAPFSAT_ISolver::InvokeSolver_Kissat(int timelimit)
 	bool ended = false;
 	thread waiting_thread = thread(WaitForTerminate, timelimit, SAT_solver, ref(ended));
 	
-    int ret = kissat_solve((kissat*)SAT_solver); // Start solver
+    int ret = kissat_solve((kissat*)SAT_solver); // Start solver // 20 = UNSAT; 10 = SAT
 
 	ended = true;
 	waiting_thread.join();
@@ -1146,13 +1163,27 @@ int _MAPFSAT_ISolver::InvokeSolver_Kissat(int timelimit)
 
 int _MAPFSAT_ISolver::InvokeSolver_Monosat(int timelimit)
 {
-	bool ret = solve((SolverPtr)SAT_solver);
+	setTimeLimit((SolverPtr)SAT_solver, (timelimit/1000) + 1);
+	int ret = solveLimited((SolverPtr)SAT_solver); // 0 = SAT; 1 = UNSAT; 2 = timeout
 
-	if ((print_plan || keep_plan || lazy_const == 2) && ret)
+	((SolverPtr)SAT_solver)->theories[0]->printSolution();
+	((SolverPtr)SAT_solver)->theories[1]->printSolution();
+
+	cout << "result " << ret << endl;
+
+
+	for (int i = 0; i < ((SolverPtr)SAT_solver)->model.size(); i++)
+	{
+		cout << i << " - " << (int)toInt(((SolverPtr)SAT_solver)->model[i]) << endl;
+	}
+
+	if ((print_plan || keep_plan || lazy_const == 2) && ret == 0)
 	{
 		vector<bool> eval = vector<bool>(at_vars);
 		for (int var = 1; var < at_vars; var++)
-			eval[var-1] = (getModel_Literal((SolverPtr)SAT_solver, varToLit(var,false)) > 0) ? false : true;
+		{
+			eval[var-1] = (getModel_Literal((SolverPtr)SAT_solver, varToLit(var,false)) == 0) ? true : false;
+		}
 
 		plan = vector<vector<int> >(agents, vector<int>(max_timestep));
 
@@ -1176,7 +1207,7 @@ int _MAPFSAT_ISolver::InvokeSolver_Monosat(int timelimit)
 
 	solver_calls++;
 
-	return (ret) ? 0 : 1;
+	return (ret == 0) ? 0 : 1;
 }
 
 /****************************/

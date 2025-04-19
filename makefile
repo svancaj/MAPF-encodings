@@ -24,12 +24,12 @@ RELEASE_LIBS = $(patsubst %,$(R_DIR)/$(L_DIR)/%,$(OUTPUT_LIB)) $(patsubst %,$(R_
 _DEPS = instance.hpp logger.hpp encodings/solver_common.hpp
 DEPS = $(patsubst %,$(S_DIR)/%,$(_DEPS))
 
-VAR = at pass shift monosat
+VAR = at pass shift #monosat-pass monosat-shift
 MOVE = parallel pebble
 FUNC = mks soc
 COMP = all lazy
 
-_ENC_OBJ = solver_common.o $(foreach v, $(VAR), $(foreach m, $(MOVE), $(foreach f, $(FUNC), $(foreach c, $(COMP), $v_$m_$f_$c.o))))
+_ENC_OBJ = solver_common.o monosat-pass_parallel_mks_all.o monosat-pass_parallel_soc_all.o monosat-shift_parallel_mks_all.o monosat-shift_parallel_soc_all.o $(foreach v, $(VAR), $(foreach m, $(MOVE), $(foreach f, $(FUNC), $(foreach c, $(COMP), $v_$m_$f_$c.o)))) 
 _OBJ = instance.o logger.o
 OBJ = $(patsubst %,$(O_DIR)/%,$(_OBJ)) $(patsubst %, $(O_DIR)/%,$(_ENC_OBJ))
 _MAIN = main.o
@@ -87,7 +87,7 @@ $(O_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random_10_1.scen -e at_parallel_soc_lazy -p -t 100 -a 10 -l 1 -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test2.scen -e monosat-pass_parallel_mks_all -p -t 100 -a 2 -l 2 -c tmp.cnf -d 2
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \
