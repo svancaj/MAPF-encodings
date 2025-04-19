@@ -3,7 +3,7 @@
 ####################
 
 CC = g++
-CFLAGS = -std=c++11 -O3 -Wall -Wextra -pedantic
+CFLAGS = -std=c++11 -g #-O3 -Wall -Wextra -pedantic
 S_DIR = src
 E_DIR = $(S_DIR)/encodings
 EX_DIR = $(S_DIR)/externals
@@ -87,7 +87,7 @@ $(O_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test1.scen -e disappear -p -t 100 -a 2 -l 2 -c formula.cnf 
+	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test7.scen -e disappear -p -t 100 -a 6 -l 2 -c formula.cnf 
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \

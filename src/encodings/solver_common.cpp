@@ -1205,8 +1205,8 @@ int _MAPFSAT_ISolver::InvokeSolver_Kissat(int timelimit)
 			}
 		}
 
-		if (cost_function == 2)
-			NormalizePlan();
+		//if (cost_function == 2)
+		//	NormalizePlan();
 	}
 
 	CleanUp(false);
