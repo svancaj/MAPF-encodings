@@ -1167,8 +1167,9 @@ int _MAPFSAT_ISolver::InvokeSolver_Monosat(int timelimit)
 	// int ret = solveLimited((SolverPtr)SAT_solver); // 0 = SAT; 1 = UNSAT; 2 = timeout
 
 	stringstream exec;
-	exec << "./libs/monosat" 		// -witness to print assignment
-		<< " -cpu-lim=" << 1000 
+	exec << "timeout " << (timelimit/1000) +1
+		<< " ./libs/monosat" 						// -witness to print assignment
+		//<< " -cpu-lim=" << (timelimit/1000) +1	// cpu limit (in s) is unrealiable
 		<< " tmp.cnf"; 
 
 	int ret = system(exec.str().c_str());
