@@ -15,9 +15,9 @@ OUTPUT_LIB = libmapf.a
 HEADER_NAME = MAPF.hpp
 EX_NAME = example
 
-_SHARED_LIBS = z gmpxx gmp
-SHARED_LIBS = $(patsubst %,-l%,$(_SHARED_LIBS))
-_LIBS = libpb.a libkissat.a libmonosat.a
+#_SHARED_LIBS = z gmpxx gmp
+#SHARED_LIBS = $(patsubst %,-l%,$(_SHARED_LIBS))
+_LIBS = libpb.a libkissat.a #libmonosat.a
 LIBS = $(patsubst %,$(L_DIR)/%,$(_LIBS))
 RELEASE_LIBS = $(patsubst %,$(R_DIR)/$(L_DIR)/%,$(OUTPUT_LIB)) $(patsubst %,$(R_DIR)/$(L_DIR)/%,$(_LIBS))
 
@@ -48,7 +48,8 @@ release: $(PROJECT_NAME) lib
 
 # binary only
 $(PROJECT_NAME): $(OBJ) $(MAIN)
-	$(CC) $(CFLAGS) -o $(R_DIR)/$@ $^ $(LIBS) $(SHARED_LIBS)
+	$(CC) $(CFLAGS) -o $(R_DIR)/$@ $^ $(LIBS)
+#	$(CC) $(CFLAGS) -o $(R_DIR)/$@ $^ $(LIBS) $(SHARED_LIBS)
 
 # library and header only
 lib: $(OBJ) $(DEPS)
@@ -67,7 +68,8 @@ lib: $(OBJ) $(DEPS)
 # example only
 $(EX_NAME): $(R_DIR)/$(EX_NAME).cpp lib 
 	$(CC) $(CFLAGS) -c -o $(OBJ_EXAMPLE) $(R_DIR)/$@.cpp
-	$(CC) $(CFLAGS) -o $(R_DIR)/$@ $(OBJ_EXAMPLE) $(RELEASE_LIBS) $(SHARED_LIBS)
+	$(CC) $(CFLAGS) -o $(R_DIR)/$@ $(OBJ_EXAMPLE) $(RELEASE_LIBS)
+#	$(CC) $(CFLAGS) -o $(R_DIR)/$@ $(OBJ_EXAMPLE) $(RELEASE_LIBS) $(SHARED_LIBS)
 
 ################
 # object files #
@@ -87,7 +89,7 @@ $(O_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test2.scen -e monosat-pass_parallel_mks_all -p -t 100 -a 2 -l 2 -c tmp.cnf -d 2
+	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test1.scen -e monosat-pass_parallel_soc_all -p -t 100 -a 2 -l 2 -c tmp.cnf
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \

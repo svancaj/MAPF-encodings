@@ -28,13 +28,10 @@ int _MAPFSAT_MonosatPassParallelMksAll::CreateFormula(int time_left)
 	lit = CreatePass(lit, timesteps);
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
-
-	
-
 	
 	// start - goal possitions
-	CreatePossition_Start();
-	CreatePossition_Goal();
+	// CreatePossition_Start();
+	// CreatePossition_Goal();
 
 	// conflicts
 	CreateConf_Vertex();

@@ -2,6 +2,12 @@
 
 // hide includes form user
 #include "../externals/kissat.h" // https://github.com/arminbiere/kissat
+
+#pragma GCC diagnostic push // external libs have some warnings, lets ignore them
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#include "../externals/pblib/pb2cnf.h" // https://github.com/master-keying/pblib
+#pragma GCC diagnostic pop	// do not ignore warnings in our code!
+/*
 #pragma GCC diagnostic push // external libs have some warnings, lets ignore them
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-function"
@@ -17,6 +23,7 @@
 #include "../externals/pblib/pb2cnf.h" // https://github.com/master-keying/pblib
 #include "../externals/monosat/api/Monosat.h" //https://github.com/sambayless/monosat
 #pragma GCC diagnostic pop	// do not ignore warnings in our code!
+*/
 
 using namespace std;
 
@@ -794,21 +801,9 @@ void _MAPFSAT_ISolver::CreateMove_NextVertex_Shift()
 
 int _MAPFSAT_ISolver::CreateMove_Graph_MonosatPass(int lit)
 {
-	int backup_lit = lit;
-	/*for (int a = 0; a < agents; a++)
-	{
-		AddClause({lit});
-		lit++;
-	}*/
-
-	cnf_printable << "monosat says there are this many vars > " << ((SolverPtr)SAT_solver)->nVars() << endl;
-	cnf_printable << "I think there are this many vars > " << lit << endl;
-
-	lit = backup_lit;
-
 	for (int a = 0; a < agents; a++)
 	{
-		GraphTheorySolver_long g_theory = newGraph((SolverPtr)SAT_solver);
+		// GraphTheorySolver_long g_theory = newGraph((SolverPtr)SAT_solver);
 
 		if (cnf_file.compare("") != 0)
 			cnf_printable << "digraph int 0 0 " << a << "\n";
@@ -832,7 +827,7 @@ int _MAPFSAT_ISolver::CreateMove_Graph_MonosatPass(int lit)
 				int v1 = VarToID(at_var, false, vertex_id, dict);
 				int v2 = VarToID(at_var, true, vertex_id, dict);
 
-				g_theory->newEdge(v1, v2, at_var);
+				//g_theory->newEdge(v1, v2, at_var);
 				if (cnf_file.compare("") != 0)
 					cnf_printable << "edge " << a << " " << v1 << " " << v2 << " " << at_var << "\n";
 			}
@@ -866,7 +861,7 @@ int _MAPFSAT_ISolver::CreateMove_Graph_MonosatPass(int lit)
 					int v2 = VarToID(at_var, true, vertex_id, dict);
 					int u1 = VarToID(neib_var, false, vertex_id, dict);
 
-					g_theory->newEdge(v2, u1, pass_var);
+					//g_theory->newEdge(v2, u1, pass_var);
 					if (cnf_file.compare("") != 0)
 						cnf_printable << "edge " << a << " " << v2 << " " << u1 << " " << pass_var << "\n";
 				}
@@ -881,15 +876,11 @@ int _MAPFSAT_ISolver::CreateMove_Graph_MonosatPass(int lit)
 		int start_v = VarToID(at_start_var, false, vertex_id, dict);
 		int goal_v = VarToID(at_goal_var, true, vertex_id, dict);
 
-		int reach = reaches((SolverPtr)SAT_solver, g_theory, start_v, goal_v);
-		cout << "reach var " << litToVar(reach) << endl;
 		//g_theory->reaches(start_v, goal_v, lit);
 		if (cnf_file.compare("") != 0)
-			cnf_printable << "reach " << a << " " << start_v << " " << goal_v << " " << litToVar(reach) << "\n";
-		AddClause({litToVar(reach)});
-		//lit++;
-
-		cnf_printable << "after adding graph, monosat says there are this many vars > " << ((SolverPtr)SAT_solver)->nVars() << endl;
+			cnf_printable << "reach " << a << " " << start_v << " " << goal_v << " " << lit << "\n";
+		AddClause(vector<int> {lit});
+		lit++;
 	}
 
 	return lit;
@@ -1171,35 +1162,22 @@ int _MAPFSAT_ISolver::InvokeSolver_Kissat(int timelimit)
 
 int _MAPFSAT_ISolver::InvokeSolver_Monosat(int timelimit)
 {
-	cout << "vars " << ((SolverPtr)SAT_solver)->nVars() << endl;
-	cout << "model size " << ((SolverPtr)SAT_solver)->model.size() << endl;
+	// working only with binary for now
+	// setTimeLimit((SolverPtr)SAT_solver, (timelimit/1000) + 1);
+	// int ret = solveLimited((SolverPtr)SAT_solver); // 0 = SAT; 1 = UNSAT; 2 = timeout
 
-	setTimeLimit((SolverPtr)SAT_solver, (timelimit/1000) + 1);
-	int ret = solveLimited((SolverPtr)SAT_solver); // 0 = SAT; 1 = UNSAT; 2 = timeout
+	stringstream exec;
+	exec << "./libs/monosat" 		// -witness to print assignment
+		<< " -cpu-lim=" << 1000 
+		<< " tmp.cnf"; 
 
-	((SolverPtr)SAT_solver)->theories[0]->printSolution();
-	((SolverPtr)SAT_solver)->theories[1]->printSolution();
+	int ret = system(exec.str().c_str());
 
-	((SolverPtr)SAT_solver)->theories[0]->printStats();
-	((SolverPtr)SAT_solver)->theories[1]->printStats();
-
-	cout << "result " << ret << endl;
-
-	cout << "vars " << ((SolverPtr)SAT_solver)->nVars() << endl;
-	cout << "model size " << ((SolverPtr)SAT_solver)->model.size() << endl;
-
-
-	for (int i = 0; i < 80; i++)
-		cout << i << " " << getModel_Literal((SolverPtr)SAT_solver, varToLit(i,false)) << endl;
-
-	/*for (int i = 0; i < ((SolverPtr)SAT_solver)->model.size(); i++)
+	if ((print_plan || keep_plan || lazy_const == 2) && ret == 2560)
 	{
-		cout << i << " - " << (int)toInt(((SolverPtr)SAT_solver)->model[i]) << endl;
-	}*/
+		// no plan retrieval for now
 
-	if ((print_plan || keep_plan || lazy_const == 2) && ret == 0)
-	{
-		vector<bool> eval = vector<bool>(at_vars);
+		/*vector<bool> eval = vector<bool>(at_vars);
 		for (int var = 1; var < at_vars; var++)
 		{
 			eval[var-1] = (getModel_Literal((SolverPtr)SAT_solver, varToLit(var,false)) == 0) ? true : false;
@@ -1222,12 +1200,12 @@ int _MAPFSAT_ISolver::InvokeSolver_Monosat(int timelimit)
 				}
 			}
 		}
-		NormalizePlan();
+		NormalizePlan();*/
 	}
 
 	solver_calls++;
 
-	return (ret == 0) ? 0 : 1;
+	return (ret == 2560) ? 0 : 1;
 }
 
 /****************************/
@@ -1243,7 +1221,9 @@ void _MAPFSAT_ISolver::CreateSolver()
 	}
 	if (solver_to_use == 2) // monosat
 	{
-		SAT_solver = newSolver();
+		// working only with binary for now
+
+		//SAT_solver = newSolver();
 	}
 }
 
@@ -1294,11 +1274,13 @@ void _MAPFSAT_ISolver::AddClause(vector<int> clause)
 
 	if (solver_to_use == 2) // monosat
 	{
-		int* mono_cl = new int[clause.size()];
+		// working only with files for now
+
+		/*int* mono_cl = new int[clause.size()];
 		for (size_t i = 0; i < clause.size(); i++)
 			mono_cl[i] = varToLit(abs(clause[i]), (clause[i] < 0) ? true : false);
 		addClause((SolverPtr)SAT_solver, mono_cl, clause.size());
-		delete[] mono_cl;
+		delete[] mono_cl;*/
 	}
 
 	if (cnf_file.compare("") != 0)

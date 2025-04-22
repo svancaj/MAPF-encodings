@@ -30,8 +30,8 @@ int _MAPFSAT_MonosatPassParallelSocAll::CreateFormula(int time_left)
 		return -1;
 
 	// start - goal possitions
-	CreatePossition_Start();
-	CreatePossition_Goal();
+	//CreatePossition_Start();
+	//CreatePossition_Goal();
 	CreatePossition_NoneAtGoal();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
@@ -43,14 +43,14 @@ int _MAPFSAT_MonosatPassParallelSocAll::CreateFormula(int time_left)
 		return -1;
 
 	// agents do not duplicate
-	CreateMove_NoDuplicates();
-
-	// create movement graph
-	//CreateMove_Graph_MonosatPass();
+	//CreateMove_NoDuplicates();
 
 	// soc limit
 	if (delta > 0)
 		lit = CreateConst_LimitSoc(lit);
+
+	// create movement graph
+	lit = CreateMove_Graph_MonosatPass(lit);
 
 	// avoid locations
 	CreateConst_Avoid();
