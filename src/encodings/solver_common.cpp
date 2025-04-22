@@ -795,11 +795,15 @@ void _MAPFSAT_ISolver::CreateMove_NextVertex_Shift()
 int _MAPFSAT_ISolver::CreateMove_Graph_MonosatPass(int lit)
 {
 	int backup_lit = lit;
-	for (int a = 0; a < agents; a++)
+	/*for (int a = 0; a < agents; a++)
 	{
 		AddClause({lit});
 		lit++;
-	}
+	}*/
+
+	cnf_printable << "monosat says there are this many vars > " << ((SolverPtr)SAT_solver)->nVars() << endl;
+	cnf_printable << "I think there are this many vars > " << lit << endl;
+
 	lit = backup_lit;
 
 	for (int a = 0; a < agents; a++)
@@ -877,11 +881,15 @@ int _MAPFSAT_ISolver::CreateMove_Graph_MonosatPass(int lit)
 		int start_v = VarToID(at_start_var, false, vertex_id, dict);
 		int goal_v = VarToID(at_goal_var, true, vertex_id, dict);
 
-		g_theory->reaches(start_v, goal_v, lit);
+		int reach = reaches((SolverPtr)SAT_solver, g_theory, start_v, goal_v);
+		cout << "reach var " << litToVar(reach) << endl;
+		//g_theory->reaches(start_v, goal_v, lit);
 		if (cnf_file.compare("") != 0)
-			cnf_printable << "reach " << a << " " << start_v << " " << goal_v << " " << lit << "\n";
-		//AddClause({lit});
-		lit++;
+			cnf_printable << "reach " << a << " " << start_v << " " << goal_v << " " << litToVar(reach) << "\n";
+		AddClause({litToVar(reach)});
+		//lit++;
+
+		cnf_printable << "after adding graph, monosat says there are this many vars > " << ((SolverPtr)SAT_solver)->nVars() << endl;
 	}
 
 	return lit;
@@ -1163,19 +1171,31 @@ int _MAPFSAT_ISolver::InvokeSolver_Kissat(int timelimit)
 
 int _MAPFSAT_ISolver::InvokeSolver_Monosat(int timelimit)
 {
+	cout << "vars " << ((SolverPtr)SAT_solver)->nVars() << endl;
+	cout << "model size " << ((SolverPtr)SAT_solver)->model.size() << endl;
+
 	setTimeLimit((SolverPtr)SAT_solver, (timelimit/1000) + 1);
 	int ret = solveLimited((SolverPtr)SAT_solver); // 0 = SAT; 1 = UNSAT; 2 = timeout
 
 	((SolverPtr)SAT_solver)->theories[0]->printSolution();
 	((SolverPtr)SAT_solver)->theories[1]->printSolution();
 
+	((SolverPtr)SAT_solver)->theories[0]->printStats();
+	((SolverPtr)SAT_solver)->theories[1]->printStats();
+
 	cout << "result " << ret << endl;
 
+	cout << "vars " << ((SolverPtr)SAT_solver)->nVars() << endl;
+	cout << "model size " << ((SolverPtr)SAT_solver)->model.size() << endl;
 
-	for (int i = 0; i < ((SolverPtr)SAT_solver)->model.size(); i++)
+
+	for (int i = 0; i < 80; i++)
+		cout << i << " " << getModel_Literal((SolverPtr)SAT_solver, varToLit(i,false)) << endl;
+
+	/*for (int i = 0; i < ((SolverPtr)SAT_solver)->model.size(); i++)
 	{
 		cout << i << " - " << (int)toInt(((SolverPtr)SAT_solver)->model[i]) << endl;
-	}
+	}*/
 
 	if ((print_plan || keep_plan || lazy_const == 2) && ret == 0)
 	{

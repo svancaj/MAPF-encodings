@@ -1,0 +1,17 @@
+warehouse_60.map	MAPF_Encodings/instances/scenarios/warehouse_60_0.scen	pass_parallel_mks_all	5	45	187	45	0	104	845	1	32539	492380	490719	1661	sat	
+warehouse_60.map	MAPF_Encodings/instances/scenarios/warehouse_60_0.scen	pass_parallel_mks_all	10	78	396	78	0	8522	278438	1	813108	39109732	38495268	614464	sat	
+warehouse_60.map	MAPF_Encodings/instances/scenarios/warehouse_60_0.scen	pass_parallel_soc_all	5	45	187	45	187	1	0	1	883	1215	1213	2	sat	
+warehouse_60.map	MAPF_Encodings/instances/scenarios/warehouse_60_0.scen	pass_parallel_soc_all	10	78	396	78	396	4	4	1	2532	4752	4749	3	sat	
+warehouse_60.map	MAPF_Encodings/instances/scenarios/warehouse_60_0.scen	pass_parallel_soc_all	15	78	615	78	615	10	11	1	5602	12724	12697	27	sat	
+warehouse_60.map	MAPF_Encodings/instances/scenarios/warehouse_60_0.scen	pass_parallel_soc_all	20	78	816	80	818	172	355	3	34658	205346	203838	1168	sat	
+warehouse_60.map	MAPF_Encodings/instances/scenarios/warehouse_60_0.scen	pass_parallel_soc_all	25	78	1043	96	1061	41318	178913	19	705790	78539336	76484873	1983151	sat	
+warehouse_60.map	MAPF_Encodings/instances/scenarios/warehouse_60_0.scen	shift_parallel_mks_all	5	45	187	45	0	121	1069	1	30998	556527	548242	8285	sat	
+warehouse_60.map	MAPF_Encodings/instances/scenarios/warehouse_60_0.scen	shift_parallel_mks_all	10	78	396	78	0	8397	147935	1	475468	39846116	39555914	290202	sat	
+warehouse_60.map	MAPF_Encodings/instances/scenarios/warehouse_60_0.scen	shift_parallel_mks_all	15	78	615	78	0	11612	161903	1	612103	52718596	52246182	472414	sat	
+warehouse_60.map	MAPF_Encodings/instances/scenarios/warehouse_60_0.scen	shift_parallel_mks_all	20	78	816	78	0	14783	179296	1	728288	66836873	66119044	717829	sat	
+warehouse_60.map	MAPF_Encodings/instances/scenarios/warehouse_60_0.scen	shift_parallel_mks_all	25	78	1043	78	0	17694	215340	1	821089	81029548	79979700	1049848	sat	
+warehouse_60.map	MAPF_Encodings/instances/scenarios/warehouse_60_0.scen	shift_parallel_soc_all	5	45	187	45	187	5	0	1	883	1778	1776	2	sat	
+warehouse_60.map	MAPF_Encodings/instances/scenarios/warehouse_60_0.scen	shift_parallel_soc_all	10	78	396	78	396	23	4	1	2532	6360	6357	3	sat	
+warehouse_60.map	MAPF_Encodings/instances/scenarios/warehouse_60_0.scen	shift_parallel_soc_all	15	78	615	78	615	38	14	1	5600	16416	16389	27	sat	
+warehouse_60.map	MAPF_Encodings/instances/scenarios/warehouse_60_0.scen	shift_parallel_soc_all	20	78	816	80	818	306	436	3	34140	276959	271820	4799	sat	
+warehouse_60.map	MAPF_Encodings/instances/scenarios/warehouse_60_0.scen	shift_parallel_soc_all	25	78	1043	96	1061	44189	146289	19	471685	86332371	84671280	1589779	sat	

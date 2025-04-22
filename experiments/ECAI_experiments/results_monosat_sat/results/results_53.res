@@ -1,0 +1,15 @@
+random_40.map	MAPF_Encodings/instances/scenarios/random_40_2.scen	pass_parallel_mks_all	5	37	135	37	0	185	3645	1	43839	855461	848826	6635	sat	
+random_40.map	MAPF_Encodings/instances/scenarios/random_40_2.scen	pass_parallel_soc_all	5	37	135	39	137	15	29	3	7531	39464	39262	127	sat	
+random_40.map	MAPF_Encodings/instances/scenarios/random_40_2.scen	pass_parallel_soc_all	10	67	253	69	255	42	65	3	15574	94940	94246	531	sat	
+random_40.map	MAPF_Encodings/instances/scenarios/random_40_2.scen	pass_parallel_soc_all	15	70	425	72	427	88	139	3	26510	177540	174509	2780	sat	
+random_40.map	MAPF_Encodings/instances/scenarios/random_40_2.scen	pass_parallel_soc_all	20	70	557	72	559	142	150	3	31166	196860	192190	4330	sat	
+random_40.map	MAPF_Encodings/instances/scenarios/random_40_2.scen	pass_parallel_soc_all	25	70	751	82	763	21575	57010	13	434069	27335201	26262183	1046222	sat	
+random_40.map	MAPF_Encodings/instances/scenarios/random_40_2.scen	pass_parallel_soc_all	30	70	899	86	915	30468	210976	17	804596	84067574	79653467	4349591	sat	
+random_40.map	MAPF_Encodings/instances/scenarios/random_40_2.scen	shift_parallel_mks_all	5	37	135	37	0	221	3882	1	37490	938541	927419	11122	sat	
+random_40.map	MAPF_Encodings/instances/scenarios/random_40_2.scen	shift_parallel_mks_all	10	67	253	67	0	11646	205236	1	439210	52369956	51960165	409791	sat	
+random_40.map	MAPF_Encodings/instances/scenarios/random_40_2.scen	shift_parallel_soc_all	5	37	135	39	137	29	49	3	7480	57075	56007	993	sat	
+random_40.map	MAPF_Encodings/instances/scenarios/random_40_2.scen	shift_parallel_soc_all	10	67	253	69	255	94	100	3	15352	131413	129013	2237	sat	
+random_40.map	MAPF_Encodings/instances/scenarios/random_40_2.scen	shift_parallel_soc_all	15	70	425	72	427	181	191	3	24580	236767	231679	4837	sat	
+random_40.map	MAPF_Encodings/instances/scenarios/random_40_2.scen	shift_parallel_soc_all	20	70	557	72	559	259	216	3	28455	265319	258792	6187	sat	
+random_40.map	MAPF_Encodings/instances/scenarios/random_40_2.scen	shift_parallel_soc_all	25	70	751	82	763	23265	50173	13	275575	30576340	29865395	684149	sat	
+random_40.map	MAPF_Encodings/instances/scenarios/random_40_2.scen	shift_parallel_soc_all	30	70	899	86	915	32603	162919	17	415190	89387834	87367695	1955623	sat	
