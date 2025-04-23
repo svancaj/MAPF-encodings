@@ -12,6 +12,8 @@ The system makes use of the following repositories
 
 The static libraries of these tools are provided in this repository in the `libs` directory. However, for optimal experience, we encourage the user to compile the libraries themselves.
 
+Using *monosat* C++ API is planned for future, it is not yet supported. The current implementation uses the *monosat* binary. Ignore the follwoing note.
+
 Note that *monosat* requires *zlib* and *gmp*. To use the makefile and to compile the code, *make* and *g++* compatible with C++11 or higher are required. You can install all of those using the following:
 
 ```
@@ -80,6 +82,10 @@ Currently, the following ideas are implemented:
 - At(a,v,t) variables only describing location *v* of agent *a* in timestep *t*
 - Pass(a,v,u,t) variables with At variables describing movement of agent *a* over edge *(v,u)* at timestep *t*
 - Shift(v,u,t) variables with At variables describing movement over edge *(v,u)* at timestep *t*
+
+### Graph propagators
+- Monosat-Pass creates a TEG for each agent. Makes use of At and Pass varaibles.
+- Monosat-Shift creates a single TEG shared among all agents. Makes use of only Shift variables.
 
 ### Motion
 - Parallel motion allows two agents to move in close proximity (also called following conflict or 0-robust solution).

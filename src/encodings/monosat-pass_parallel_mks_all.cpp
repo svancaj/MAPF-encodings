@@ -29,21 +29,16 @@ int _MAPFSAT_MonosatPassParallelMksAll::CreateFormula(int time_left)
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 	
-	// start - goal possitions
-	// CreatePossition_Start();
-	// CreatePossition_Goal();
-
 	// conflicts
 	CreateConf_Vertex();
 	CreateConf_Swapping_Pass();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
-	// agents do not duplicate
-	//CreateMove_NoDuplicates();
-
 	// create movement graph
 	lit = CreateMove_Graph_MonosatPass(lit);
+	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
+		return -1;
 	
 	// avoid locations
 	CreateConst_Avoid();
@@ -51,7 +46,7 @@ int _MAPFSAT_MonosatPassParallelMksAll::CreateFormula(int time_left)
 		return -1;
 
 	// Deallocate memory
-	//CleanUp(print_plan);
+	CleanUp(print_plan);
 
 	return lit;
 }

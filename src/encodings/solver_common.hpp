@@ -146,6 +146,7 @@ protected:
 	int CreateMove_Graph_MonosatPass(int);
 
 	int CreateConst_LimitSoc(int);
+	int CreateConst_LimitSoc_AllAt(int);
 	void CreateConst_Avoid();
 
 	// solving

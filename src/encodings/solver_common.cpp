@@ -190,7 +190,7 @@ int _MAPFSAT_ISolver::CreateAt(int lit, int timesteps)
 	}
 
 	max_timestep = timesteps;
-	at_vars = lit; // at vars alwayes start at 1
+	at_vars = lit; // at vars always start at 1
 	return lit;
 }
 
@@ -915,6 +915,53 @@ int _MAPFSAT_ISolver::CreateConst_LimitSoc(int lit)
 	return lit;
 }
 
+int _MAPFSAT_ISolver::CreateConst_LimitSoc_AllAt(int lit)
+{
+	vector<int> late_variables;
+
+	for (int a = 0; a < agents; a++)
+	{
+		int goal_v = inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y];
+		int t = at[a][goal_v].first_timestep;
+		for (int d = 0; d < delta; d++)
+		{
+			for (int v = 0; v < vertices; v++)
+			{
+				if (v == goal_v)
+					continue;
+				if (at[a][v].first_variable == 0)
+					continue;
+				if (at[a][v].first_timestep > t + d)
+					continue;
+				if (at[a][v].last_timestep < t + d)
+					continue;
+				
+				int at_var = at[a][v].first_variable + (t + d - at[a][v].first_timestep);
+
+				//cout << "agent " << a << " might be in " << v << " at timestep " << t + d << endl;
+				//cout << "therefore, either " << at_var << " is not true or " << lit << " is true" << endl;
+
+				AddClause(vector<int> {-at_var, lit});	// if agent is somewhere other than at goal, it is late
+			}
+
+			if (d < delta - 1)
+				AddClause(vector<int> {lit, -(lit + 1)});	// if agent is late at t, it is late at t+1
+			late_variables.push_back(lit);
+			lit++;
+		}
+	}
+
+	// add constraint on sum of delays
+	PB2CNF pb2cnf;
+	vector<vector<int> > formula;
+	lit = pb2cnf.encodeAtMostK(late_variables, delta, formula, lit) + 1;
+
+	for (size_t i = 0; i < formula.size(); i++)
+		AddClause(formula[i]);
+
+	return lit;
+}
+
 void _MAPFSAT_ISolver::CreateConf_Vertex_OnDemand()
 {
 	for (size_t i = 0; i < vertex_conflicts.size(); i++)
@@ -1168,21 +1215,48 @@ int _MAPFSAT_ISolver::InvokeSolver_Monosat(int timelimit)
 
 	stringstream exec;
 	exec << "timeout " << (timelimit/1000) +1
-		<< " ./libs/monosat" 						// -witness to print assignment
+		<< " ./libs/monosat" 						
+		<< " -witness-file=tmp.out"					// -witness to print assignment
 		//<< " -cpu-lim=" << (timelimit/1000) +1	// cpu limit (in s) is unrealiable
-		<< " tmp.cnf"; 
+		<< " tmp.cnf"
+		<< " > /dev/null";							// do not care about stdout 
 
 	int ret = system(exec.str().c_str());
 
 	if ((print_plan || keep_plan || lazy_const == 2) && ret == 2560)
 	{
-		// no plan retrieval for now
+		// the plan may not be correct, as agents may occupy more vertices if graph propagator is used
+		// TODO - use DFS to find the connected paths
 
-		/*vector<bool> eval = vector<bool>(at_vars);
-		for (int var = 1; var < at_vars; var++)
+		cout << "output of plan is not fully supported for monosat yet" << endl;
+
+		ifstream input("tmp.out");
+		if (!input.is_open())
 		{
-			eval[var-1] = (getModel_Literal((SolverPtr)SAT_solver, varToLit(var,false)) == 0) ? true : false;
+			cerr << "could not open result file tmp.out" << endl;
+			return -1;
 		}
+		string line;
+		getline(input, line);
+		vector<bool> eval = vector<bool>(at_vars);
+
+		if (line.compare("") != 0)
+		{
+			stringstream ssline(line);
+			string part;
+			vector<string> parsed_line;
+			while (getline(ssline, part, ' '))
+			{
+				if (part.compare("v") == 0)
+					continue;
+				if (part.compare("0") == 0)
+					continue;
+				int var = atoi(part.c_str());
+				if (abs(var) < at_vars)
+					eval[abs(var)-1] = (var > 0) ? true : false;
+			}
+		}
+		input.close();
 
 		plan = vector<vector<int> >(agents, vector<int>(max_timestep));
 
@@ -1201,8 +1275,10 @@ int _MAPFSAT_ISolver::InvokeSolver_Monosat(int timelimit)
 				}
 			}
 		}
-		NormalizePlan();*/
+		NormalizePlan();
 	}
+
+	CleanUp(false);
 
 	solver_calls++;
 
