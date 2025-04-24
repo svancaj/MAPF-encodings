@@ -141,9 +141,11 @@ protected:
 	void CreateMove_EnterVertex_Pass();
 	void CreateMove_LeaveVertex_Pass();
 	void CreateMove_ExactlyOne_Shift();
+	void CreateMove_ExactlyOneIncoming_Shift();
 	void CreateMove_NextVertex_Shift();
 
 	int CreateMove_Graph_MonosatPass(int);
+	int CreateMove_Graph_MonosatShift(int);
 
 	int CreateConst_LimitSoc(int);
 	int CreateConst_LimitSoc_AllAt(int);

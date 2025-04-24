@@ -89,7 +89,7 @@ $(O_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random_20_4.scen -e monosat-pass_parallel_soc_all -t 100 -a 25 -l 2 -c tmp.cnf
+	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test2.scen -e monosat-shift_parallel_mks_all -t 100 -a 2 -l 2 -c tmp.cnf
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \
@@ -97,7 +97,7 @@ valgrind: $(PROJECT_NAME)
 	--track-origins=yes \
 	--verbose \
 	--log-file=valgrind-out.txt \
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random_10_1.scen -e monosat-pass_parallel_soc_all -p -t 100000 -a 10 -l 1 -c tmp.cnf -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random_10_1.scen -e monosat-shift_parallel_mks_all -t 100000 -a 10 -l 1 -c tmp.cnf -f results.res
 
 test_example: $(EX_NAME)
 	$(R_DIR)/$^
@@ -117,4 +117,4 @@ clean:
 	rm -rf $(O_DIR)
 	rm -rf $(R_DIR)/$(L_DIR)
 	rm -f $(R_DIR)/$(PROJECT_NAME) $(R_DIR)/$(EX_NAME) $(R_DIR)/$(HEADER_NAME)
-	rm -f valgrind-out.txt log.log *.cnf tmp
+	rm -f valgrind-out.txt log.log *.cnf tmp*

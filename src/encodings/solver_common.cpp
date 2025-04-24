@@ -272,6 +272,7 @@ int _MAPFSAT_ISolver::CreateShift(int lit, int timesteps)
 			}
 		}
 	}
+	max_timestep = timesteps;
 
 	return lit;
 }
@@ -711,7 +712,7 @@ void _MAPFSAT_ISolver::CreateMove_LeaveVertex_Pass()
 
 void _MAPFSAT_ISolver::CreateMove_ExactlyOne_Shift()
 {
-	// all shifts going from v sum up to exactly 1
+	// all shifts going from v sum up to at most 1
 	for (int v = 0; v < vertices; v++)
 	{
 		if (shift_times_start[v] == -1)
@@ -745,6 +746,65 @@ void _MAPFSAT_ISolver::CreateMove_ExactlyOne_Shift()
 				{
 					AddClause(vector<int>{-vc[i], -vc[j]}); // at most 1
 					nr_clauses_move++;
+				}
+			}
+		}
+	}
+}
+
+void _MAPFSAT_ISolver::CreateMove_ExactlyOneIncoming_Shift()
+{
+	// all shifts going into v sum up to at most 1
+	for (int v = 0; v < vertices; v++)
+	{
+		int min_t = INT_MAX;
+		int max_t = -1;
+
+		for (int dir = 0; dir < 5; dir++)
+		{
+			if (!inst->HasNeighbor(v, dir))
+				continue;
+
+			int u = inst->GetNeighbor(v,dir);
+
+			if (shift_times_start[u] == -1)
+				continue; 
+
+			min_t = min(min_t, shift_times_start[u]);
+			max_t = max(max_t, shift_times_end[u]);
+		}
+
+		for (int t = min_t; t <= max_t; t++)
+		{
+			vector<int> vc;
+
+			for (int dir = 0; dir < 5; dir++)
+			{
+				if (!inst->HasNeighbor(v, dir))
+					continue;
+
+				int u = inst->GetNeighbor(v,dir);
+				int op_dir = inst->OppositeDir(dir);
+
+				size_t ind = find(shift[u][op_dir].timestep.begin(), shift[u][op_dir].timestep.end(), t) - shift[u][op_dir].timestep.begin();
+
+				if (ind != shift[u][op_dir].timestep.size() && shift[u][op_dir].timestep[ind] == t)
+				{
+					int shift_var = shift[u][op_dir].first_varaible + ind;
+					vc.push_back(shift_var);
+					//cout << "there is a shift from " << u << ", " << op_dir << " in timestep " << t << " varaible " <<  shift_var << endl;
+				}
+
+				if (vc.empty())
+					continue;
+
+				for (size_t i = 0; i < vc.size(); i++)
+				{
+					for (size_t j = i+1; j < vc.size(); j++)
+					{
+						AddClause(vector<int>{-vc[i], -vc[j]}); // at most 1
+						nr_clauses_move++;
+					}
 				}
 			}
 		}
@@ -879,6 +939,71 @@ int _MAPFSAT_ISolver::CreateMove_Graph_MonosatPass(int lit)
 		//g_theory->reaches(start_v, goal_v, lit);
 		if (cnf_file.compare("") != 0)
 			cnf_printable << "reach " << a << " " << start_v << " " << goal_v << " " << lit << "\n";
+		AddClause(vector<int> {lit});
+		lit++;
+	}
+
+	return lit;
+}
+
+int _MAPFSAT_ISolver::CreateMove_Graph_MonosatShift(int lit)
+{
+	// GraphTheorySolver_long g_theory = newGraph((SolverPtr)SAT_solver);
+	if (cnf_file.compare("") != 0)
+		cnf_printable << "digraph int 0 0 0\n";
+
+	int vertex_id = 0;
+	unordered_map<int, int> dict;
+
+	for (int v = 0; v < vertices; v++)
+	{
+		if (shift_times_start[v] == -1)
+			continue; 
+		for (int t = shift_times_start[v]; t <= shift_times_end[v]; t++)
+		{
+			for (int dir = 0; dir < 5; dir++)
+			{
+				if (!inst->HasNeighbor(v, dir))
+					continue;
+
+				int u = inst->GetNeighbor(v, dir);
+
+				size_t ind = find(shift[v][dir].timestep.begin(), shift[v][dir].timestep.end(), t) - shift[v][dir].timestep.begin();
+
+				if (ind != shift[v][dir].timestep.size() && shift[v][dir].timestep[ind] == t)
+				{
+					int shift_var = shift[v][dir].first_varaible + ind;
+
+					int v_id = ((v+t)*(v+t+1)/2) + t; // Cantor pairing function
+					int node1 = VarToID(v_id, false, vertex_id, dict);
+					int u_id = ((u+t+1)*(u+t+2)/2)+t+1; // Cantor pairing function, u is reached at t+1
+					int node2 = VarToID(u_id, false, vertex_id, dict);
+
+					//g_theory->newEdge(v2, u1, pass_var);
+					if (cnf_file.compare("") != 0)
+						cnf_printable << "edge 0 " << node1 << " " << node2 << " " << shift_var << "\n";
+				}
+			}
+		}
+	}
+
+	// reachability requirement
+	for (int a = 0; a < agents; a++)
+	{
+		int v_start = inst->map[inst->agents[a].start.x][inst->agents[a].start.y];
+		int v_goal = inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y];
+
+		int t = 0;
+		int v_id = ((v_start+t)*(v_start+t+1)/2) + t; // Cantor pairing function
+		int node1 = VarToID(v_id, false, vertex_id, dict);
+
+		t = inst->LastTimestep(a, v_goal, max_timestep, delta, cost_function);
+		int u_id = ((v_goal+t)*(v_goal+t+1)/2)+t; // Cantor pairing function, u is reached at t+1
+		int node2 = VarToID(u_id, false, vertex_id, dict);
+
+		//g_theory->reaches(node1, node2, lit);
+		if (cnf_file.compare("") != 0)
+			cnf_printable << "reach 0 " << node1 << " " << node2 << " " << lit << "\n";
 		AddClause(vector<int> {lit});
 		lit++;
 	}

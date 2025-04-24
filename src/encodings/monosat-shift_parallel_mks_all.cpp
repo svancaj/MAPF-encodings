@@ -24,34 +24,34 @@ int _MAPFSAT_MonosatShiftParallelMksAll::CreateFormula(int time_left)
 	auto start = chrono::high_resolution_clock::now();
 
 	// create variables
-	lit = CreateAt(lit, timesteps);
-	lit = CreatePass(lit, timesteps);
+	lit = CreateShift(lit, timesteps);
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
-
-	// start - goal possitions
-	CreatePossition_Start();
-	CreatePossition_Goal();
 
 	// conflicts
-	CreateConf_Vertex();
-	CreateConf_Swapping_Pass();
+	// no need to explicitly forbid vertex conflicts, it is forbidden by "at most 1 shift"
+	CreateConf_Swapping_Shift();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
-	// agents do not duplicate
-	CreateMove_NoDuplicates();
+	// limit number of shifts
+	CreateMove_ExactlyOne_Shift();
+	CreateMove_ExactlyOneIncoming_Shift();
+	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
+		return -1;
 
 	// create movement graph
-	//CreateMove_Graph_MonosatPass();
-
-	// avoid locations
-	CreateConst_Avoid();
+	lit = CreateMove_Graph_MonosatShift(lit);
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
+	// avoid locations		// not supported for shift without At
+	//CreateConst_Avoid();
+	//if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
+	//	return -1;
+
 	// Deallocate memory
-	//CleanUp(print_plan);
+	CleanUp(print_plan);
 
 	return lit;
 }

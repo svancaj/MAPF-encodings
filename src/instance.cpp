@@ -141,6 +141,8 @@ int _MAPFSAT_Instance::OppositeDir(int dir)
 		return 4;
 	if (dir == 4)
 		return 3;
+	if (dir == 0)
+		return 0;
 	return -1; // should not get here
 }
 
