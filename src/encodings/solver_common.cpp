@@ -327,6 +327,36 @@ void _MAPFSAT_ISolver::CreatePossition_NoneAtGoal()
 	}
 }
 
+void _MAPFSAT_ISolver::CreatePossition_NoneAtGoal_Shift()
+{
+	for (int a = 0; a < agents; a++)
+	{
+		int v = inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y];
+		if (shift_times_start[v] == -1)
+			continue; 
+
+		for (int t = max(inst->LastTimestep(a, v, max_timestep, delta, cost_function), shift_times_start[v]); t <= shift_times_end[v]; t++)
+		{
+			for (int dir = 0; dir < 5; dir++)
+			{
+				if (!inst->HasNeighbor(v, dir))
+					continue;
+
+				size_t ind = find(shift[v][dir].timestep.begin(), shift[v][dir].timestep.end(), t) - shift[v][dir].timestep.begin();
+
+				if (ind != shift[v][dir].timestep.size() && shift[v][dir].timestep[ind] == t)
+				{
+					//cout << "there is no shift from " << v << ", " << dir << " in timestep " << t << " varaible " << shift_var;
+					//cout << " because " << a << " has a goal there" << endl;
+					int shift_var = shift[v][dir].first_varaible + ind;
+					AddClause(vector<int> {-shift_var});
+				}
+			}
+
+		}
+	}
+}
+
 void _MAPFSAT_ISolver::CreateConf_Vertex()
 {
 	for (int v = 0; v < vertices; v++)
@@ -1023,7 +1053,7 @@ int _MAPFSAT_ISolver::CreateConst_LimitSoc(int lit)
 		{
 			AddClause(vector<int> {at_var + d, lit});	// if agent is not at goal, it is late
 			if (d < delta - 1)
-				AddClause(vector<int> {lit, -(lit + 1)});	// if agent is late at t, it is late at t+1
+				AddClause(vector<int> {lit, -(lit + 1)});	// if agent is not late at t, it is not late at t+1
 			late_variables.push_back(lit);
 			lit++;
 		}
@@ -1070,7 +1100,57 @@ int _MAPFSAT_ISolver::CreateConst_LimitSoc_AllAt(int lit)
 			}
 
 			if (d < delta - 1)
-				AddClause(vector<int> {lit, -(lit + 1)});	// if agent is late at t, it is late at t+1
+				AddClause(vector<int> {lit, -(lit + 1)});	// if agent is not late at t, it is not late at t+1
+			late_variables.push_back(lit);
+			lit++;
+		}
+	}
+
+	// add constraint on sum of delays
+	PB2CNF pb2cnf;
+	vector<vector<int> > formula;
+	lit = pb2cnf.encodeAtMostK(late_variables, delta, formula, lit) + 1;
+
+	for (size_t i = 0; i < formula.size(); i++)
+		AddClause(formula[i]);
+
+	return lit;
+}
+
+int _MAPFSAT_ISolver::CreateConst_LimitSoc_Shift(int lit)
+{
+	vector<int> late_variables;
+
+	for (int a = 0; a < agents; a++)
+	{
+		int goal_v = inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y];
+		int t = inst->FirstTimestep(a, goal_v);
+
+		for (int d = 0; d < delta; d++)
+		{
+			vector<int> vc;
+
+			for (int dir = 1; dir < 5; dir++) // ignore waiting shifts
+			{
+				if (!inst->HasNeighbor(goal_v, dir))
+					continue;
+
+				int u = inst->GetNeighbor(goal_v,dir);
+				int op_dir = inst->OppositeDir(dir);
+
+				size_t ind = find(shift[u][op_dir].timestep.begin(), shift[u][op_dir].timestep.end(), t+d) - shift[u][op_dir].timestep.begin();
+
+				if (ind != shift[u][op_dir].timestep.size() && shift[u][op_dir].timestep[ind] == t+d)
+				{
+					int shift_var = shift[u][op_dir].first_varaible + ind;
+
+					//cout << "there is a shift from " << u << " into " << goal_v << " at time " << t+d << " which is a goal vertex of " << a << endl;
+					AddClause(vector<int> {-shift_var, lit});	// if agent is somewhere other than at goal, it is late
+				}
+			}
+
+			if (d < delta - 1)
+				AddClause(vector<int> {lit, -(lit + 1)});	// if agent is not late at t, it is not late at t+1
 			late_variables.push_back(lit);
 			lit++;
 		}

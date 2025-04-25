@@ -25,6 +25,7 @@ int _MAPFSAT_MonosatShiftParallelSocAll::CreateFormula(int time_left)
 
 	// create variables
 	lit = CreateShift(lit, timesteps);
+	CreatePossition_NoneAtGoal_Shift();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
@@ -42,7 +43,7 @@ int _MAPFSAT_MonosatShiftParallelSocAll::CreateFormula(int time_left)
 
 	// soc limit
 	if (delta > 0)
-		lit = CreateConst_LimitSoc_AllAt(lit);
+		lit = CreateConst_LimitSoc_Shift(lit);
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 

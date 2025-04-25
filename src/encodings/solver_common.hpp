@@ -119,6 +119,7 @@ protected:
 	void CreatePossition_Start();
 	void CreatePossition_Goal();
 	void CreatePossition_NoneAtGoal();
+	void CreatePossition_NoneAtGoal_Shift();
 
 	void CreateConf_Vertex();
 	void CreateConf_Swapping_At();
@@ -149,6 +150,7 @@ protected:
 
 	int CreateConst_LimitSoc(int);
 	int CreateConst_LimitSoc_AllAt(int);
+	int CreateConst_LimitSoc_Shift(int);
 	void CreateConst_Avoid();
 
 	// solving
