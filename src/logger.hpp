@@ -42,6 +42,8 @@ public:
 	int nr_clauses;
     int nr_clauses_move;
     int nr_clauses_conflict;
+    int nr_clauses_soc;
+    int nr_clauses_assumption;
 	int solver_calls;
 	int agents;
 	int mksLB;

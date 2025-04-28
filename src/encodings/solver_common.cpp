@@ -84,6 +84,8 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 	nr_clauses = 0;
 	nr_clauses_move = 0;
 	nr_clauses_conflict = 0;
+	nr_clauses_soc = 0;
+	nr_clauses_assumption = 0;
 	keep_plan = keep;
 	cnf_printable.clear();	// store cnf here if specified to print in cnf_file
 	vertex_conflicts.clear();
@@ -132,6 +134,8 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 		log->nr_clauses = nr_clauses;
 		log->nr_clauses_move = nr_clauses_move;
 		log->nr_clauses_conflict = nr_clauses_conflict;
+		log->nr_clauses_soc = nr_clauses_soc;
+		log->nr_clauses_assumption = nr_clauses_assumption;
 		log->building_time = building_time;
 		log->solving_time = solving_time;
 		log->solution_mks = inst->GetMksLB(agents) + delta;
@@ -287,7 +291,7 @@ void _MAPFSAT_ISolver::CreatePossition_Start()
 	{
 		int start_var = at[a][inst->map[inst->agents[a].start.x][inst->agents[a].start.y]].first_variable;
 		AddClause(vector<int> {start_var});
-		nr_clauses_move++;
+		nr_clauses_assumption++;
 	}
 }
 
@@ -298,7 +302,7 @@ void _MAPFSAT_ISolver::CreatePossition_Goal()
 		_MAPFSAT_TEGAgent AV_goal = at[a][inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y]];
 		int goal_var = AV_goal.first_variable + (AV_goal.last_timestep - AV_goal.first_timestep);
 		AddClause(vector<int> {goal_var});
-		nr_clauses_move++;
+		nr_clauses_assumption++;
 	}
 }
 
@@ -321,7 +325,7 @@ void _MAPFSAT_ISolver::CreatePossition_NoneAtGoal()
 				//cout << a2 << " can not be at " << v << ", timestep " << t << " becuase " << a << " is in goal there" << endl;
 				int a2_var = at[a2][v].first_variable + (t - at[a2][v].first_timestep);
 				AddClause(vector<int> {-a2_var});
-				nr_clauses_move++;
+				nr_clauses_assumption++;
 			}
 		}
 	}
@@ -350,6 +354,7 @@ void _MAPFSAT_ISolver::CreatePossition_NoneAtGoal_Shift()
 					//cout << " because " << a << " has a goal there" << endl;
 					int shift_var = shift[v][dir].first_varaible + ind;
 					AddClause(vector<int> {-shift_var});
+					nr_clauses_assumption++;
 				}
 			}
 
@@ -970,6 +975,7 @@ int _MAPFSAT_ISolver::CreateMove_Graph_MonosatPass(int lit)
 		if (cnf_file.compare("") != 0)
 			cnf_printable << "reach " << a << " " << start_v << " " << goal_v << " " << lit << "\n";
 		AddClause(vector<int> {lit});
+		nr_clauses_assumption++;
 		lit++;
 	}
 
@@ -1035,6 +1041,7 @@ int _MAPFSAT_ISolver::CreateMove_Graph_MonosatShift(int lit)
 		if (cnf_file.compare("") != 0)
 			cnf_printable << "reach 0 " << node1 << " " << node2 << " " << lit << "\n";
 		AddClause(vector<int> {lit});
+		nr_clauses_assumption++;
 		lit++;
 	}
 
@@ -1052,8 +1059,12 @@ int _MAPFSAT_ISolver::CreateConst_LimitSoc(int lit)
 		for (int d = 0; d < delta; d++)
 		{
 			AddClause(vector<int> {at_var + d, lit});	// if agent is not at goal, it is late
+			nr_clauses_soc++;
 			if (d < delta - 1)
+			{
 				AddClause(vector<int> {lit, -(lit + 1)});	// if agent is not late at t, it is not late at t+1
+				nr_clauses_soc++;
+			}
 			late_variables.push_back(lit);
 			lit++;
 		}
@@ -1065,7 +1076,10 @@ int _MAPFSAT_ISolver::CreateConst_LimitSoc(int lit)
 	lit = pb2cnf.encodeAtMostK(late_variables, delta, formula, lit) + 1;
 
 	for (size_t i = 0; i < formula.size(); i++)
+	{
 		AddClause(formula[i]);
+		nr_clauses_soc++;
+	}
 
 	return lit;
 }
@@ -1097,10 +1111,14 @@ int _MAPFSAT_ISolver::CreateConst_LimitSoc_AllAt(int lit)
 				//cout << "therefore, either " << at_var << " is not true or " << lit << " is true" << endl;
 
 				AddClause(vector<int> {-at_var, lit});	// if agent is somewhere other than at goal, it is late
+				nr_clauses_soc++;
 			}
 
 			if (d < delta - 1)
+			{
 				AddClause(vector<int> {lit, -(lit + 1)});	// if agent is not late at t, it is not late at t+1
+				nr_clauses_soc++;
+			}
 			late_variables.push_back(lit);
 			lit++;
 		}
@@ -1112,7 +1130,10 @@ int _MAPFSAT_ISolver::CreateConst_LimitSoc_AllAt(int lit)
 	lit = pb2cnf.encodeAtMostK(late_variables, delta, formula, lit) + 1;
 
 	for (size_t i = 0; i < formula.size(); i++)
+	{
 		AddClause(formula[i]);
+		nr_clauses_soc++;
+	}
 
 	return lit;
 }
@@ -1146,11 +1167,15 @@ int _MAPFSAT_ISolver::CreateConst_LimitSoc_Shift(int lit)
 
 					//cout << "there is a shift from " << u << " into " << goal_v << " at time " << t+d << " which is a goal vertex of " << a << endl;
 					AddClause(vector<int> {-shift_var, lit});	// if agent is somewhere other than at goal, it is late
+					nr_clauses_soc++;
 				}
 			}
 
 			if (d < delta - 1)
+			{
 				AddClause(vector<int> {lit, -(lit + 1)});	// if agent is not late at t, it is not late at t+1
+				nr_clauses_soc++;
+			}
 			late_variables.push_back(lit);
 			lit++;
 		}
@@ -1162,7 +1187,10 @@ int _MAPFSAT_ISolver::CreateConst_LimitSoc_Shift(int lit)
 	lit = pb2cnf.encodeAtMostK(late_variables, delta, formula, lit) + 1;
 
 	for (size_t i = 0; i < formula.size(); i++)
+	{
 		AddClause(formula[i]);
+		nr_clauses_soc++;
+	}
 
 	return lit;
 }

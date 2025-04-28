@@ -56,6 +56,8 @@ void _MAPFSAT_Logger::PrintStatistics()
 			nr_clauses << sep <<
 			nr_clauses_move << sep <<
 			nr_clauses_conflict << sep <<
+			nr_clauses_soc << sep <<
+			nr_clauses_assumption << sep <<
 			solution << sep <<
 			endl;
 	}
@@ -65,22 +67,24 @@ void _MAPFSAT_Logger::PrintStatistics()
 		string sep = "\n";
 		*log << sep <<
 			"========== Results ==========" << sep <<
-			"Map name:           " << map_name << sep <<
-			"Scenario name:      " << scen_name << sep <<
-			"Encoding used:      " << encoding << sep <<
-			"Number of agents:   " << agents << sep <<
-			"Mks lower bound:    " << mksLB << sep <<
-			"Soc lower bound:    " << socLB << sep <<
-			"Solution mks:       " << solution_mks << sep <<
-			"Solution soc:       " << solution_soc << sep <<
-			"CNF building time:  " << building_time << sep <<
-			"SAT solving time:   " << solving_time << sep <<
-			"Nr of solver calls: " << solver_calls << sep <<
-			"Nr of variables:    " << nr_vars << sep <<
-			"Nr of clauses       " << nr_clauses << sep <<
-			"Nr of move clauses: " << nr_clauses_move << sep <<
-			"Nr of conf clauses: " << nr_clauses_conflict << sep <<
-			"Found solution:     " << solution << sep <<
+			"Map name:             " << map_name << sep <<
+			"Scenario name:        " << scen_name << sep <<
+			"Encoding used:        " << encoding << sep <<
+			"Number of agents:     " << agents << sep <<
+			"Mks lower bound:      " << mksLB << sep <<
+			"Soc lower bound:      " << socLB << sep <<
+			"Solution mks:         " << solution_mks << sep <<
+			"Solution soc:         " << solution_soc << sep <<
+			"CNF building time:    " << building_time << sep <<
+			"SAT solving time:     " << solving_time << sep <<
+			"Nr of solver calls:   " << solver_calls << sep <<
+			"Nr of variables:      " << nr_vars << sep <<
+			"Nr of clauses         " << nr_clauses << sep <<
+			"Nr of move clauses:   " << nr_clauses_move << sep <<
+			"Nr of conf clauses:   " << nr_clauses_conflict << sep <<
+			"Nr of soc clauses:    " << nr_clauses_soc << sep <<
+			"Nr of assump clauses: " << nr_clauses_assumption << sep <<
+			"Found solution:       " << solution << sep <<
 			endl << endl;
 	}
 
