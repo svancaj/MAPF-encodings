@@ -1,0 +1,14 @@
+warehouse_100.map	MAPF_Encodings/instances/scenarios/warehouse_100_0.scen	monosat-pass_parallel_mks_all	5	87	360	87	0	1029	15045	1	194370	8279787	8273087	6695	sat	
+warehouse_100.map	MAPF_Encodings/instances/scenarios/warehouse_100_0.scen	monosat-pass_parallel_soc_all	5	87	360	87	360	9	364	1	3088	3757	3752	0	sat	
+warehouse_100.map	MAPF_Encodings/instances/scenarios/warehouse_100_0.scen	monosat-pass_parallel_soc_all	10	116	759	116	759	20	64	1	8803	14090	14059	21	sat	
+warehouse_100.map	MAPF_Encodings/instances/scenarios/warehouse_100_0.scen	monosat-pass_parallel_soc_all	15	116	971	118	973	141	564	3	49823	262838	261728	814	sat	
+warehouse_100.map	MAPF_Encodings/instances/scenarios/warehouse_100_0.scen	monosat-shift_parallel_mks_all	5	87	360	87	0	116	2018	1	140566	481500	435970	45525	sat	
+warehouse_100.map	MAPF_Encodings/instances/scenarios/warehouse_100_0.scen	monosat-shift_parallel_mks_all	10	116	759	116	0	937	22951	1	856849	3267517	2970263	297244	sat	
+warehouse_100.map	MAPF_Encodings/instances/scenarios/warehouse_100_0.scen	monosat-shift_parallel_mks_all	15	116	971	116	0	963	49830	1	1155642	4505523	4099848	405660	sat	
+warehouse_100.map	MAPF_Encodings/instances/scenarios/warehouse_100_0.scen	monosat-shift_parallel_mks_all	20	146	1324	146	0	1649	120640	1	1839337	7378267	6724333	653914	sat	
+warehouse_100.map	MAPF_Encodings/instances/scenarios/warehouse_100_0.scen	monosat-shift_parallel_mks_all	25	166	1853	166	0	2146	228259	1	2228353	8965671	8171806	793840	sat	
+warehouse_100.map	MAPF_Encodings/instances/scenarios/warehouse_100_0.scen	monosat-shift_parallel_mks_all	30	166	2198	166	0	1869	277373	1	2268577	9153537	8344730	808777	sat	
+warehouse_100.map	MAPF_Encodings/instances/scenarios/warehouse_100_0.scen	monosat-shift_parallel_mks_all	35	166	2451	166	0	2564	275808	1	2302377	9276041	8455318	820688	sat	
+warehouse_100.map	MAPF_Encodings/instances/scenarios/warehouse_100_0.scen	monosat-shift_parallel_soc_all	5	87	360	87	360	19	81	1	1619	314	308	0	sat	
+warehouse_100.map	MAPF_Encodings/instances/scenarios/warehouse_100_0.scen	monosat-shift_parallel_soc_all	10	116	759	116	759	60	90	1	4759	1623	1601	11	sat	
+warehouse_100.map	MAPF_Encodings/instances/scenarios/warehouse_100_0.scen	monosat-shift_parallel_soc_all	15	116	971	118	973	324	1782	3	33912	104436	98239	5801	sat	

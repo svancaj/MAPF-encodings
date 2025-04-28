@@ -1,0 +1,13 @@
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-1.scen	monosat-pass_parallel_soc_all	5	663	1459	663	1459	30	297	1	21520	9	0	4	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-1.scen	monosat-pass_parallel_soc_all	10	925	3191	925	3191	59	323	1	54414	81	1	70	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-1.scen	monosat-pass_parallel_soc_all	15	925	5139	925	5139	93	545	1	82665	141	6	120	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-1.scen	monosat-pass_parallel_soc_all	20	925	7645	925	7645	124	1006	1	126775	256	9	227	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-1.scen	monosat-pass_parallel_soc_all	25	925	9747	927	9749	825	8878	3	762987	6505	78	5699	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-1.scen	monosat-pass_parallel_soc_all	30	925	11818	929	11822	4522	30557	5	1977233	45378	252	40350	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-1.scen	monosat-pass_parallel_soc_all	35	925	14339	932	14346	8728	106759	8	4715568	703842	1060	676185	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-1.scen	monosat-pass_parallel_soc_all	40	925	16274	934	16283	14975	206481	10	7462643	2205104	2074	2138083	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-1.scen	monosat-shift_parallel_soc_all	5	663	1459	663	1459	1897	501	1	13857	16842	16837	0	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-1.scen	monosat-shift_parallel_soc_all	10	925	3191	925	3191	6012	819	1	35163	42942	42915	15	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-1.scen	monosat-shift_parallel_soc_all	15	925	5139	925	5139	9393	2209	1	53347	63329	63247	55	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-1.scen	monosat-shift_parallel_soc_all	20	925	7645	925	7645	12604	4547	1	81913	98087	97907	143	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-1.scen	monosat-shift_parallel_soc_all	25	925	9747	927	9749	48499	62405	3	574153	3127901	3020907	106166	sat	

@@ -60,6 +60,7 @@ lib: $(OBJ) $(DEPS)
 	rm -rf $(R_DIR)/$(L_DIR)
 	mkdir $(R_DIR)/$(L_DIR)
 	cp $(L_DIR)/*.a $(R_DIR)/$(L_DIR)
+	cp $(L_DIR)/monosat $(R_DIR)/$(L_DIR)
 	ar -rcs $(R_DIR)/$(L_DIR)/$(OUTPUT_LIB) $(OBJ)
 
 	cat $(DEPS) > $(R_DIR)/$(HEADER_NAME)
@@ -89,7 +90,7 @@ $(O_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random_10_1.scen -e shift_parallel_soc_all -t 100 -a 10 -l 2 -c tmp.cnf
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random_10_1.scen -e monosat-shift_parallel_soc_all -t 100 -a 10 -l 2 -c tmp.cnf
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \

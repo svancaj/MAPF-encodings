@@ -33,6 +33,11 @@ int _MAPFSAT_MonosatPassParallelSocAll::CreateFormula(int time_left)
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
+	// create movement
+	//CreateMove_NoDuplicates();
+	//if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
+	//	return -1;
+
 	// conflicts
 	CreateConf_Vertex();
 	CreateConf_Swapping_Pass();
@@ -41,7 +46,8 @@ int _MAPFSAT_MonosatPassParallelSocAll::CreateFormula(int time_left)
 
 	// soc limit
 	if (delta > 0)
-		lit = CreateConst_LimitSoc_AllAt(lit);
+		lit = CreateConst_LimitSoc_AllAt(lit);		// either or ...
+		//lit = CreateConst_LimitSoc(lit);			// this option requires CreateMove_NoDuplicates
 
 	// create movement graph
 	lit = CreateMove_Graph_MonosatPass(lit);

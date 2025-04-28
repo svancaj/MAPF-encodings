@@ -1,0 +1,10 @@
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-4.scen	monosat-pass_parallel_soc_all	5	677	2168	677	2168	422	290	1	38774	51845	51801	39	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-4.scen	monosat-pass_parallel_soc_all	10	789	5463	791	5465	3465	4524	3	433860	1927458	1925426	1839	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-4.scen	monosat-pass_parallel_soc_all	15	789	7188	794	7193	14059	31263	6	1536068	19196531	19028995	165458	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-4.scen	monosat-pass_parallel_soc_all	20	819	9418	824	9423	20965	48532	6	2053362	26456695	26258714	195184	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-4.scen	monosat-pass_parallel_soc_all	25	819	10735	825	10741	29832	77886	7	2954253	50611698	50180193	426219	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-4.scen	monosat-pass_parallel_soc_all	30	819	11861	825	11867	28888	84639	7	3198932	53760505	53303635	450513	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-4.scen	monosat-pass_parallel_soc_all	35	819	13628	825	13634	33103	98773	7	3621832	60070345	59562835	500064	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-4.scen	monosat-pass_parallel_soc_all	40	819	15015	827	15023	54809	220895	9	5692222	147616095	146256652	1342794	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-4.scen	monosat-shift_parallel_soc_all	5	677	2168	677	2168	2397	694	1	25127	28244	28198	39	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-4.scen	monosat-shift_parallel_soc_all	10	789	5463	791	5465	17199	15384	3	327093	1800321	1740170	59842	sat	

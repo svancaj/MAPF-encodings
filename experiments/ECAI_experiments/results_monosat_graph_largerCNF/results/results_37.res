@@ -1,0 +1,14 @@
+ost003d.map	MAPF_Encodings/instances/scenarios/ost003d-random-2.scen	monosat-pass_parallel_soc_all	5	353	1214	355	1216	303	1487	3	117592	623820	623037	693	sat	
+ost003d.map	MAPF_Encodings/instances/scenarios/ost003d-random-2.scen	monosat-pass_parallel_soc_all	10	353	1731	355	1733	604	2374	3	190065	1311838	1309849	1796	sat	
+ost003d.map	MAPF_Encodings/instances/scenarios/ost003d-random-2.scen	monosat-pass_parallel_soc_all	15	353	2545	355	2547	878	3827	3	273174	1830090	1827218	2576	sat	
+ost003d.map	MAPF_Encodings/instances/scenarios/ost003d-random-2.scen	monosat-pass_parallel_soc_all	20	353	3385	355	3387	1076	4910	3	349304	2227509	2220146	6963	sat	
+ost003d.map	MAPF_Encodings/instances/scenarios/ost003d-random-2.scen	monosat-pass_parallel_soc_all	25	353	4278	357	4282	8065	19455	5	888619	11632345	11534484	95739	sat	
+ost003d.map	MAPF_Encodings/instances/scenarios/ost003d-random-2.scen	monosat-pass_parallel_soc_all	30	353	4949	357	4953	5385	24603	5	1034507	13634727	13515228	116945	sat	
+ost003d.map	MAPF_Encodings/instances/scenarios/ost003d-random-2.scen	monosat-pass_parallel_soc_all	35	353	5770	358	5775	9386	39598	6	1522163	26685035	26325680	354404	sat	
+ost003d.map	MAPF_Encodings/instances/scenarios/ost003d-random-2.scen	monosat-shift_parallel_mks_all	5	353	1214	353	0	12351	185365	1	8766888	53668173	50224199	3443969	sat	
+ost003d.map	MAPF_Encodings/instances/scenarios/ost003d-random-2.scen	monosat-shift_parallel_soc_all	5	353	1214	355	1216	1431	2407	3	88895	484018	466864	16969	sat	
+ost003d.map	MAPF_Encodings/instances/scenarios/ost003d-random-2.scen	monosat-shift_parallel_soc_all	10	353	1731	355	1733	2705	6861	3	143618	790878	762626	27859	sat	
+ost003d.map	MAPF_Encodings/instances/scenarios/ost003d-random-2.scen	monosat-shift_parallel_soc_all	15	353	2545	355	2547	3941	14290	3	206349	1130180	1089664	39959	sat	
+ost003d.map	MAPF_Encodings/instances/scenarios/ost003d-random-2.scen	monosat-shift_parallel_soc_all	20	353	3385	355	3387	5282	26066	3	260224	1444621	1392221	51598	sat	
+ost003d.map	MAPF_Encodings/instances/scenarios/ost003d-random-2.scen	monosat-shift_parallel_soc_all	25	353	4278	357	4282	16594	122364	5	653502	7540892	7152560	384697	sat	
+ost003d.map	MAPF_Encodings/instances/scenarios/ost003d-random-2.scen	monosat-shift_parallel_soc_all	30	353	4949	357	4953	15908	164373	5	760244	8785816	8332775	448173	sat	
