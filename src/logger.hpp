@@ -39,11 +39,11 @@ public:
 	int building_time;
 	int solving_time;
 	int nr_vars;
-	int nr_clauses;
-    int nr_clauses_move;
-    int nr_clauses_conflict;
-    int nr_clauses_soc;
-    int nr_clauses_assumption;
+	long long nr_clauses;
+    long long nr_clauses_move;
+    long long nr_clauses_conflict;
+    long long nr_clauses_soc;
+    long long nr_clauses_assumption;
 	int solver_calls;
 	int agents;
 	int mksLB;
