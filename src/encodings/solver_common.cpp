@@ -161,7 +161,7 @@ int _MAPFSAT_ISolver::CreateAt(int lit, int timesteps)
 		at[a] = new _MAPFSAT_TEGAgent[vertices];
 		for (int v = 0; v < vertices; v++)
 		{
-			if (inst->FirstTimestep(a, v) <= inst->LastTimestep(a, v, timesteps, delta, cost_function))
+			if (inst->FirstTimestep(a, v) != -1 && inst->FirstTimestep(a, v) <= inst->LastTimestep(a, v, timesteps, delta, cost_function))
 			{
 				at[a][v].first_variable = lit;
 				at[a][v].first_timestep = inst->FirstTimestep(a, v);
@@ -200,7 +200,7 @@ int _MAPFSAT_ISolver::CreatePass(int lit, int timesteps)
 					pass[a][v][dir].first_variable = 0;
 					continue;
 				}
-				if (inst->FirstTimestep(a, v) < inst->LastTimestep(a, inst->GetNeighbor(v, dir), timesteps, delta, cost_function)) // !!! might be wrong
+				if (inst->FirstTimestep(a, v) != -1 && inst->FirstTimestep(a, v) < inst->LastTimestep(a, inst->GetNeighbor(v, dir), timesteps, delta, cost_function)) // !!! might be wrong
 				{
 					pass[a][v][dir].first_variable = lit;
 					pass[a][v][dir].first_timestep = inst->FirstTimestep(a, v);

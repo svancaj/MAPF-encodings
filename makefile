@@ -87,7 +87,7 @@ $(O_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test8.scen -e disappear -p -t 100 -a 4 -l 2 -c formula.cnf 
+	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test8.scen -e disappear -p -t 100 -a 2 -l 2
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \
@@ -95,7 +95,7 @@ valgrind: $(PROJECT_NAME)
 	--track-origins=yes \
 	--verbose \
 	--log-file=valgrind-out.txt \
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random_10_1.scen -e at_parallel_soc_lazy -p -t 100000 -a 10 -l 1 -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test8.scen -e disappear -p -t 100000 -a 2 -l 2
 
 test_example: $(EX_NAME)
 	$(R_DIR)/$^
