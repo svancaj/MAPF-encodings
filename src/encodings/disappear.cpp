@@ -58,7 +58,7 @@ int _MAPFSAT_DisappearAtGoal::CreateFormula(int time_left)
 		return -1;
 
 	// Deallocate memory
-	CleanUp(print_plan);
+	CleanUp(print_plan || keep_plan);
 
 	return lit;
 }
