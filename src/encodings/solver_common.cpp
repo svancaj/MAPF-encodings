@@ -707,6 +707,35 @@ void _MAPFSAT_ISolver::CreateMove_EnterVertex_Pass()
 
 void _MAPFSAT_ISolver::CreateMove_LeaveVertex_Pass()
 {
+	for (int v = 0; v < vertices; v++)
+	{
+		for (int dir = 0; dir < 5; dir++)
+		{
+			if (!inst->HasNeighbor(v, dir))
+				continue;
+			for (int a = 0; a < agents; a++)
+			{
+				if (pass[a][v][dir].first_variable == 0)
+					continue;
+				int star_t = pass[a][v][dir].first_timestep;
+				int end_t = pass[a][v][dir].last_timestep + 1;
+
+				for (int t = star_t; t < end_t; t++)
+				{
+					int pass_var = pass[a][v][dir].first_variable + (t - pass[a][v][dir].first_timestep);
+					int at_var = at[a][v].first_variable + (t - at[a][v].first_timestep);
+
+					//cout << "agent " << a << " is moving from << v << in direction " << dir << " at timestep " << t << " means he was in " << v << endl;
+					AddClause(vector<int> {-pass_var, at_var});
+					nr_clauses_move++;
+				}
+			}
+		}
+	}
+}
+
+void _MAPFSAT_ISolver::CreateMove_NextEdge_Pass()
+{
 	for (int a = 0; a < agents; a++)
 	{
 		for (int v = 0; v < vertices; v++)

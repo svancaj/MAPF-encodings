@@ -143,6 +143,7 @@ protected:
 	void CreateMove_NextVertex_At();
 	void CreateMove_EnterVertex_Pass();
 	void CreateMove_LeaveVertex_Pass();
+	void CreateMove_NextEdge_Pass();
 	void CreateMove_ExactlyOne_Shift();
 	void CreateMove_ExactlyOneIncoming_Shift();
 	void CreateMove_NextVertex_Shift();

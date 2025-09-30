@@ -43,15 +43,16 @@ int _MAPFSAT_PassPebbleSocLazy::CreateFormula(int time_left)
 		return -1;
 	
 	// movement 
-	CreateMove_NoDuplicates();
+	//CreateMove_NoDuplicates();
 	CreateMove_EnterVertex_Pass();
-	CreateMove_LeaveVertex_Pass();
+	//CreateMove_LeaveVertex_Pass();
+	CreateMove_NextEdge_Pass();
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
 	// soc limit
 	if (delta > 0)
-		lit = CreateConst_LimitSoc(lit);
+		lit = CreateConst_LimitSoc_AllAt(lit);
 
 	// avoid locations - user has to make sure the avoid locations are pebble movement compatible
 	CreateConst_Avoid();

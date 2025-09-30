@@ -91,7 +91,7 @@ $(O_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random_10_1.scen -e monosat-shift_parallel_soc_all -t 100 -a 10 -l 2 -c tmp.cnf
+	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test2.scen -e at_parallel_soc_all -t 100 -a 2 -l 2 -p
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \
