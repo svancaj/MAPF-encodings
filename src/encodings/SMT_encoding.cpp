@@ -164,6 +164,7 @@ int _MAPFSAT_SMT::CreateFormula(int time_left)
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 
+	return lit;
 }
 
 /****************************/
