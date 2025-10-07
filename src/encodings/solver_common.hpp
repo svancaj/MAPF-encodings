@@ -191,6 +191,7 @@ private:
 
 	// specialized functions
 	static void WaitForTerminate(int, void*, bool&);
+	int GetNextVertex(int, int, int);
 };
 
 class _MAPFSAT_SMT : public _MAPFSAT_ISolver

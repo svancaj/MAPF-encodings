@@ -208,32 +208,24 @@ int _MAPFSAT_SAT::InvokeSolverImplementation(int timelimit)
 	
 	solver_calls++;
 
-	if ((print_plan || keep_plan || lazy_const == 2) && ret == 10)	// variable assignment
+	if ((print_plan || keep_plan || lazy_const == 2) && ret == 10)	// create plan from variables
 	{
-		vector<bool> eval = vector<bool>(at_vars);
-		for (int var = 1; var < at_vars; var++)
-			eval[var-1] = (kissat_value((kissat*)SAT_solver, var) > 0) ? true : false;
-
 		plan = vector<vector<int> >(agents, vector<int>(max_timestep));
 
 		for (int a = 0; a < agents; a++)
 		{
-			for (int v = 0; v < vertices; v++)
-			{
-				if (at[a][v].first_variable == 0)
-					continue;
+			int v = inst->map[inst->agents[a].start.x][inst->agents[a].start.y];
+			plan[a][0] = v;
 
-				for (int t = at[a][v].first_timestep; t < at[a][v].last_timestep + 1; t++)
-				{
-					int var = at[a][v].first_variable + (t - at[a][v].first_timestep);
-					if (eval[var-1])
-						plan[a][t] = v;
-				}
+			for (int t = 1; t < max_timestep; t++)
+			{
+				v = GetNextVertex(a, v, t);
+				plan[a][t] = v;
 			}
 		}
 
-		//if (cost_function == 2)
-		//	NormalizePlan();
+		if (cost_function == 2)
+			NormalizePlan();
 	}
 
 	CleanUp(false);
@@ -258,4 +250,77 @@ void _MAPFSAT_SAT::WaitForTerminate(int time_left_ms, void* solver, bool& ended)
 		return;
 		
 	kissat_terminate((kissat*)solver);	// Trusting in kissat implementation
+}
+
+int _MAPFSAT_SAT::GetNextVertex(int a, int v, int t)
+{
+	if (v == -1)
+		return -1;
+
+	if (variables == 1) // check just at, no possible swapping conflict caused by ghost agents
+	{
+		for (int dir = 0; dir < 5; dir++)
+		{
+			if (!inst->HasNeighbor(v,dir))
+				continue;
+			int u = inst->GetNeighbor(v, dir);
+			if (at[a][u].first_variable == 0)
+				continue;
+			if (at[a][u].first_timestep > t || at[a][u].last_timestep < t)
+				continue;
+
+			int neib_var = at[a][u].first_variable + (t - at[a][u].first_timestep);
+			if (kissat_value((kissat*)SAT_solver, neib_var) > 0)
+				return u;
+		}
+	}
+
+	if (variables == 2) // decide using pass, ghost agents can create swapping conflicts
+	{
+		int leave_t = t-1;
+		for (int dir = 0; dir < 5; dir++)
+		{
+			if (!inst->HasNeighbor(v,dir))
+				continue;
+			int u = inst->GetNeighbor(v, dir);
+			if (pass[a][v][dir].first_variable == 0)
+				continue;
+			if (pass[a][v][dir].first_timestep > leave_t || pass[a][v][dir].last_timestep < leave_t)
+				continue;
+
+			int pass_var = pass[a][v][dir].first_variable + (leave_t - pass[a][v][dir].first_timestep);
+			if (kissat_value((kissat*)SAT_solver, pass_var) > 0)
+				return u;
+		}
+	}
+
+	if (variables == 3) // decide using shift
+	{
+		int leave_t = t-1;
+		for (int dir = 0; dir < 5; dir++)
+		{
+			if (!inst->HasNeighbor(v,dir))
+				continue;
+			int u = inst->GetNeighbor(v, dir);
+			if (at[a][u].first_variable == 0)
+				continue;
+			if (at[a][u].first_timestep > t || at[a][u].last_timestep < t)
+				continue;
+			
+			size_t ind = find(shift[v][dir].timestep.begin(), shift[v][dir].timestep.end(), leave_t) - shift[v][dir].timestep.begin();
+
+			if (ind == shift[v][dir].timestep.size() || shift[v][dir].timestep[ind] != leave_t)
+				continue;
+
+			int shift_var = shift[v][dir].first_varaible + ind;
+
+			if (kissat_value((kissat*)SAT_solver, shift_var) > 0)
+				return u;
+		}
+	}
+
+	// there is no next vertex
+	// under SoC, agents that reached goal are no longer represented
+	// but still cause collisions using preprocessing
+	return -1;
 }

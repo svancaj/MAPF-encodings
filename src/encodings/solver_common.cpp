@@ -1259,7 +1259,8 @@ int _MAPFSAT_ISolver::InvokeSolver(int timelimit)
 	}
 
 	// save memory for SAT solver
-	CleanUp(print_plan || keep_plan || lazy_const == 2);
+	if (!print_plan && !keep_plan && lazy_const != 2)
+		CleanUp(false);
 	cnf_printable.clear();
 
 	int res = -1;
@@ -1288,9 +1289,9 @@ int _MAPFSAT_ISolver::NormalizePlan()
 	for (size_t a = 0; a < plan.size(); a++)
 	{
 		int goal = inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y];
-		for (size_t t = plan[a].size() - 1; t > 0; t--)
+		for (int t = (int)plan[a].size() - 1; t >= 0; t--)
 		{
-			if (plan[a][t] == 0)
+			if (plan[a][t] == -1)
 				plan[a][t] = goal;
 			if (plan[a][t] != goal)
 			{
