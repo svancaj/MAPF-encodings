@@ -14,6 +14,11 @@ _MAPFSAT_ISolver* PickEncoding(string);
 
 int main(int argc, char** argv) 
 {
+
+	/****************************/
+	// MARK: setting arguments
+	/****************************/
+
 	bool hflag = false;
 	bool qflag = false;
 	bool pflag = false;
@@ -103,7 +108,10 @@ int main(int argc, char** argv)
 
 	PrintIntro(qflag);
 
-	// check pased arguments
+	/****************************/
+	// MARK: check arguments
+	/****************************/
+
 	if (hflag)
 	{
 		PrintHelp(argv, false);
@@ -171,7 +179,10 @@ int main(int argc, char** argv)
 	if (dvalue != NULL)
 		delta = atoi(dvalue);
 
-	// main loop - solve given number of agents
+	/****************************/
+	// MARK: solving instances
+	/****************************/
+
 	do 
 	{
 		inst->SetAgents(current_agents);
@@ -219,6 +230,10 @@ void PrintIntro(bool quiet)
 	cout << endl;
 }
 
+/****************************/
+// MARK: help
+/****************************/
+
 void PrintHelp(char* argv[], bool quiet)
 {
 	if (quiet)
@@ -253,6 +268,10 @@ void CleanUp(_MAPFSAT_Instance* inst, _MAPFSAT_Logger* log, _MAPFSAT_ISolver* so
 	if (solver != NULL)
 		delete solver;
 }
+
+/****************************/
+// MARK: selecting encoding
+/****************************/
 
 _MAPFSAT_ISolver* PickEncoding(string enc)
 {

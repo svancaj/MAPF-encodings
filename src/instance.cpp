@@ -2,7 +2,9 @@
 
 using namespace std;
 
-/* Constructor */
+/****************************/
+// MARK: constructor
+/****************************/
 
 // instance from file
 _MAPFSAT_Instance::_MAPFSAT_Instance(string map_dir, string agents_file)
@@ -23,8 +25,9 @@ _MAPFSAT_Instance::_MAPFSAT_Instance(vector<vector<int> >& map_vector, vector<pa
 	map_name = mapstr;
 }
 
-
-/* Public functions */
+/****************************/
+// MARK: public functions
+/****************************/
 
 int _MAPFSAT_Instance::GetMksLB(size_t ags)
 {
@@ -146,8 +149,9 @@ int _MAPFSAT_Instance::OppositeDir(int dir)
 	return -1; // should not get here
 }
 
-
-/* Private functions */
+/****************************/
+// MARK: private functions
+/****************************/
 
 void _MAPFSAT_Instance::LoadAgents(string agents_path, string map_dir)
 {
@@ -313,8 +317,9 @@ void _MAPFSAT_Instance::BFS(vector<int>& length_from, _MAPFSAT_Vertex start)
 	}
 }
 
-
-/* DEBUG */
+/****************************/
+// MARK: debug
+/****************************/
 
 void _MAPFSAT_Instance::DebugPrint(vector<vector<int> >& map_to_print)
 {

@@ -2,6 +2,10 @@
 
 using namespace std;
 
+/****************************/
+// MARK: constructor
+/****************************/
+
 _MAPFSAT_Logger::_MAPFSAT_Logger(_MAPFSAT_Instance* i, string enc, int type, string log_f)
 {
 	inst = i;
@@ -11,6 +15,10 @@ _MAPFSAT_Logger::_MAPFSAT_Logger(_MAPFSAT_Instance* i, string enc, int type, str
 	encoding = enc;
 	print_type = type;
 }
+
+/****************************/
+// MARK: logging
+/****************************/
 
 void _MAPFSAT_Logger::PrintStatistics()
 {
@@ -91,6 +99,10 @@ void _MAPFSAT_Logger::PrintStatistics()
 	if (fout.is_open())
 		fout.close();
 }
+
+/****************************/
+// MARK: reset
+/****************************/
 
 void _MAPFSAT_Logger::NewInstance(int ags)
 {
