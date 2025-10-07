@@ -1454,8 +1454,8 @@ int _MAPFSAT_ISolver::InvokeSolver_Kissat(int timelimit)
 			}
 		}
 
-		if (cost_function == 2)
-			NormalizePlan();
+		//if (cost_function == 2)
+		//	NormalizePlan();
 	}
 
 	CleanUp(false);
@@ -1750,28 +1750,28 @@ void _MAPFSAT_ISolver::GenerateConflicts()
 				{
 					conflicts_present = true;
 					vertex_conflicts.push_back(make_tuple(a1,a2,plan[a1][t],t));
-					//cout << "Vertex conflict! Agents " << a1 << ", " << a2 << ", timestep " << t << ", location " << plan[a1][t] << endl;
+					cout << "Vertex conflict! Agents " << a1 << ", " << a2 << ", timestep " << t << ", location " << plan[a1][t] << endl;
 				}
 				
 				if (t < plan[a1].size() - 1 && plan[a1][t] == plan[a2][t+1] && plan[a1][t+1] == plan[a2][t] && plan[a1][t] != plan[a2][t])
 				{
 					conflicts_present = true;
 					swap_conflicts.push_back(make_tuple(a1,a2,plan[a1][t],plan[a1][t+1],t));
-					//cout << "Swapping conflict! Agents " << a1 << ", " << a2 << ", timestep " << t << ", edge (" << plan[a1][t] << "," << plan[a1][t+1] << ")" << endl;
+					cout << "Swapping conflict! Agents " << a1 << ", " << a2 << ", timestep " << t << ", edge (" << plan[a1][t] << "," << plan[a1][t+1] << ")" << endl;
 				}
 
 				if (movement == 2 && t < plan[a1].size() - 1 && plan[a1][t] == plan[a2][t+1] && plan[a2][t] != plan[a2][t+1])
 				{
 					conflicts_present = true;
 					pebble_conflicts.push_back(make_tuple(a2,a1,plan[a2][t],plan[a2][t+1],t+1));
-					//cout << "Pebble conflict! Agent " << a2 << " moved into " << plan[a2][t+1] << " in " << t+1 << ", but " << a1 << " was present in previous timestep." << endl;
+					cout << "Pebble conflict! Agent " << a2 << " moved into " << plan[a2][t+1] << " in " << t+1 << ", but " << a1 << " was present in previous timestep." << endl;
 				}
 
 				if (movement == 2 && t < plan[a1].size() - 1 && plan[a1][t+1] == plan[a2][t] && plan[a1][t] != plan[a1][t+1])
 				{
 					conflicts_present = true;
 					pebble_conflicts.push_back(make_tuple(a1,a2,plan[a1][t],plan[a1][t+1],t+1));
-					//cout << "Pebble conflict! Agent " << a1 << " moved into " << plan[a1][t+1] << " in " << t+1 << ", but " << a2 << " was present in previous timestep." << endl;
+					cout << "Pebble conflict! Agent " << a1 << " moved into " << plan[a1][t+1] << " in " << t+1 << ", but " << a2 << " was present in previous timestep." << endl;
 				}
 			}
 		}

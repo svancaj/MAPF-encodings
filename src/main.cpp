@@ -119,7 +119,7 @@ int main(int argc, char** argv)
 
 	if ((solver = PickEncoding(string(evalue))) == NULL)
 	{
-		cerr << "Unknown base algorithm \"" << evalue << "\"!" << endl;
+		cerr << "Unknown encoding \"" << evalue << "\"!" << endl;
 		PrintHelp(argv, qflag);
 		return -1;
 	}
@@ -230,7 +230,7 @@ void PrintHelp(char* argv[], bool quiet)
 	cout << "	-h                  : Prints help and exits" << endl;
 	cout << "	-q                  : Suppress print on stdout" << endl;
 	cout << "	-p                  : Print found plan. If q flag is set, p flag is overwritten." << endl;
-	cout << "	-e encoding         : Encoding to be used. Available options are {at|pass|shift|monosat-pass|monosat-shift}_{pebble|parallel}_{mks|soc}_{all|lazy}" << endl;
+	cout << "	-e encoding         : Encoding to be used. Available options are {mks|soc}_{parallel|pebble}_{at|pass|shift|monosat-pass|monosat-shift}_{eager|lazy}_{single|dupli}" << endl;
 	cout << "	-s scenario_file    : Path to a scenario file" << endl;
 	cout << "	-m map_dir          : Directory containing map files. Default is instances/maps" << endl;
 	cout << "	-a number_of_agents : Number of agents to solve. If not specified, all agents in the scenario file are used." << endl;
@@ -257,145 +257,74 @@ void CleanUp(_MAPFSAT_Instance* inst, _MAPFSAT_Logger* log, _MAPFSAT_ISolver* so
 _MAPFSAT_ISolver* PickEncoding(string enc)
 {
 	_MAPFSAT_ISolver* solver = NULL;
-	if (enc.compare("at_parallel_mks_all") == 0)
+
+	int cost = -1, moves = -1, var = -1, lazy = -1, dupli = -1, satsolver = 1;
+
+	stringstream ssline(enc);
+	string part;
+	vector<string> parsed_options;
+	while (getline(ssline, part, '_'))
+		parsed_options.push_back(part);
+
+	if (parsed_options.size() != 5)
+		return NULL;
+
+	// cost function
+	if (parsed_options[0].compare("mks") == 0)
+		cost = 1;
+	if (parsed_options[0].compare("soc") == 0)
+		cost = 2;
+	if (cost < 0)
+		return NULL;
+
+	// motion
+	if (parsed_options[1].compare("parallel") == 0)
+		moves = 1;
+	if (parsed_options[1].compare("pebble") == 0)
+		moves = 2;
+	if (moves < 0)
+		return NULL;
+
+	// variables
+	if (parsed_options[2].compare("at") == 0)
+		var = 1;
+	if (parsed_options[2].compare("pass") == 0)
+		var = 2;
+	if (parsed_options[2].compare("shift") == 0)
+		var = 3;
+	if (parsed_options[2].compare("monosat-pass") == 0)
 	{
-		solver = new _MAPFSAT_AtParallelMksAll();
-		return solver;
+		var = 2;
+		satsolver = 2;
 	}
-	if (enc.compare("at_parallel_soc_all") == 0)
+	if (parsed_options[2].compare("monosat-shift") == 0)
 	{
-		solver = new _MAPFSAT_AtParallelSocAll();
-		return solver;
+		var = 3;
+		satsolver = 2;
 	}
-	if (enc.compare("at_pebble_mks_all") == 0)
-	{
-		solver = new _MAPFSAT_AtPebbleMksAll();
-		return solver;
-	}
-	if (enc.compare("at_pebble_soc_all") == 0)
-	{
-		solver = new _MAPFSAT_AtPebbleSocAll();
-		return solver;
-	}
-	if (enc.compare("pass_parallel_mks_all") == 0)
-	{
-		solver = new _MAPFSAT_PassParallelMksAll();
-		return solver;
-	}
-	if (enc.compare("pass_parallel_soc_all") == 0)
-	{
-		solver = new _MAPFSAT_PassParallelSocAll();
-		return solver;
-	}
-	if (enc.compare("pass_pebble_mks_all") == 0)
-	{
-		solver = new _MAPFSAT_PassPebbleMksAll();
-		return solver;
-	}
-	if (enc.compare("pass_pebble_soc_all") == 0)
-	{
-		solver = new _MAPFSAT_PassPebbleSocAll();
-		return solver;
-	}
-	if (enc.compare("shift_parallel_mks_all") == 0)
-	{
-		solver = new _MAPFSAT_ShiftParallelMksAll();
-		return solver;
-	}
-	if (enc.compare("shift_parallel_soc_all") == 0)
-	{
-		solver = new _MAPFSAT_ShiftParallelSocAll();
-		return solver;
-	}
-	if (enc.compare("shift_pebble_mks_all") == 0)
-	{
-		solver = new _MAPFSAT_ShiftPebbleMksAll();
-		return solver;
-	}
-	if (enc.compare("shift_pebble_soc_all") == 0)
-	{
-		solver = new _MAPFSAT_ShiftPebbleSocAll();
-		return solver;
-	}
-	if (enc.compare("at_parallel_mks_lazy") == 0)
-	{
-		solver = new _MAPFSAT_AtParallelMksLazy();
-		return solver;
-	}
-	if (enc.compare("at_parallel_soc_lazy") == 0)
-	{
-		solver = new _MAPFSAT_AtParallelSocLazy();
-		return solver;
-	}
-	if (enc.compare("at_pebble_mks_lazy") == 0)
-	{
-		solver = new _MAPFSAT_AtPebbleMksLazy();
-		return solver;
-	}
-	if (enc.compare("at_pebble_soc_lazy") == 0)
-	{
-		solver = new _MAPFSAT_AtPebbleSocLazy();
-		return solver;
-	}
-	if (enc.compare("pass_parallel_mks_lazy") == 0)
-	{
-		solver = new _MAPFSAT_PassParallelMksLazy();
-		return solver;
-	}
-	if (enc.compare("pass_parallel_soc_lazy") == 0)
-	{
-		solver = new _MAPFSAT_PassParallelSocLazy();
-		return solver;
-	}
-	if (enc.compare("pass_pebble_mks_lazy") == 0)
-	{
-		solver = new _MAPFSAT_PassPebbleMksLazy();
-		return solver;
-	}
-	if (enc.compare("pass_pebble_soc_lazy") == 0)
-	{
-		solver = new _MAPFSAT_PassPebbleSocLazy();
-		return solver;
-	}
-	if (enc.compare("shift_parallel_mks_lazy") == 0)
-	{
-		solver = new _MAPFSAT_ShiftParallelMksLazy();
-		return solver;
-	}
-	if (enc.compare("shift_parallel_soc_lazy") == 0)
-	{
-		solver = new _MAPFSAT_ShiftParallelSocLazy();
-		return solver;
-	}
-	if (enc.compare("shift_pebble_mks_lazy") == 0)
-	{
-		solver = new _MAPFSAT_ShiftPebbleMksLazy();
-		return solver;
-	}
-	if (enc.compare("shift_pebble_soc_lazy") == 0)
-	{
-		solver = new _MAPFSAT_ShiftPebbleSocLazy();
-		return solver;
-	}
-	if (enc.compare("monosat-pass_parallel_mks_all") == 0)
-	{
-		solver = new _MAPFSAT_MonosatPassParallelMksAll();
-		return solver;
-	}
-	if (enc.compare("monosat-pass_parallel_soc_all") == 0)
-	{
-		solver = new _MAPFSAT_MonosatPassParallelSocAll();
-		return solver;
-	}
-	if (enc.compare("monosat-shift_parallel_mks_all") == 0)
-	{
-		solver = new _MAPFSAT_MonosatShiftParallelMksAll();
-		return solver;
-	}
-	if (enc.compare("monosat-shift_parallel_soc_all") == 0)
-	{
-		solver = new _MAPFSAT_MonosatShiftParallelSocAll();
-		return solver;
-	}
+	if (var < 0)
+		return NULL;
+
+	// lazy
+	if (parsed_options[3].compare("eager") == 0)
+		lazy = 1;
+	if (parsed_options[3].compare("lazy") == 0)
+		lazy = 2;
+	if (lazy < 0)
+		return NULL;
+
+	// duplicate agents
+	if (parsed_options[4].compare("single") == 0)
+		dupli = 1;
+	if (parsed_options[4].compare("dupli") == 0)
+		dupli = 2;
+	if (dupli < 0)
+		return NULL;
+
+	if (satsolver == 1) 
+		solver = new _MAPFSAT_SAT(var,cost,moves,lazy,dupli,satsolver,enc);
+	//if (satsolver == 2) 
+	//	solver = new _MAPFSAT_SMT(var,cost,moves,lazy,dupli,satsolver,enc);
+
 	return solver;
 }
