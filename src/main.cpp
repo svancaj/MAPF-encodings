@@ -323,8 +323,8 @@ _MAPFSAT_ISolver* PickEncoding(string enc)
 
 	if (satsolver == 1) 
 		solver = new _MAPFSAT_SAT(var,cost,moves,lazy,dupli,satsolver,enc);
-	//if (satsolver == 2) 
-	//	solver = new _MAPFSAT_SMT(var,cost,moves,lazy,dupli,satsolver,enc);
+	if (satsolver == 2) 
+		solver = new _MAPFSAT_SMT(var,cost,moves,lazy,dupli,satsolver,enc);
 
 	return solver;
 }

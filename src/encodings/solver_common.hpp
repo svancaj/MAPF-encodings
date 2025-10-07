@@ -151,24 +151,16 @@ protected:
 	void CreateMove_ExactlyOneIncoming_Shift();
 	void CreateMove_NextVertex_Shift();
 
-	int CreateMove_Graph_MonosatPass(int);
-	int CreateMove_Graph_MonosatShift(int);
-
 	int CreateConst_LimitSoc(int);
 	int CreateConst_LimitSoc_AllAt(int);
 	int CreateConst_LimitSoc_Shift(int);
 	void CreateConst_Avoid();
 
-	// solving
-	int InvokeSolver_Kissat(int);
-	int InvokeSolver_Monosat(int);
-	
-	// auxiliary SAT solver functions
-	void CreateSolver();
+	// solver functions
+	virtual void AddClause(std::vector<int>) = 0;
+	virtual void CreateSolver() = 0;
 	int InvokeSolver(int);
-	static void WaitForTerminate(int, void*, bool&);
-	int VarToID(int, bool, int&, std::unordered_map<int, int>&);
-	void AddClause(std::vector<int>);
+	virtual int InvokeSolverImplementation(int) = 0;
 
 	// plan outputting functions
 	int NormalizePlan();
@@ -192,6 +184,13 @@ public:
 	~_MAPFSAT_SAT() {};
 private:
 	int CreateFormula(int);
+
+	void AddClause(std::vector<int>);
+	void CreateSolver();
+	int InvokeSolverImplementation(int);
+
+	// specialized functions
+	static void WaitForTerminate(int, void*, bool&);
 };
 
 class _MAPFSAT_SMT : public _MAPFSAT_ISolver
@@ -201,6 +200,15 @@ public:
 	~_MAPFSAT_SMT() {};
 private:
 	int CreateFormula(int);
+
+	void AddClause(std::vector<int>);
+	void CreateSolver();
+	int InvokeSolverImplementation(int);
+
+	// specialized functions
+	int CreateMove_Graph_MonosatPass(int);
+	int CreateMove_Graph_MonosatShift(int);
+	int VarToID(int, bool, int&, std::unordered_map<int, int>&);
 };
 
 #endif

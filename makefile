@@ -24,7 +24,7 @@ RELEASE_LIBS = $(patsubst %,$(R_DIR)/$(L_DIR)/%,$(OUTPUT_LIB)) $(patsubst %,$(R_
 _DEPS = instance.hpp logger.hpp encodings/solver_common.hpp
 DEPS = $(patsubst %,$(S_DIR)/%,$(_DEPS))
 
-_ENC_OBJ = solver_common.o SAT_encoding.o #SMT_encoding.o
+_ENC_OBJ = solver_common.o SAT_encoding.o SMT_encoding.o
 _OBJ = instance.o logger.o
 OBJ = $(patsubst %,$(O_DIR)/%,$(_OBJ)) $(patsubst %, $(O_DIR)/%,$(_ENC_OBJ)) $(patsubst %, $(O_DIR)/%,$(_MONOSAT_OBJ))
 _MAIN = main.o
