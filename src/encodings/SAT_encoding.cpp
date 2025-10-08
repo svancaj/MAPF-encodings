@@ -196,6 +196,12 @@ void _MAPFSAT_SAT::CreateSolver()
 	kissat_set_option((kissat*)SAT_solver, "quiet", 1);
 }
 
+void _MAPFSAT_SAT::ReleaseSolver()
+{
+	kissat_release((kissat*)SAT_solver);
+	SAT_solver = NULL;
+}
+
 int _MAPFSAT_SAT::InvokeSolverImplementation(int timelimit)
 {
 	bool ended = false;
@@ -205,8 +211,6 @@ int _MAPFSAT_SAT::InvokeSolverImplementation(int timelimit)
 
 	ended = true;
 	waiting_thread.join();
-	
-	solver_calls++;
 
 	if ((print_plan || keep_plan || lazy_const == 2) && ret == 10)	// create plan from variables
 	{
@@ -227,10 +231,6 @@ int _MAPFSAT_SAT::InvokeSolverImplementation(int timelimit)
 		if (cost_function == 2)
 			NormalizePlan();
 	}
-
-	CleanUp(false);
-	kissat_release((kissat*)SAT_solver);
-	SAT_solver = NULL;
 
 	return (ret == 10) ? 0 : 1;
 }

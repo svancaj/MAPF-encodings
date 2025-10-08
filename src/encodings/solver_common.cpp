@@ -124,19 +124,24 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 		log->solver_calls = solver_calls;
 		log->res = res;
 
-		if (res == 0 && lazy_const == 1) // ok
+		// what to do next?
+		if (res == 0 && lazy_const == 2 && conflicts_present) // if there are still conflicts, add contraints
+		{
+			// TODO - improve lazy encoding
+			continue;
+		}
+
+		CleanUp();	
+		if (res == 0 && lazy_const == 2 && !conflicts_present) // if there are no more conflicts, return success
 			return 0;
 
-		if (res == 0 && lazy_const == 2 && conflicts_present) // if there are still conflicts, add contraints
-			continue;
-		
-		if (res == 0 && lazy_const == 2 && !conflicts_present) // if there are no more conflicts, return success
+		if (res == 0 && lazy_const == 1) // ok
 			return 0;
 
 		if (res == -1) // something went horribly wrong with the solver!
 			return 1;
 
-		delta++; // no solution with given limits, increase delta
+		delta++; 		// no solution with given limits, increase delta
 		if (oneshot)	// no solution with the given delta, do not optimize, return no sol
 			return -1;
 	}
@@ -1258,9 +1263,9 @@ int _MAPFSAT_ISolver::InvokeSolver(int timelimit)
 		}
 	}
 
-	// save memory for SAT solver
+	// save memory for SAT solver unless variables are still needed
 	if (!print_plan && !keep_plan && lazy_const != 2)
-		CleanUp(false);
+		CleanUp();
 	cnf_printable.clear();
 
 	int res = -1;
@@ -1268,13 +1273,15 @@ int _MAPFSAT_ISolver::InvokeSolver(int timelimit)
 
 	res = InvokeSolverImplementation(timelimit); // kissat or monosat
 
-	// conflicts if lazy encoding is used
+	// find conflicts if lazy encoding is used
 	if (!plan.empty() && lazy_const == 2)
 		GenerateConflicts();
 
 	// print found plan
 	if (!plan.empty() && print_plan && !conflicts_present)
 		PrintPlan();
+
+	solver_calls++;
 
 	return res;
 }
@@ -1405,13 +1412,13 @@ bool _MAPFSAT_ISolver::TimesUp(	std::chrono::time_point<std::chrono::high_resolu
 {
 	if (chrono::duration_cast<chrono::milliseconds>(current_time - start_time).count() > timelimit)
 	{
-		CleanUp(false);
+		CleanUp();
 		return true;
 	}
 	return false;
 }
 
-void _MAPFSAT_ISolver::CleanUp(bool keep_at)
+void _MAPFSAT_ISolver::CleanUp()
 {
 	if (shift != NULL)
 	{
@@ -1445,7 +1452,7 @@ void _MAPFSAT_ISolver::CleanUp(bool keep_at)
 		pass = NULL;
 	}
 
-	if (!keep_at && at != NULL)
+	if (at != NULL)
 	{
 		for (int a = 0; a < agents; a++)
 			delete[] at[a];

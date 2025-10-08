@@ -37,6 +37,7 @@ public:
     * @param delta the initial delta. Default is 0.
     * @param oneshot option to perform just one solver call with the given delta without incrementing. Default is false.
 	* @param keep_plan option save the found plan. The found plan can be retrieved by GetPlan function. Default is false.
+	* @return -1 unSAT with given cost, 0 valid solution, 1 timeout or error.
     */
     int Solve(int, int = 0, bool = false, bool = false);
 
@@ -56,7 +57,7 @@ public:
 
 	/** Returns the found plan.
     * 
-    * Returns the found plan if the solve was success and keep_plan was set to true
+    * Returns the found plan if the solve was successful and keep_plan was set to true.
     *
     */
 	std::vector<std::vector<int> > GetPlan();
@@ -159,6 +160,7 @@ protected:
 	// solver functions
 	virtual void AddClause(std::vector<int>) = 0;
 	virtual void CreateSolver() = 0;
+	virtual void ReleaseSolver() = 0;
 	int InvokeSolver(int);
 	virtual int InvokeSolverImplementation(int) = 0;
 
@@ -170,7 +172,7 @@ protected:
 
 	// cleanup functions
 	bool TimesUp(std::chrono::time_point<std::chrono::high_resolution_clock>, std::chrono::time_point<std::chrono::high_resolution_clock>, int);
-	void CleanUp(bool);
+	void CleanUp();
 };
 
 /******************************************************************/
@@ -187,6 +189,7 @@ private:
 
 	void AddClause(std::vector<int>);
 	void CreateSolver();
+	void ReleaseSolver();
 	int InvokeSolverImplementation(int);
 
 	// specialized functions
@@ -204,12 +207,14 @@ private:
 
 	void AddClause(std::vector<int>);
 	void CreateSolver();
+	void ReleaseSolver();
 	int InvokeSolverImplementation(int);
 
 	// specialized functions
 	int CreateMove_Graph_MonosatPass(int);
 	int CreateMove_Graph_MonosatShift(int);
 	int VarToID(int, bool, int&, std::unordered_map<int, int>&);
+	int GetNextVertex(std::vector<bool>&, int, int, int);
 };
 
 #endif

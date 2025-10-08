@@ -345,6 +345,11 @@ void _MAPFSAT_SMT::CreateSolver()
 	// using only binary for now
 }
 
+void _MAPFSAT_SMT::ReleaseSolver()
+{
+	// using only binary for now
+}
+
 int _MAPFSAT_SMT::InvokeSolverImplementation(int timelimit)
 {
 	// working only with binary for now
@@ -363,11 +368,6 @@ int _MAPFSAT_SMT::InvokeSolverImplementation(int timelimit)
 
 	if ((print_plan || keep_plan || lazy_const == 2) && ret == 2560)
 	{
-		// the plan may not be correct, as agents may occupy more vertices if graph propagator is used
-		// TODO - use DFS to find the connected paths
-
-		cout << "output of plan is not fully supported for monosat yet" << endl;
-
 		ifstream input("tmp.out");
 		if (!input.is_open())
 		{
@@ -376,7 +376,7 @@ int _MAPFSAT_SMT::InvokeSolverImplementation(int timelimit)
 		}
 		string line;
 		getline(input, line);
-		vector<bool> eval = vector<bool>(at_vars);
+		vector<bool> eval = vector<bool>(nr_vars);
 
 		if (line.compare("") != 0)
 		{
@@ -390,8 +390,7 @@ int _MAPFSAT_SMT::InvokeSolverImplementation(int timelimit)
 				if (part.compare("0") == 0)
 					continue;
 				int var = atoi(part.c_str());
-				if (abs(var) < at_vars)
-					eval[abs(var)-1] = (var > 0) ? true : false;
+				eval[abs(var)-1] = (var > 0) ? true : false;
 			}
 		}
 		input.close();
@@ -400,25 +399,19 @@ int _MAPFSAT_SMT::InvokeSolverImplementation(int timelimit)
 
 		for (int a = 0; a < agents; a++)
 		{
-			for (int v = 0; v < vertices; v++)
-			{
-				if (at[a][v].first_variable == 0)
-					continue;
+			int v = inst->map[inst->agents[a].start.x][inst->agents[a].start.y];
+			plan[a][0] = v;
 
-				for (int t = at[a][v].first_timestep; t < at[a][v].last_timestep + 1; t++)
-				{
-					int var = at[a][v].first_variable + (t - at[a][v].first_timestep);
-					if (eval[var-1])
-						plan[a][t] = v;
-				}
+			for (int t = 1; t < max_timestep; t++)
+			{
+				v = GetNextVertex(eval, a, v, t);
+				plan[a][t] = v;
 			}
 		}
-		NormalizePlan();
+
+		if (cost_function == 2)
+			NormalizePlan();
 	}
-
-	CleanUp(false);
-
-	solver_calls++;
 
 	return (ret == 2560) ? 0 : 1;
 }
@@ -435,4 +428,57 @@ int _MAPFSAT_SMT::VarToID(int var, bool duplicate, int& freshID, unordered_map<i
 	}
 
 	return dict[var];
+}
+
+int _MAPFSAT_SMT::GetNextVertex(vector<bool>& eval, int a, int v, int t)
+{
+	if (v == -1)
+		return -1;
+
+	if (variables == 2) // decide using pass, ghost agents can create swapping conflicts
+	{
+		int leave_t = t-1;
+		for (int dir = 0; dir < 5; dir++)
+		{
+			if (!inst->HasNeighbor(v,dir))
+				continue;
+			int u = inst->GetNeighbor(v, dir);
+			if (pass[a][v][dir].first_variable == 0)
+				continue;
+			if (pass[a][v][dir].first_timestep > leave_t || pass[a][v][dir].last_timestep < leave_t)
+				continue;
+
+			int pass_var = pass[a][v][dir].first_variable + (leave_t - pass[a][v][dir].first_timestep);
+			int at_var = at[a][u].first_variable + (t - at[a][u].first_timestep);		 // no need to check existence, it has to exists, since pass exists
+
+			if (eval[pass_var-1] && eval[at_var-1])
+				return u;
+		}
+	}
+
+	if (variables == 3) // decide using shift
+	{
+		int leave_t = t-1;
+		for (int dir = 0; dir < 5; dir++)
+		{
+			if (!inst->HasNeighbor(v,dir))
+				continue;
+			int u = inst->GetNeighbor(v, dir);
+			
+			size_t ind = find(shift[v][dir].timestep.begin(), shift[v][dir].timestep.end(), leave_t) - shift[v][dir].timestep.begin();
+
+			if (ind == shift[v][dir].timestep.size() || shift[v][dir].timestep[ind] != leave_t)
+				continue;
+
+			int shift_var = shift[v][dir].first_varaible + ind;
+
+			if (eval[shift_var-1])
+				return u;
+		}
+	}
+
+	// there is no next vertex
+	// under SoC, agents that reached goal are no longer represented
+	// but still cause collisions using preprocessing
+	return -1;
 }
