@@ -33,7 +33,7 @@ using namespace std;
 * @param moves allowed movement. Possible values 1 = parallel, 2 = pebble.
 * @param lazy eager or lazy solving of conflicts. Possible values 1 = eager, 2 = lazy.
 * @param dupli allow of forbid duplicating agents. Possible values 1 = forbid, 2 = allow.
-* @param solver SAT solver to be used. Possible values 1 = kissat, 2 = monosat.
+* @param solver SAT solver to be used. Possible values 1 = CaDiCaL, 2 = monosat.
 * @param sol_name name of the encoding used in log. Defualt value is at_parallel_mks_all.
 */
 _MAPFSAT_SMT::_MAPFSAT_SMT(int var, int cost, int moves, int lazy, int dupli, int solver, string sol_name)
@@ -44,7 +44,7 @@ _MAPFSAT_SMT::_MAPFSAT_SMT(int var, int cost, int moves, int lazy, int dupli, in
 	movement = moves; 			// 1 = parallel, 	2 = pebble
 	lazy_const = lazy; 			// 1 = eager, 		2 = lazy
 	duplicates = dupli; 		// 1 = forbid, 		2 = allow
-	solver_to_use = solver; 	// 1 = kissat, 		2 = monosat
+	solver_to_use = solver; 	// 1 = CaDiCaL, 		2 = monosat
 
 	assert(variables == 2 || variables == 3);
 	assert(cost_function == 1 || cost_function == 2);

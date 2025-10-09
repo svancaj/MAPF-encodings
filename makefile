@@ -17,7 +17,7 @@ EX_NAME = example
 
 #_SHARED_LIBS = z gmpxx gmp
 #SHARED_LIBS = $(patsubst %,-l%,$(_SHARED_LIBS))
-_LIBS = libpb.a libkissat.a #libmonosat.a
+_LIBS = libpb.a libcadical.a #libmonosat.a
 LIBS = $(patsubst %,$(L_DIR)/%,$(_LIBS))
 RELEASE_LIBS = $(patsubst %,$(R_DIR)/$(L_DIR)/%,$(OUTPUT_LIB)) $(patsubst %,$(R_DIR)/$(L_DIR)/%,$(_LIBS))
 
@@ -85,7 +85,7 @@ $(O_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test6.scen -e soc_parallel_monosat-shift_eager_single -t 100 -p -c tmp.cnf
+	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test5.scen -e soc_parallel_at_eager_single -t 100 -p
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \

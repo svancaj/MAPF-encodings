@@ -6,7 +6,7 @@ This repository contains numerous encodings for solving the multi-agent pathfind
 
 The system makes use of the following repositories
 
-- kissat - https://github.com/arminbiere/kissat
+- CaDiCaL - https://github.com/arminbiere/cadical
 - monosat - https://github.com/sambayless/monosat
 - PBlib - https://github.com/master-keying/pblib
 
@@ -69,7 +69,7 @@ The compiled binary `MAPF` is located in the `release` directory. The expected i
 
 ### Library
 
-The compiled static library `libmapf.a` is located in `release/libs`, along with the static libraries of *kissat*, *monosat*, and *PB*.
+The compiled static library `libmapf.a` is located in `release/libs`, along with the static libraries of *CaDiCaL*, *monosat*, and *PB*.
 
 The interface of the library is in `MAPF.hpp` located in the `release` directory. An example of usage of the interface is provided in `release/example.cpp`.
 

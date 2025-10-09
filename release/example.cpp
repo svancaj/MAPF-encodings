@@ -20,7 +20,7 @@ int main()
 	int var = 1;				// 1 = at, 			2 = pass, 		3 = shift
 	int lazy = 1;				// 1 = eager, 		2 = lazy
 	int dupli = 1;				// 1 = forbid, 		2 = allow
-	int satsolver = 1;			// 1 = kissat,		2 = monosat (use _MAPFSAT_SMT for monosat)
+	int satsolver = 1;			// 1 = CaDiCaL,		2 = monosat (use _MAPFSAT_SMT for monosat)
 	string enc = "soc_parallel_at_eager_single";
 
 	_MAPFSAT_Instance* inst = new _MAPFSAT_Instance(map, start, goal);

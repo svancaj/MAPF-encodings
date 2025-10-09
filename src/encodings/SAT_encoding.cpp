@@ -1,7 +1,7 @@
 #include "solver_common.hpp"
 
 // hide includes form user
-#include "../externals/kissat.h" // https://github.com/arminbiere/kissat
+#include "../externals/cadical.hpp" // https://github.com/arminbiere/cadical
 
 using namespace std;
 
@@ -16,7 +16,7 @@ using namespace std;
 * @param moves allowed movement. Possible values 1 = parallel, 2 = pebble.
 * @param lazy eager or lazy solving of conflicts. Possible values 1 = eager, 2 = lazy.
 * @param dupli allow of forbid duplicating agents. Possible values 1 = forbid, 2 = allow.
-* @param solver SAT solver to be used. Possible values 1 = kissat, 2 = monosat.
+* @param solver SAT solver to be used. Possible values 1 = CaDiCaL, 2 = monosat.
 * @param sol_name name of the encoding used in log. Defualt value is at_parallel_mks_all.
 */
 _MAPFSAT_SAT::_MAPFSAT_SAT(int var, int cost, int moves, int lazy, int dupli, int solver, string sol_name)
@@ -27,7 +27,7 @@ _MAPFSAT_SAT::_MAPFSAT_SAT(int var, int cost, int moves, int lazy, int dupli, in
 	movement = moves; 			// 1 = parallel, 	2 = pebble
 	lazy_const = lazy; 			// 1 = eager, 		2 = lazy
 	duplicates = dupli; 		// 1 = forbid, 		2 = allow
-	solver_to_use = solver; 	// 1 = kissat, 		2 = monosat
+	solver_to_use = solver; 	// 1 = CaDiCaL, 	2 = monosat
 
 	assert(variables == 1 || variables == 2 || variables == 3);
 	assert(cost_function == 1 || cost_function == 2);
@@ -178,8 +178,8 @@ int _MAPFSAT_SAT::CreateFormula(int time_left)
 void _MAPFSAT_SAT::AddClause(vector<int> clause)
 {
 	for (size_t i = 0; i < clause.size(); i++)
-		kissat_add((kissat*)SAT_solver, clause[i]);
-	kissat_add((kissat*)SAT_solver, 0);
+		((CaDiCaL::Solver*)SAT_solver)->add(clause[i]);
+	((CaDiCaL::Solver*)SAT_solver)->add(0);
 
 	if (cnf_file.compare("") != 0)
 	{
@@ -192,13 +192,12 @@ void _MAPFSAT_SAT::AddClause(vector<int> clause)
 
 void _MAPFSAT_SAT::CreateSolver()
 {
-	SAT_solver = kissat_init();
-	kissat_set_option((kissat*)SAT_solver, "quiet", 1);
+	SAT_solver = new CaDiCaL::Solver;
 }
 
 void _MAPFSAT_SAT::ReleaseSolver()
 {
-	kissat_release((kissat*)SAT_solver);
+	delete (CaDiCaL::Solver*)SAT_solver;
 	SAT_solver = NULL;
 }
 
@@ -207,7 +206,7 @@ int _MAPFSAT_SAT::InvokeSolverImplementation(int timelimit)
 	bool ended = false;
 	thread waiting_thread = thread(WaitForTerminate, timelimit, SAT_solver, ref(ended));
 	
-    int ret = kissat_solve((kissat*)SAT_solver); // Start solver // 20 = UNSAT; 10 = SAT
+	int ret = ((CaDiCaL::Solver*)SAT_solver)->solve(); // Start solver // 20 = UNSAT; 10 = SAT; 0 = UNKNOWN (reached through terminate)
 
 	ended = true;
 	waiting_thread.join();
@@ -249,7 +248,7 @@ void _MAPFSAT_SAT::WaitForTerminate(int time_left_ms, void* solver, bool& ended)
 	if (ended)
 		return;
 		
-	kissat_terminate((kissat*)solver);	// Trusting in kissat implementation
+	((CaDiCaL::Solver*)solver)->terminate();	// Trusting in CaDiCaL implementation
 }
 
 int _MAPFSAT_SAT::GetNextVertex(int a, int v, int t)
@@ -270,7 +269,7 @@ int _MAPFSAT_SAT::GetNextVertex(int a, int v, int t)
 				continue;
 
 			int neib_var = at[a][u].first_variable + (t - at[a][u].first_timestep);
-			if (kissat_value((kissat*)SAT_solver, neib_var) > 0)
+			if (((CaDiCaL::Solver*)SAT_solver)->val(neib_var) > 0)
 				return u;
 		}
 	}
@@ -289,7 +288,7 @@ int _MAPFSAT_SAT::GetNextVertex(int a, int v, int t)
 				continue;
 
 			int pass_var = pass[a][v][dir].first_variable + (leave_t - pass[a][v][dir].first_timestep);
-			if (kissat_value((kissat*)SAT_solver, pass_var) > 0)
+			if (((CaDiCaL::Solver*)SAT_solver)->val(pass_var) > 0)
 				return u;
 		}
 	}
@@ -314,7 +313,7 @@ int _MAPFSAT_SAT::GetNextVertex(int a, int v, int t)
 
 			int shift_var = shift[v][dir].first_varaible + ind;
 
-			if (kissat_value((kissat*)SAT_solver, shift_var) > 0)
+			if (((CaDiCaL::Solver*)SAT_solver)->val(shift_var) > 0)
 				return u;
 		}
 	}

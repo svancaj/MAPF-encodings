@@ -41,7 +41,7 @@ void _MAPFSAT_ISolver::PrintSolveDetails(int time_left)
 	cout << "Instance name: " << inst->scen_name << endl;
 	cout << "Map name: " << inst->map_name << endl;
 	cout << "Encoding used: " << solver_name << endl;
-	cout << "SAT solver used: " << ((solver_to_use == 1) ? "Kissat" : "Monosat") << endl;
+	cout << "SAT solver used: " << ((solver_to_use == 1) ? "CaDiCaL" : "Monosat") << endl;
 	cout << "Optimizing function: " << ((cost_function == 1) ? "makespan" : "sum of costs") << endl;
 	cout << "Number of agents: " << agents << endl;
 	cout << "Mks LB: " << inst->GetMksLB(agents) << endl;
@@ -1271,7 +1271,7 @@ int _MAPFSAT_ISolver::InvokeSolver(int timelimit)
 	int res = -1;
 	plan.clear();
 
-	res = InvokeSolverImplementation(timelimit); // kissat or monosat
+	res = InvokeSolverImplementation(timelimit); // CaDiCaL or monosat
 
 	// find conflicts if lazy encoding is used
 	if (!plan.empty() && lazy_const == 2)

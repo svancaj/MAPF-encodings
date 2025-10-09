@@ -2,43 +2,49 @@ PBlib for "at most K" constraint
 
 https://github.com/master-keying/pblib
 
-@incollection{pblib.sat2015,
-    year={2015},
-    isbn={978-3-319-24317-7},
-    booktitle={Theory and Applications of Satisfiability Testing -- SAT 2015},
-    volume={9340},
-    series={Lecture Notes in Computer Science},
-    editor={Heule, Marijn and Weaver, Sean},
-    doi={10.1007/978-3-319-24318-4_2},
-    title={PBLib -- A Library for Encoding Pseudo-Boolean Constraints into CNF},
-    publisher={Springer International Publishing},
-    author={Philipp, Tobias and Steinke, Peter},
-    pages={9-16}
+@incollection{phiste15a,
+  author={T. Philipp and P. Steinke},
+  title={PBLib -- A Library for Encoding Pseudo-Boolean Constraints into CNF},
+  pages={9-16},
+  booktitle = {Proceedings of the Eighteenth International Conference on Theory and Applications of Satisfiability Testing (SAT'15)},
+  publisher = {Springer-Verlag},
+  series = {Lecture Notes in Computer Science},
+  volume = {9340},
+  year = {2015}
 }
 
-kissat SAT solver
+CaDiCaL SAT solver
 
-https://github.com/arminbiere/kissat
+https://github.com/arminbiere/cadical
 
-@inproceedings{BiereFazekasFleuryHeisinger-SAT-Competition-2020-solvers,
-  author    = {Armin Biere and Katalin Fazekas and Mathias Fleury and Maximillian Heisinger},
-  title     = {{CaDiCaL}, {Kissat}, {Paracooba}, {Plingeling} and {Treengeling} Entering the {SAT Competition 2020}},
-  pages     = {51--53},
-  editor    = {Tomas Balyo and Nils Froleyks and Marijn Heule and Markus Iser and Matti J{\"a}rvisalo and Martin Suda},
-  booktitle = {Proc.~of {SAT Competition} 2020 -- Solver and Benchmark Descriptions},
-  volume    = {B-2020-1},
-  series    = {Department of Computer Science Report Series B},
-  publisher = {University of Helsinki},
-  year      = 2020,
+@inproceedings{BiereFallerFazekasFleuryFroleyks-CAV24,
+  author       = {A. Biere and
+                  T. Faller and
+                  K. Fazekas and
+                  M. Fleury and
+                  N. Froleyks and
+                  F. Pollitt},
+  title        = {{CaDiCaL 2.0}},
+  booktitle    = {Proceedings of the Thirty-sixth International Conference on Computer Aided Verification (CAV'24)},
+  series       = {Lecture Notes in Computer Science},
+  volume       = {14681},
+  pages        = {133--152},
+  publisher    = {Springer},
+  year         = {2024}
 }
 
 Monosat SAT solver with graph propagator
 
 https://github.com/sambayless/monosat
 
-@article{monosat2015,
-  author	= {Sam Bayless and Noah Bayless and Holger H. Hoos and Alan J. Hu},
-  title		= {{SAT Modulo Monotonic Theories}},
-  booktitle	= {Proceedings of the 29th AAAI Conference on Artificial Intelligence},
-  year		= {2015}
+@inproceedings{babahohu15a,
+  author       = {S. Bayless and
+                  N. Bayless and
+                  H. Hoos and
+                  A. Hu},
+  title        = {{SAT} Modulo Monotonic Theories},
+  pages        = {3702--3709},
+  booktitle = {Proceedings of the Twenty-ninth National Conference on Artificial Intelligence (AAAI'15)},
+  publisher = {{AAAI} Press},
+  year = {2015}
 }

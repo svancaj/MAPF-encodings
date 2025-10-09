@@ -76,7 +76,7 @@ protected:
 	bool print_plan;
 	bool use_avoid;
 	bool keep_plan;
-	int solver_to_use = 1; // 1 = kissat, 2 = monosat
+	int solver_to_use = 1; // 1 = CaDiCaL, 2 = monosat
 	int duplicates; // 1 = forbid, 2 = allow
 
 	int agents;

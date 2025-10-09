@@ -225,7 +225,7 @@ void PrintIntro(bool quiet)
 	cout << "*******************************************************" << endl;
 	cout << "*        This is a reduction-based MAPF solver        *" << endl;
 	cout << "*          Created by Jiri Svancara @ MFF UK          *" << endl;
-	cout << "*       Used SAT solvers are Kissat and Monosat       *" << endl;
+	cout << "*       Used SAT solvers are CaDiCaL and Monosat      *" << endl;
 	cout << "*******************************************************" << endl;
 	cout << endl;
 }
