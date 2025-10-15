@@ -50,22 +50,14 @@ int _MAPFSAT_SAT::CreateFormula(int time_left)
 	/********************/
 	/* create variables */
 	/********************/
-	lit = CreateAt(lit, timesteps);
-	if (variables == 2)
-		lit = CreatePass(lit, timesteps);
-	if (variables == 3)
-		lit = CreateShift(lit, timesteps);
-
-	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
-		return -1;
-
-	/***************************/
-	/* start - goal possitions */
-	/***************************/
-	CreatePossition_Start();
-	CreatePossition_Goal();
-	if (cost_function == 2)
-			CreatePossition_NoneAtGoal();
+	if (first_try)	// varaibles already exist on second try of incremental solve
+	{
+		lit = CreateAt(lit, timesteps);
+		if (variables == 2)
+			lit = CreatePass(lit, timesteps);
+		if (variables == 3)
+			lit = CreateShift(lit, timesteps);
+	}
 
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
@@ -118,6 +110,20 @@ int _MAPFSAT_SAT::CreateFormula(int time_left)
 		}
 	}
 
+	if (!first_try)		// movment clauses already exist
+		return nr_vars;
+
+	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
+		return -1;
+
+	/***************************/
+	/* start - goal possitions */
+	/***************************/
+	CreatePossition_Start();
+	CreatePossition_Goal();
+	if (cost_function == 2)
+		CreatePossition_NoneAtGoal();
+
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
 	
@@ -143,7 +149,6 @@ int _MAPFSAT_SAT::CreateFormula(int time_left)
 
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
-
 
 	/**************/
 	/* limit cost */
@@ -183,9 +188,10 @@ void _MAPFSAT_SAT::AddClause(vector<int> clause)
 
 	if (cnf_file.compare("") != 0)
 	{
+		cout << "add clause ";
 		for (size_t i = 0; i < clause.size(); i++)
-			cnf_printable << clause[i] << " ";
-		cnf_printable << "0\n";
+			cout << clause[i] << " ";
+		cout << "0\n";
 	}
 	nr_clauses++;
 }

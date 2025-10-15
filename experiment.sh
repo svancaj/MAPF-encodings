@@ -4,13 +4,13 @@ timeout=1000
 
 for instance in instances/scenarios/random_20_*
 do
-	for vars in at #pass shift #monosat-pass monosat-shift
+	for vars in at pass shift #monosat-pass monosat-shift
 	do
 		for movement in parallel pebble
 		do
 			for cost in mks soc
 			do
-				for lazy in eager #lazy
+				for lazy in eager lazy
 				do
 					for dup in single dupli
 					do

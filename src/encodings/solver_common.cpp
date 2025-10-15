@@ -73,11 +73,14 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 	swap_conflicts.clear();
 	pebble_conflicts.clear();
 
+	SAT_solver = NULL;
 	at = NULL;
 	pass = NULL;
 	shift = NULL;
 	agents = ags;
 	vertices = inst->number_of_vertices;
+
+	first_try = true;
 
 	while (true)
 	{
@@ -86,7 +89,9 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 		long long current_building_time = 0;
 		long long current_solving_time = 0;
 		PrintSolveDetails(time_left);
-		CreateSolver();
+
+		if (SAT_solver == NULL)	// in case of incremental solving
+			CreateSolver();
 
 		// create formula
 		auto start = chrono::high_resolution_clock::now();
@@ -127,26 +132,35 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 		// what to do next?
 		if (res == 0 && lazy_const == 2 && conflicts_present) // if there are still conflicts, add contraints
 		{
-			// TODO - improve lazy encoding
+			cout << "conflicts present, go again" << endl;
+			first_try = false;
 			continue;
 		}
 
+		// prepare for next iteration of solving, delat++
 		CleanUp();	
-		if (res == 0 && lazy_const == 2 && !conflicts_present) // if there are no more conflicts, return success
+		ReleaseSolver();
+		cnf_printable.clear();
+		first_try = true;
+		delta++;
+
+		/*if (res == 0 && lazy_const == 2 && !conflicts_present) // if there are no more conflicts, return success
 			return 0;
 
-		if (res == 0 && lazy_const == 1) // ok
+		if (res == 0 && lazy_const == 1) // success
+			return 0;*/
+
+		if (res == 0) 	// success
 			return 0;
 
-		if (res == -1) // something went horribly wrong with the solver!
+		if (res == -1) 	// something went horribly wrong with the solver!
 			return 1;
-
-		delta++; 		// no solution with given limits, increase delta
+		
 		if (oneshot)	// no solution with the given delta, do not optimize, return no sol
 			return -1;
 	}
 
-	return 0;
+	return 0;	// should not get here
 }
 
 /****************************/
@@ -1364,6 +1378,11 @@ vector<vector<int> > _MAPFSAT_ISolver::GetPlan()
 
 void _MAPFSAT_ISolver::GenerateConflicts()
 {
+	// add only new conflict, old conflict are already in the SAT solver
+	vertex_conflicts.clear();
+	swap_conflicts.clear();
+	pebble_conflicts.clear();
+
 	for (size_t a1 = 0; a1 < plan.size(); a1++)
 	{
 		for (size_t a2 = a1+1; a2 < plan.size(); a2++)
@@ -1374,28 +1393,28 @@ void _MAPFSAT_ISolver::GenerateConflicts()
 				{
 					conflicts_present = true;
 					vertex_conflicts.push_back(make_tuple(a1,a2,plan[a1][t],t));
-					cout << "Vertex conflict! Agents " << a1 << ", " << a2 << ", timestep " << t << ", location " << plan[a1][t] << endl;
+					//cout << "Vertex conflict! Agents " << a1 << ", " << a2 << ", timestep " << t << ", location " << plan[a1][t] << endl;
 				}
 				
 				if (t < plan[a1].size() - 1 && plan[a1][t] == plan[a2][t+1] && plan[a1][t+1] == plan[a2][t] && plan[a1][t] != plan[a2][t])
 				{
 					conflicts_present = true;
 					swap_conflicts.push_back(make_tuple(a1,a2,plan[a1][t],plan[a1][t+1],t));
-					cout << "Swapping conflict! Agents " << a1 << ", " << a2 << ", timestep " << t << ", edge (" << plan[a1][t] << "," << plan[a1][t+1] << ")" << endl;
+					//cout << "Swapping conflict! Agents " << a1 << ", " << a2 << ", timestep " << t << ", edge (" << plan[a1][t] << "," << plan[a1][t+1] << ")" << endl;
 				}
 
 				if (movement == 2 && t < plan[a1].size() - 1 && plan[a1][t] == plan[a2][t+1] && plan[a2][t] != plan[a2][t+1])
 				{
 					conflicts_present = true;
 					pebble_conflicts.push_back(make_tuple(a2,a1,plan[a2][t],plan[a2][t+1],t+1));
-					cout << "Pebble conflict! Agent " << a2 << " moved into " << plan[a2][t+1] << " in " << t+1 << ", but " << a1 << " was present in previous timestep." << endl;
+					//cout << "Pebble conflict! Agent " << a2 << " moved into " << plan[a2][t+1] << " in " << t+1 << ", but " << a1 << " was present in previous timestep." << endl;
 				}
 
 				if (movement == 2 && t < plan[a1].size() - 1 && plan[a1][t+1] == plan[a2][t] && plan[a1][t] != plan[a1][t+1])
 				{
 					conflicts_present = true;
 					pebble_conflicts.push_back(make_tuple(a1,a2,plan[a1][t],plan[a1][t+1],t+1));
-					cout << "Pebble conflict! Agent " << a1 << " moved into " << plan[a1][t+1] << " in " << t+1 << ", but " << a2 << " was present in previous timestep." << endl;
+					//cout << "Pebble conflict! Agent " << a1 << " moved into " << plan[a1][t+1] << " in " << t+1 << ", but " << a2 << " was present in previous timestep." << endl;
 				}
 			}
 		}
@@ -1413,6 +1432,7 @@ bool _MAPFSAT_ISolver::TimesUp(	std::chrono::time_point<std::chrono::high_resolu
 	if (chrono::duration_cast<chrono::milliseconds>(current_time - start_time).count() > timelimit)
 	{
 		CleanUp();
+		ReleaseSolver();
 		return true;
 	}
 	return false;

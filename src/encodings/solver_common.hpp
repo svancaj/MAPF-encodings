@@ -103,6 +103,7 @@ protected:
 	std::vector<std::vector<int> > plan;
 
 	bool conflicts_present;
+	bool first_try;
 
 	std::vector<std::tuple<int,int,int,int> > vertex_conflicts;
 	std::vector<std::tuple<int,int,int,int,int> > swap_conflicts;
