@@ -1272,15 +1272,17 @@ int _MAPFSAT_ISolver::InvokeSolver(int timelimit)
 		if (out.is_open())
 		{
 			out << "p cnf " << nr_vars-1 << " " << nr_clauses << endl;
-			out << cnf_printable.rdbuf() << endl;
+			out << cnf_printable.str() << endl;
 			out.close();
 		}
 	}
 
 	// save memory for SAT solver unless variables are still needed
 	if (!print_plan && !keep_plan && lazy_const != 2)
+	{
 		CleanUp();
-	cnf_printable.clear();
+		cnf_printable.clear();
+	}
 
 	int res = -1;
 	plan.clear();

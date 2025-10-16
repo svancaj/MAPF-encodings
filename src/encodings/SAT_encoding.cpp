@@ -188,10 +188,9 @@ void _MAPFSAT_SAT::AddClause(vector<int> clause)
 
 	if (cnf_file.compare("") != 0)
 	{
-		cout << "add clause ";
 		for (size_t i = 0; i < clause.size(); i++)
-			cout << clause[i] << " ";
-		cout << "0\n";
+			cnf_printable << clause[i] << " ";
+		cnf_printable << "0\n";
 	}
 	nr_clauses++;
 }
