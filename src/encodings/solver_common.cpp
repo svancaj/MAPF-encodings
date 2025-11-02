@@ -64,9 +64,10 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 	solver_calls = 0;
 	nr_clauses = 0;
 	nr_clauses_move = 0;
+	nr_clauses_dupli = 0;
 	nr_clauses_conflict = 0;
 	nr_clauses_soc = 0;
-	nr_clauses_assumption = 0;
+	nr_clauses_unit = 0;
 	keep_plan = keep;
 	cnf_printable.clear();	// store cnf here if specified to print in cnf_file
 	vertex_conflicts.clear();
@@ -119,9 +120,10 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 		log->nr_vars = nr_vars;
 		log->nr_clauses = nr_clauses;
 		log->nr_clauses_move = nr_clauses_move;
+		log->nr_clauses_dupli = nr_clauses_dupli;
 		log->nr_clauses_conflict = nr_clauses_conflict;
 		log->nr_clauses_soc = nr_clauses_soc;
-		log->nr_clauses_assumption = nr_clauses_assumption;
+		log->nr_clauses_unit = nr_clauses_unit;
 		log->building_time = building_time;
 		log->solving_time = solving_time;
 		log->solution_mks = inst->GetMksLB(agents) + delta;
@@ -291,7 +293,7 @@ void _MAPFSAT_ISolver::CreatePossition_Start()
 	{
 		int start_var = at[a][inst->map[inst->agents[a].start.x][inst->agents[a].start.y]].first_variable;
 		AddClause(vector<int> {start_var});
-		nr_clauses_assumption++;
+		nr_clauses_unit++;
 	}
 }
 
@@ -302,7 +304,7 @@ void _MAPFSAT_ISolver::CreatePossition_Goal()
 		_MAPFSAT_TEGAgent AV_goal = at[a][inst->map[inst->agents[a].goal.x][inst->agents[a].goal.y]];
 		int goal_var = AV_goal.first_variable + (AV_goal.last_timestep - AV_goal.first_timestep);
 		AddClause(vector<int> {goal_var});
-		nr_clauses_assumption++;
+		nr_clauses_unit++;
 	}
 }
 
@@ -325,7 +327,7 @@ void _MAPFSAT_ISolver::CreatePossition_NoneAtGoal()
 				//cout << a2 << " can not be at " << v << ", timestep " << t << " becuase " << a << " is in goal there" << endl;
 				int a2_var = at[a2][v].first_variable + (t - at[a2][v].first_timestep);
 				AddClause(vector<int> {-a2_var});
-				nr_clauses_assumption++;
+				nr_clauses_unit++;
 			}
 		}
 	}
@@ -354,7 +356,7 @@ void _MAPFSAT_ISolver::CreatePossition_NoneAtGoal_Shift()
 					//cout << " because " << a << " has a goal there" << endl;
 					int shift_var = shift[v][dir].first_varaible + ind;
 					AddClause(vector<int> {-shift_var});
-					nr_clauses_assumption++;
+					nr_clauses_unit++;
 				}
 			}
 
@@ -624,7 +626,7 @@ void _MAPFSAT_ISolver::CreateMove_NoDuplicates()
 					int v_var = at[a][v].first_variable + (t - at[a][v].first_timestep);
 					int u_var = at[a][u].first_variable + (t - at[a][u].first_timestep);
 					AddClause(vector<int> {-v_var, -u_var});
-					nr_clauses_move++;
+					nr_clauses_dupli++;
 				}
 			}
 		}

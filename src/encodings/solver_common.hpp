@@ -95,9 +95,10 @@ protected:
 	int nr_vars;
 	long long nr_clauses;
 	long long nr_clauses_move;
+	long long nr_clauses_dupli;
 	long long nr_clauses_conflict;
 	long long nr_clauses_soc;
-	long long nr_clauses_assumption;
+	long long nr_clauses_unit;
 	int solver_calls;
 
 	std::vector<std::vector<int> > plan;

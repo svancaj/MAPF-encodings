@@ -63,9 +63,10 @@ void _MAPFSAT_Logger::PrintStatistics()
 			nr_vars << sep <<
 			nr_clauses << sep <<
 			nr_clauses_move << sep <<
+			nr_clauses_dupli << sep <<
 			nr_clauses_conflict << sep <<
 			nr_clauses_soc << sep <<
-			nr_clauses_assumption << sep <<
+			nr_clauses_unit << sep <<
 			solution << sep <<
 			endl;
 	}
@@ -89,9 +90,10 @@ void _MAPFSAT_Logger::PrintStatistics()
 			"Nr of variables:      " << nr_vars << sep <<
 			"Nr of clauses         " << nr_clauses << sep <<
 			"Nr of move clauses:   " << nr_clauses_move << sep <<
+			"Nr of dupli clauses:  " << nr_clauses_dupli << sep <<
 			"Nr of conf clauses:   " << nr_clauses_conflict << sep <<
 			"Nr of soc clauses:    " << nr_clauses_soc << sep <<
-			"Nr of assump clauses: " << nr_clauses_assumption << sep <<
+			"Nr of unit clauses:   " << nr_clauses_unit << sep <<
 			"Found solution:       " << solution << sep <<
 			endl << endl;
 	}
