@@ -252,7 +252,7 @@ int _MAPFSAT_SMT::CreateMove_Graph_MonosatPass(int lit)
 		if (cnf_file.compare("") != 0)
 			cnf_printable << "reach " << a << " " << start_v << " " << goal_v << " " << lit << "\n";
 		AddClause(vector<int> {lit});
-		nr_clauses_assumption++;
+		nr_clauses_unit++;
 		lit++;
 	}
 
@@ -318,7 +318,7 @@ int _MAPFSAT_SMT::CreateMove_Graph_MonosatShift(int lit)
 		if (cnf_file.compare("") != 0)
 			cnf_printable << "reach 0 " << node1 << " " << node2 << " " << lit << "\n";
 		AddClause(vector<int> {lit});
-		nr_clauses_assumption++;
+		nr_clauses_unit++;
 		lit++;
 	}
 
@@ -331,13 +331,13 @@ int _MAPFSAT_SMT::CreateMove_Graph_MonosatShift(int lit)
 
 void _MAPFSAT_SMT::AddClause(vector<int> clause)
 {
+	nr_clauses++;
 	if (cnf_file.compare("") != 0)
 	{
 		for (size_t i = 0; i < clause.size(); i++)
 			cnf_printable << clause[i] << " ";
 		cnf_printable << "0\n";
 	}
-	nr_clauses++;
 }
 
 void _MAPFSAT_SMT::CreateSolver()

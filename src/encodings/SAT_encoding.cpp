@@ -182,6 +182,7 @@ int _MAPFSAT_SAT::CreateFormula(int time_left)
 
 void _MAPFSAT_SAT::AddClause(vector<int> clause)
 {
+	nr_clauses++;
 	for (size_t i = 0; i < clause.size(); i++)
 		((CaDiCaL::Solver*)SAT_solver)->add(clause[i]);
 	((CaDiCaL::Solver*)SAT_solver)->add(0);
@@ -192,7 +193,6 @@ void _MAPFSAT_SAT::AddClause(vector<int> clause)
 			cnf_printable << clause[i] << " ";
 		cnf_printable << "0\n";
 	}
-	nr_clauses++;
 }
 
 void _MAPFSAT_SAT::CreateSolver()
