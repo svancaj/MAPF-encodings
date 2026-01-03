@@ -62,6 +62,7 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 	long long building_time = 0;
 	long long solving_time = 0;
 	solver_calls = 0;
+	nr_vars = 1;
 	nr_clauses = 0;
 	nr_clauses_move = 0;
 	nr_clauses_dupli = 0;
@@ -604,9 +605,10 @@ void _MAPFSAT_ISolver::CreateConf_Pebble_Shift()
 	}
 }
 
-void _MAPFSAT_ISolver::CreateMove_NoDuplicates()
+int _MAPFSAT_ISolver::CreateMove_NoDuplicates(int lit)
 {
-	for (int a = 0; a < agents; a++)
+	// old - pariwise encoding
+	/*for (int a = 0; a < agents; a++)
 	{
 		for (int v = 0; v < vertices; v++)
 		{
@@ -630,7 +632,43 @@ void _MAPFSAT_ISolver::CreateMove_NoDuplicates()
 				}
 			}
 		}
+	}*/
+
+	PBConfig config = make_shared< PBConfigClass >();
+    config->amo_encoder = AMO_ENCODER::KPRODUCT;
+    PB2CNF pb2cnf(config);
+	vector<vector<int> > formula;
+
+	for (int a = 0; a < agents; a++)
+	{
+		for (int t = 0; t < max_timestep; t++)
+		{
+			vector<int> vars;
+			for (int v = 0; v < vertices; v++)
+			{
+				if (at[a][v].first_variable == 0)
+					continue;
+				if (at[a][v].first_timestep > t || at[a][v].last_timestep < t)
+					continue;
+				
+				vars.push_back(at[a][v].first_variable + (t - at[a][v].first_timestep));
+			}
+
+			if (vars.size() > 1)
+			{
+				formula.clear();
+				lit = pb2cnf.encodeAtMostK(vars, 1, formula, lit) + 1;
+
+				for (size_t i = 0; i < formula.size(); i++)
+				{
+					AddClause(formula[i]);
+					nr_clauses_dupli++;
+				}
+			}
+		}
 	}
+
+	return lit;
 }
 
 void _MAPFSAT_ISolver::CreateMove_NextVertex_At()
@@ -948,7 +986,10 @@ int _MAPFSAT_ISolver::CreateConst_LimitSoc(int lit)
 	}
 
 	// add constraint on sum of delays
-	PB2CNF pb2cnf;
+	PBConfig config = make_shared< PBConfigClass >();
+    config->amo_encoder = AMO_ENCODER::KPRODUCT;
+    config->amk_encoder = AMK_ENCODER::CARD;
+    PB2CNF pb2cnf(config);
 	vector<vector<int> > formula;
 	lit = pb2cnf.encodeAtMostK(late_variables, delta, formula, lit) + 1;
 
@@ -1002,7 +1043,10 @@ int _MAPFSAT_ISolver::CreateConst_LimitSoc_AllAt(int lit)
 	}
 
 	// add constraint on sum of delays
-	PB2CNF pb2cnf;
+	PBConfig config = make_shared< PBConfigClass >();
+    config->amo_encoder = AMO_ENCODER::KPRODUCT;
+    config->amk_encoder = AMK_ENCODER::CARD;
+    PB2CNF pb2cnf(config);
 	vector<vector<int> > formula;
 	lit = pb2cnf.encodeAtMostK(late_variables, delta, formula, lit) + 1;
 
@@ -1059,7 +1103,10 @@ int _MAPFSAT_ISolver::CreateConst_LimitSoc_Shift(int lit)
 	}
 
 	// add constraint on sum of delays
-	PB2CNF pb2cnf;
+	PBConfig config = make_shared< PBConfigClass >();
+    config->amo_encoder = AMO_ENCODER::KPRODUCT;
+    config->amk_encoder = AMK_ENCODER::CARD;
+    PB2CNF pb2cnf(config);
 	vector<vector<int> > formula;
 	lit = pb2cnf.encodeAtMostK(late_variables, delta, formula, lit) + 1;
 

@@ -44,7 +44,7 @@ _MAPFSAT_SMT::_MAPFSAT_SMT(int var, int cost, int moves, int lazy, int dupli, in
 	movement = moves; 			// 1 = parallel, 	2 = pebble
 	lazy_const = lazy; 			// 1 = eager, 		2 = lazy
 	duplicates = dupli; 		// 1 = forbid, 		2 = allow
-	solver_to_use = solver; 	// 1 = CaDiCaL, 		2 = monosat
+	solver_to_use = solver; 	// 1 = CaDiCaL, 	2 = monosat
 
 	assert(variables == 2 || variables == 3);
 	assert(cost_function == 1 || cost_function == 2);
@@ -123,7 +123,7 @@ int _MAPFSAT_SMT::CreateFormula(int time_left)
 		CreateConf_Vertex();
 		CreateConf_Swapping_Pass();
 		if (duplicates == 1)
-			CreateMove_NoDuplicates();
+			lit = CreateMove_NoDuplicates(lit);
 	}
 	if (variables == 3)
 	{

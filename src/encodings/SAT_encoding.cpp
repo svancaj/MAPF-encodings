@@ -44,7 +44,7 @@ _MAPFSAT_SAT::_MAPFSAT_SAT(int var, int cost, int moves, int lazy, int dupli, in
 int _MAPFSAT_SAT::CreateFormula(int time_left)
 {
 	int timesteps = inst->GetMksLB(agents) + delta;
-	int lit = 1;
+	int lit = nr_vars; 	// is 1 on first call
 	auto start = chrono::high_resolution_clock::now();
 
 	/********************/
@@ -111,7 +111,7 @@ int _MAPFSAT_SAT::CreateFormula(int time_left)
 	}
 
 	if (!first_try)		// movment clauses already exist
-		return nr_vars;
+		return lit;
 
 	if (TimesUp(start, chrono::high_resolution_clock::now(), time_left))
 		return -1;
@@ -131,7 +131,7 @@ int _MAPFSAT_SAT::CreateFormula(int time_left)
 	/* movement */
 	/************/
 	if (duplicates == 1)
-		CreateMove_NoDuplicates();
+		lit = CreateMove_NoDuplicates(lit);
 
 	if (variables == 1)		// at
 		CreateMove_NextVertex_At();

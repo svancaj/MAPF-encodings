@@ -145,7 +145,7 @@ protected:
 	void CreateConf_Pebble_Pass_OnDemand();
 	void CreateConf_Pebble_Shift_OnDemand();
 
-	void CreateMove_NoDuplicates();
+	int CreateMove_NoDuplicates(int);
 	void CreateMove_NextVertex_At();
 	void CreateMove_EnterVertex_Pass();
 	void CreateMove_LeaveVertex_Pass();
