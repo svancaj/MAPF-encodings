@@ -85,7 +85,7 @@ $(O_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-	$(R_DIR)/$(PROJECT_NAME) -m instances/testing/maps -s instances/testing/scenarios/test2.scen -e soc_parallel_at_lazy_single -t 100 -p -c tmp.cnf -l 2
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random_100_0.scen -e soc_parallel_at_lazy_dupli -a 100 -t 100 -p -l 2
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \
