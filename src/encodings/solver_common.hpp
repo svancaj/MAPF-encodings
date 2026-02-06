@@ -6,6 +6,7 @@
 #include <thread>
 #include <unordered_map>
 #include <tuple>
+#include <cassert>
 
 #include "../instance.hpp"
 #include "../logger.hpp"
@@ -36,6 +37,7 @@ public:
     * @param delta the initial delta. Default is 0.
     * @param oneshot option to perform just one solver call with the given delta without incrementing. Default is false.
 	* @param keep_plan option save the found plan. The found plan can be retrieved by GetPlan function. Default is false.
+	* @return -1 unSAT with given cost, 0 valid solution, 1 timeout or error.
     */
     int Solve(int, int = 0, bool = false, bool = false);
 
@@ -55,7 +57,7 @@ public:
 
 	/** Returns the found plan.
     * 
-    * Returns the found plan if the solve was success and keep_plan was set to true
+    * Returns the found plan if the solve was successful and keep_plan was set to true.
     *
     */
 	std::vector<std::vector<int> > GetPlan();
@@ -64,6 +66,7 @@ protected:
 	_MAPFSAT_Instance* inst;
 	_MAPFSAT_Logger* log;
 	std::string solver_name;
+	int variables; // 1 = at, 2 = pass, 3 = shift
 	int cost_function; // 1 = mks, 2 = soc
 	int movement; // 1 = parallel, 2 = pebble
 	int lazy_const; // 1 = all at once, 2 = lazy
@@ -73,7 +76,8 @@ protected:
 	bool print_plan;
 	bool use_avoid;
 	bool keep_plan;
-	int solver_to_use = 1; // 1 = kissat, 2 = monosat
+	int solver_to_use = 1; // 1 = CaDiCaL, 2 = monosat
+	int duplicates; // 1 = forbid, 2 = allow
 
 	int agents;
 	int vertices;
@@ -91,14 +95,16 @@ protected:
 	int nr_vars;
 	long long nr_clauses;
 	long long nr_clauses_move;
+	long long nr_clauses_dupli;
 	long long nr_clauses_conflict;
 	long long nr_clauses_soc;
-	long long nr_clauses_assumption;
+	long long nr_clauses_unit;
 	int solver_calls;
 
 	std::vector<std::vector<int> > plan;
 
 	bool conflicts_present;
+	bool first_try;
 
 	std::vector<std::tuple<int,int,int,int> > vertex_conflicts;
 	std::vector<std::tuple<int,int,int,int,int> > swap_conflicts;
@@ -139,32 +145,26 @@ protected:
 	void CreateConf_Pebble_Pass_OnDemand();
 	void CreateConf_Pebble_Shift_OnDemand();
 
-	void CreateMove_NoDuplicates();
+	int CreateMove_NoDuplicates(int);
 	void CreateMove_NextVertex_At();
 	void CreateMove_EnterVertex_Pass();
 	void CreateMove_LeaveVertex_Pass();
+	void CreateMove_NextEdge_Pass();
 	void CreateMove_ExactlyOne_Shift();
 	void CreateMove_ExactlyOneIncoming_Shift();
 	void CreateMove_NextVertex_Shift();
-
-	int CreateMove_Graph_MonosatPass(int);
-	int CreateMove_Graph_MonosatShift(int);
 
 	int CreateConst_LimitSoc(int);
 	int CreateConst_LimitSoc_AllAt(int);
 	int CreateConst_LimitSoc_Shift(int);
 	void CreateConst_Avoid();
 
-	// solving
-	int InvokeSolver_Kissat(int);
-	int InvokeSolver_Monosat(int);
-	
-	// auxiliary SAT solver functions
-	void CreateSolver();
+	// solver functions
+	virtual void AddClause(std::vector<int>) = 0;
+	virtual void CreateSolver() = 0;
+	virtual void ReleaseSolver() = 0;
 	int InvokeSolver(int);
-	static void WaitForTerminate(int, void*, bool&);
-	int VarToID(int, bool, int&, std::unordered_map<int, int>&);
-	void AddClause(std::vector<int>);
+	virtual int InvokeSolverImplementation(int) = 0;
 
 	// plan outputting functions
 	int NormalizePlan();
@@ -174,375 +174,49 @@ protected:
 
 	// cleanup functions
 	bool TimesUp(std::chrono::time_point<std::chrono::high_resolution_clock>, std::chrono::time_point<std::chrono::high_resolution_clock>, int);
-	void CleanUp(bool);
+	void CleanUp();
 };
 
 /******************************************************************/
 /*********************** Specific Encodings ***********************/
 /******************************************************************/
 
-class _MAPFSAT_AtParallelMksAll : public _MAPFSAT_ISolver
+class _MAPFSAT_SAT : public _MAPFSAT_ISolver
 {
 public:
-	_MAPFSAT_AtParallelMksAll(std::string name = "at_parallel_mks_all");
-	~_MAPFSAT_AtParallelMksAll() {};
+	_MAPFSAT_SAT(int, int, int, int, int, int solver = 1, std::string name = "SAT_encoding");
+	~_MAPFSAT_SAT() {};
 private:
 	int CreateFormula(int);
+
+	void AddClause(std::vector<int>);
+	void CreateSolver();
+	void ReleaseSolver();
+	int InvokeSolverImplementation(int);
+
+	// specialized functions
+	static void WaitForTerminate(int, void*, bool&);
+	int GetNextVertex(int, int, int);
 };
 
-class _MAPFSAT_AtParallelSocAll : public _MAPFSAT_ISolver
+class _MAPFSAT_SMT : public _MAPFSAT_ISolver
 {
 public:
-	_MAPFSAT_AtParallelSocAll(std::string name = "at_parallel_soc_all");
-	~_MAPFSAT_AtParallelSocAll() {};
+	_MAPFSAT_SMT(int, int, int, int, int, int solver = 2, std::string name = "SMT_encoding");
+	~_MAPFSAT_SMT() {};
 private:
 	int CreateFormula(int);
+
+	void AddClause(std::vector<int>);
+	void CreateSolver();
+	void ReleaseSolver();
+	int InvokeSolverImplementation(int);
+
+	// specialized functions
+	int CreateMove_Graph_MonosatPass(int);
+	int CreateMove_Graph_MonosatShift(int);
+	int VarToID(int, bool, int&, std::unordered_map<int, int>&);
+	int GetNextVertex(std::vector<bool>&, int, int, int);
 };
-
-class _MAPFSAT_AtPebbleMksAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_AtPebbleMksAll(std::string name = "at_pebble_mks_all");
-	~_MAPFSAT_AtPebbleMksAll() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_AtPebbleSocAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_AtPebbleSocAll(std::string name = "at_pebble_soc_all");
-	~_MAPFSAT_AtPebbleSocAll() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_PassParallelMksAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_PassParallelMksAll(std::string name = "pass_parallel_mks_all");
-	~_MAPFSAT_PassParallelMksAll() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_PassParallelSocAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_PassParallelSocAll(std::string name = "pass_parallel_soc_all");
-	~_MAPFSAT_PassParallelSocAll() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_PassPebbleMksAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_PassPebbleMksAll(std::string name = "pass_pebble_mks_all");
-	~_MAPFSAT_PassPebbleMksAll() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_PassPebbleSocAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_PassPebbleSocAll(std::string name = "pass_pebble_soc_all");
-	~_MAPFSAT_PassPebbleSocAll() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_ShiftParallelMksAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_ShiftParallelMksAll(std::string name = "shift_parallel_mks_all");
-	~_MAPFSAT_ShiftParallelMksAll() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_ShiftParallelSocAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_ShiftParallelSocAll(std::string name = "shift_parallel_soc_all");
-	~_MAPFSAT_ShiftParallelSocAll() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_ShiftPebbleMksAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_ShiftPebbleMksAll(std::string name = "shift_pebble_mks_all");
-	~_MAPFSAT_ShiftPebbleMksAll() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_ShiftPebbleSocAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_ShiftPebbleSocAll(std::string name = "shift_pebble_soc_all");
-	~_MAPFSAT_ShiftPebbleSocAll() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_AtParallelMksLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_AtParallelMksLazy(std::string name = "at_parallel_mks_lazy");
-	~_MAPFSAT_AtParallelMksLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_AtParallelSocLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_AtParallelSocLazy(std::string name = "at_parallel_soc_lazy");
-	~_MAPFSAT_AtParallelSocLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_AtPebbleMksLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_AtPebbleMksLazy(std::string name = "at_pebble_mks_lazy");
-	~_MAPFSAT_AtPebbleMksLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_AtPebbleSocLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_AtPebbleSocLazy(std::string name = "at_pebble_soc_lazy");
-	~_MAPFSAT_AtPebbleSocLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_PassParallelMksLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_PassParallelMksLazy(std::string name = "pass_parallel_mks_lazy");
-	~_MAPFSAT_PassParallelMksLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_PassParallelSocLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_PassParallelSocLazy(std::string name = "pass_parallel_soc_lazy");
-	~_MAPFSAT_PassParallelSocLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_PassPebbleMksLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_PassPebbleMksLazy(std::string name = "pass_pebble_mks_lazy");
-	~_MAPFSAT_PassPebbleMksLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_PassPebbleSocLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_PassPebbleSocLazy(std::string name = "pass_pebble_soc_lazy");
-	~_MAPFSAT_PassPebbleSocLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_ShiftParallelMksLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_ShiftParallelMksLazy(std::string name = "shift_parallel_mks_lazy");
-	~_MAPFSAT_ShiftParallelMksLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_ShiftParallelSocLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_ShiftParallelSocLazy(std::string name = "shift_parallel_soc_lazy");
-	~_MAPFSAT_ShiftParallelSocLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_ShiftPebbleMksLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_ShiftPebbleMksLazy(std::string name = "shift_pebble_mks_lazy");
-	~_MAPFSAT_ShiftPebbleMksLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_ShiftPebbleSocLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_ShiftPebbleSocLazy(std::string name = "shift_pebble_soc_lazy");
-	~_MAPFSAT_ShiftPebbleSocLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-/*****************************************************************/
-/*********************** Monosat Encodings ***********************/
-/*****************************************************************/
-
-class _MAPFSAT_MonosatPassParallelMksAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_MonosatPassParallelMksAll(std::string name = "monosat-pass_parallel_mks_all");
-	~_MAPFSAT_MonosatPassParallelMksAll() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_MonosatPassParallelSocAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_MonosatPassParallelSocAll(std::string name = "monosat-pass_parallel_soc_all");
-	~_MAPFSAT_MonosatPassParallelSocAll() {};
-private:
-	int CreateFormula(int);
-};
-
-/*class _MAPFSAT_MonosatPassPebbleMksAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_MonosatPassPebbleMksAll(std::string name = "monosat-pass_pebble_mks_all");
-	~_MAPFSAT_MonosatPassPebbleMksAll() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_MonosatPassPebbleSocAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_MonosatPassPebbleSocAll(std::string name = "monosat-pass_pebble_soc_all");
-	~_MAPFSAT_MonosatPassPebbleSocAll() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_MonosatPassParallelMksLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_MonosatPassParallelMksLazy(std::string name = "monosat-pass_parallel_mks_lazy");
-	~_MAPFSAT_MonosatPassParallelMksLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_MonosatPassParallelSocLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_MonosatPassParallelSocLazy(std::string name = "monosat-pass_parallel_soc_lazy");
-	~_MAPFSAT_MonosatPassParallelSocLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_MonosatPassPebbleMksLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_MonosatPassPebbleMksLazy(std::string name = "monosat-pass_pebble_mks_lazy");
-	~_MAPFSAT_MonosatPassPebbleMksLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_MonosatPassPebbleSocLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_MonosatPassPebbleSocLazy(std::string name = "monosat-pass_pebble_soc_lazy");
-	~_MAPFSAT_MonosatPassPebbleSocLazy() {};
-private:
-	int CreateFormula(int);
-};*/
-
-class _MAPFSAT_MonosatShiftParallelMksAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_MonosatShiftParallelMksAll(std::string name = "monosat-shift_parallel_mks_all");
-	~_MAPFSAT_MonosatShiftParallelMksAll() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_MonosatShiftParallelSocAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_MonosatShiftParallelSocAll(std::string name = "monosat-shift_parallel_soc_all");
-	~_MAPFSAT_MonosatShiftParallelSocAll() {};
-private:
-	int CreateFormula(int);
-};
-
-/*class _MAPFSAT_MonosatShiftPebbleMksAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_MonosatShiftPebbleMksAll(std::string name = "monosat-shift_pebble_mks_all");
-	~_MAPFSAT_MonosatShiftPebbleMksAll() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_MonosatShiftPebbleSocAll : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_MonosatShiftPebbleSocAll(std::string name = "monosat-shift_pebble_soc_all");
-	~_MAPFSAT_MonosatShiftPebbleSocAll() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_MonosatShiftParallelMksLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_MonosatShiftParallelMksLazy(std::string name = "monosat-shift_parallel_mks_lazy");
-	~_MAPFSAT_MonosatShiftParallelMksLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_MonosatShiftParallelSocLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_MonosatShiftParallelSocLazy(std::string name = "monosat-shift_parallel_soc_lazy");
-	~_MAPFSAT_MonosatShiftParallelSocLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_MonosatShiftPebbleMksLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_MonosatShiftPebbleMksLazy(std::string name = "monosat-shift_pebble_mks_lazy");
-	~_MAPFSAT_MonosatShiftPebbleMksLazy() {};
-private:
-	int CreateFormula(int);
-};
-
-class _MAPFSAT_MonosatShiftPebbleSocLazy : public _MAPFSAT_ISolver
-{
-public:
-	_MAPFSAT_MonosatShiftPebbleSocLazy(std::string name = "monosat-shift_pebble_soc_lazy");
-	~_MAPFSAT_MonosatShiftPebbleSocLazy() {};
-private:
-	int CreateFormula(int);
-};*/
 
 #endif

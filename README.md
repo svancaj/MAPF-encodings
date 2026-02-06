@@ -6,7 +6,7 @@ This repository contains numerous encodings for solving the multi-agent pathfind
 
 The system makes use of the following repositories
 
-- kissat - https://github.com/arminbiere/kissat
+- CaDiCaL - https://github.com/arminbiere/cadical
 - monosat - https://github.com/sambayless/monosat
 - PBlib - https://github.com/master-keying/pblib
 
@@ -54,7 +54,7 @@ The compiled binary `MAPF` is located in the `release` directory. The expected i
         -h                  : Prints help and exits
         -q                  : Suppress print on stdout
         -p                  : Print found plan. If q flag is set, p flag is overwritten.
-        -e encoding         : Encoding to be used. Available options are {at|pass|shift|monosat}_{pebble|parallel}_{mks|soc}_{all|lazy}
+        -e encoding         : Encoding to be used. Available options are {mks|soc}_{parallel|pebble}_{at|pass|shift|monosat-pass|monosat-shift}_{eager|lazy}_{single|dupli}
         -s scenario_file    : Path to a scenario file
         -m map_dir          : Directory containing map files. Default is instances/maps
         -a number_of_agents : Number of agents to solve. If not specified, all agents in the scenario file are used.
@@ -69,7 +69,7 @@ The compiled binary `MAPF` is located in the `release` directory. The expected i
 
 ### Library
 
-The compiled static library `libmapf.a` is located in `release/libs`, along with the static libraries of *kissat*, *monosat*, and *PB*.
+The compiled static library `libmapf.a` is located in `release/libs`, along with the static libraries of *CaDiCaL*, *monosat*, and *PB*.
 
 The interface of the library is in `MAPF.hpp` located in the `release` directory. An example of usage of the interface is provided in `release/example.cpp`.
 
@@ -96,8 +96,12 @@ Currently, the following ideas are implemented:
 - Sum of costs is the sum of individual plan lengths.
 
 ### Lazy conflicts
-- All encodes all conflict constraints at once.
+- Eager encodes all conflict constraints at once.
 - Lazy encodes conflict constraints only if the found plan contains the given conflict and then solves it again.
+
+### Duplicated agents
+- Single forces every agent to be present only in a single location at a time.
+- Dupli allows agent do be duplicated in some timesteps.
 
 ## Publications
 TBD

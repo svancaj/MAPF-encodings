@@ -17,20 +17,14 @@ EX_NAME = example
 
 #_SHARED_LIBS = z gmpxx gmp
 #SHARED_LIBS = $(patsubst %,-l%,$(_SHARED_LIBS))
-_LIBS = libpb.a libkissat.a #libmonosat.a
+_LIBS = libpb.a libcadical.a #libmonosat.a
 LIBS = $(patsubst %,$(L_DIR)/%,$(_LIBS))
 RELEASE_LIBS = $(patsubst %,$(R_DIR)/$(L_DIR)/%,$(OUTPUT_LIB)) $(patsubst %,$(R_DIR)/$(L_DIR)/%,$(_LIBS))
 
 _DEPS = instance.hpp logger.hpp encodings/solver_common.hpp
 DEPS = $(patsubst %,$(S_DIR)/%,$(_DEPS))
 
-VAR = at pass shift
-MOVE = parallel pebble
-FUNC = mks soc
-COMP = all lazy
-
-_MONOSAT_OBJ = solver_common.o monosat-pass_parallel_mks_all.o monosat-pass_parallel_soc_all.o monosat-shift_parallel_mks_all.o monosat-shift_parallel_soc_all.o
-_ENC_OBJ = $(foreach v, $(VAR), $(foreach m, $(MOVE), $(foreach f, $(FUNC), $(foreach c, $(COMP), $v_$m_$f_$c.o)))) 
+_ENC_OBJ = solver_common.o SAT_encoding.o SMT_encoding.o
 _OBJ = instance.o logger.o
 OBJ = $(patsubst %,$(O_DIR)/%,$(_OBJ)) $(patsubst %, $(O_DIR)/%,$(_ENC_OBJ)) $(patsubst %, $(O_DIR)/%,$(_MONOSAT_OBJ))
 _MAIN = main.o
@@ -91,7 +85,7 @@ $(O_DIR)_exists:
 ###########
 
 test: $(PROJECT_NAME)
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random_10_1.scen -e monosat-shift_parallel_soc_all -t 100 -a 10 -l 2 -c tmp.cnf
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random_100_0.scen -e soc_parallel_at_lazy_dupli -a 100 -t 100 -p -l 2
 
 valgrind: $(PROJECT_NAME)
 	valgrind --leak-check=full \
@@ -99,7 +93,7 @@ valgrind: $(PROJECT_NAME)
 	--track-origins=yes \
 	--verbose \
 	--log-file=valgrind-out.txt \
-	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random_10_1.scen -e monosat-shift_parallel_mks_all -t 100000 -a 10 -l 1 -c tmp.cnf -f results.res
+	$(R_DIR)/$(PROJECT_NAME) -m instances/maps -s instances/scenarios/random_10_1.scen -e TODO -t 100000 -a 10 -l 1 -c tmp.cnf -f results.res
 
 test_example: $(EX_NAME)
 	$(R_DIR)/$^

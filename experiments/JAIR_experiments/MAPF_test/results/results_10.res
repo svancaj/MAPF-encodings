@@ -1,0 +1,16 @@
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-9.scen	mks_parallel_at_eager_single	5	808	2462	808	0	74158	158109	1	25425676	140724910	24734514	50891827	65098559	0	10	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-9.scen	mks_parallel_at_eager_dupli	5	808	2462	808	0	26041	161115	1	24734520	89833083	24734514	0	65098559	0	10	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-9.scen	mks_parallel_at_lazy_single	5	808	2462	808	0	66845	11899	1	25425676	75626351	24734514	50891827	0	0	10	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-9.scen	mks_parallel_at_lazy_dupli	5	808	2462	808	0	12170	911	1	24734520	24734524	24734514	0	0	0	10	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-9.scen	mks_parallel_at_lazy_dupli	10	990	5356	990	0	49845	34435	4	90790676	90790696	90790665	0	11	0	20	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-9.scen	mks_parallel_at_lazy_dupli	15	990	7610	990	0	63344	51394	3	133405129	133405160	133405113	0	17	0	30	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-9.scen	mks_pebble_at_eager_single	5	808	2462	808	0	87024	161919	1	25425676	116465281	24734514	50891827	40838930	0	10	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-9.scen	mks_pebble_at_eager_dupli	5	808	2462	808	0	20802	243513	1	24734520	65573454	24734514	0	40838930	0	10	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-9.scen	mks_pebble_at_lazy_single	5	808	2462	808	0	63200	10641	1	25425676	75626351	24734514	50891827	0	0	10	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-9.scen	mks_pebble_at_lazy_dupli	5	808	2462	808	0	11842	1320	1	24734520	24734524	24734514	0	0	0	10	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-9.scen	mks_pebble_at_lazy_dupli	10	990	5356	990	0	51916	11456	3	90790676	90790697	90790665	0	12	0	20	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-9.scen	mks_pebble_at_lazy_dupli	15	990	7610	990	0	65364	16129	3	133405129	133405166	133405113	0	23	0	30	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-9.scen	mks_parallel_pass_lazy_single	5	808	2462	808	0	109234	53520	1	143610768	193811443	142919606	50891827	0	0	10	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-9.scen	mks_parallel_pass_lazy_dupli	5	808	2462	808	0	55763	12151	1	142919612	142919616	142919606	0	0	0	10	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-9.scen	mks_pebble_pass_lazy_single	5	808	2462	808	0	100487	56940	1	143610768	193811443	142919606	50891827	0	0	10	sat	
+brc202d.map	MAPF_Encodings/instances/scenarios/brc202d-random-9.scen	mks_pebble_pass_lazy_dupli	5	808	2462	808	0	50582	10906	1	142919612	142919616	142919606	0	0	0	10	sat	
