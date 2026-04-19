@@ -361,7 +361,8 @@ int _MAPFSAT_SMT::InvokeSolverImplementation(int timelimit)
 		<< " ./libs/monosat" 						
 		<< " -witness-file=tmp.out"					// -witness to print assignment
 		//<< " -cpu-lim=" << (timelimit/1000) +1	// cpu limit (in s) is unrealiable
-		<< " tmp.cnf"
+		<< " "
+		<< cnf_file
 		<< " > /dev/null";							// do not care about stdout 
 
 	int ret = system(exec.str().c_str());
