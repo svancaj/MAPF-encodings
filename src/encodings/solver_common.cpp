@@ -906,17 +906,14 @@ void _MAPFSAT_ISolver::CreateMove_ExactlyOneIncoming_Shift()
 					vc.push_back(shift_var);
 					//cout << "there is a shift from " << u << ", " << op_dir << " in timestep " << t << " varaible " <<  shift_var << endl;
 				}
+			}
 
-				if (vc.empty())
-					continue;
-
-				for (size_t i = 0; i < vc.size(); i++)
+			for (size_t i = 0; i < vc.size(); i++)
+			{
+				for (size_t j = i+1; j < vc.size(); j++)
 				{
-					for (size_t j = i+1; j < vc.size(); j++)
-					{
-						AddClause(vector<int>{-vc[i], -vc[j]}); // at most 1
-						nr_clauses_move++;
-					}
+					AddClause(vector<int>{-vc[i], -vc[j]}); // at most 1
+					nr_clauses_move++;
 				}
 			}
 		}
