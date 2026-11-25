@@ -152,6 +152,7 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 		ReleaseSolver();
 		ResetCNFPrintable();
 		first_try = true;
+		nr_vars = 1;	// new solver, number variables from 1 again
 		delta++;
 
 		/*if (res == 0 && lazy_const == 2 && !conflicts_present) // if there are no more conflicts, return success
