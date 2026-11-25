@@ -188,7 +188,7 @@ int _MAPFSAT_ISolver::CreateAt(int lit, int timesteps)
 		at[a] = new _MAPFSAT_TEGAgent[vertices];
 		for (int v = 0; v < vertices; v++)
 		{
-			if (inst->FirstTimestep(a, v) <= inst->LastTimestep(a, v, timesteps, delta, cost_function))
+			if (inst->FirstTimestep(a, v) >= 0 && inst->FirstTimestep(a, v) <= inst->LastTimestep(a, v, timesteps, delta, cost_function)) // -1 = unreachable
 			{
 				at[a][v].first_variable = lit;
 				at[a][v].first_timestep = inst->FirstTimestep(a, v);
@@ -227,7 +227,7 @@ int _MAPFSAT_ISolver::CreatePass(int lit, int timesteps)
 					pass[a][v][dir].first_variable = 0;
 					continue;
 				}
-				if (inst->FirstTimestep(a, v) < inst->LastTimestep(a, inst->GetNeighbor(v, dir), timesteps, delta, cost_function)) // !!! might be wrong
+				if (inst->FirstTimestep(a, v) >= 0 && inst->FirstTimestep(a, v) < inst->LastTimestep(a, inst->GetNeighbor(v, dir), timesteps, delta, cost_function)) // !!! might be wrong
 				{
 					pass[a][v][dir].first_variable = lit;
 					pass[a][v][dir].first_timestep = inst->FirstTimestep(a, v);
@@ -269,7 +269,7 @@ int _MAPFSAT_ISolver::CreateShift(int lit, int timesteps)
 				for (int a = 0; a < agents; a++)
 				{	
 					// create shift variable only for possition only if any agent can traverse there
-					if (inst->FirstTimestep(a, v) <= t && inst->LastTimestep(a, inst->GetNeighbor(v, dir), timesteps, delta, cost_function) > t)
+					if (inst->FirstTimestep(a, v) >= 0 && inst->FirstTimestep(a, v) <= t && inst->LastTimestep(a, inst->GetNeighbor(v, dir), timesteps, delta, cost_function) > t)
 					{
 						shift[v][dir].timestep.push_back(t);
 						lit++;
