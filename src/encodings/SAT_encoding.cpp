@@ -5,6 +5,16 @@
 
 using namespace std;
 
+// stops the solver once the time limit is reached, CaDiCaL polls it during search
+class DeadlineTerminator : public CaDiCaL::Terminator
+{
+public:
+	DeadlineTerminator(int time_left_ms) : deadline(chrono::steady_clock::now() + chrono::milliseconds(time_left_ms)) {}
+	bool terminate() { return chrono::steady_clock::now() >= deadline; }
+private:
+	chrono::steady_clock::time_point deadline;
+};
+
 /****************************/
 // MARK: constructor
 /****************************/
@@ -208,13 +218,12 @@ void _MAPFSAT_SAT::ReleaseSolver()
 
 int _MAPFSAT_SAT::InvokeSolverImplementation(int timelimit)
 {
-	bool ended = false;
-	thread waiting_thread = thread(WaitForTerminate, timelimit, SAT_solver, ref(ended));
-	
+	DeadlineTerminator terminator(timelimit);
+	((CaDiCaL::Solver*)SAT_solver)->connect_terminator(&terminator);
+
 	int ret = ((CaDiCaL::Solver*)SAT_solver)->solve(); // Start solver // 20 = UNSAT; 10 = SAT; 0 = UNKNOWN (reached through terminate)
 
-	ended = true;
-	waiting_thread.join();
+	((CaDiCaL::Solver*)SAT_solver)->disconnect_terminator();
 
 	if ((print_plan || keep_plan || lazy_const == 2) && ret == 10)	// create plan from variables
 	{
@@ -237,23 +246,6 @@ int _MAPFSAT_SAT::InvokeSolverImplementation(int timelimit)
 	}
 
 	return (ret == 10) ? 0 : 1;
-}
-
-void _MAPFSAT_SAT::WaitForTerminate(int time_left_ms, void* solver, bool& ended)
-{
-	while (time_left_ms > 0)
-	{
-		if (ended)
-			return;
-
-		this_thread::sleep_for(std::chrono::milliseconds(50));
-		time_left_ms -= 50;
-	}
-
-	if (ended)
-		return;
-		
-	((CaDiCaL::Solver*)solver)->terminate();	// Trusting in CaDiCaL implementation
 }
 
 int _MAPFSAT_SAT::GetNextVertex(int a, int v, int t)

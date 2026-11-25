@@ -197,7 +197,6 @@ private:
 	int InvokeSolverImplementation(int);
 
 	// specialized functions
-	static void WaitForTerminate(int, void*, bool&);
 	int GetNextVertex(int, int, int);
 };
 
