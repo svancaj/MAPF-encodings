@@ -120,8 +120,6 @@ int _MAPFSAT_SMT::CreateFormula(int time_left)
 	/************/
 	if (variables == 2)
 	{
-		CreateConf_Vertex();
-		CreateConf_Swapping_Pass();
 		if (duplicates == 1)
 			lit = CreateMove_NoDuplicates(lit);
 	}
