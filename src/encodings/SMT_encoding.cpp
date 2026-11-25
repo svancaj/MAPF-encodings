@@ -306,10 +306,14 @@ int _MAPFSAT_SMT::CreateMove_Graph_MonosatShift(int lit)
 
 		int t = 0;
 		int v_id = ((v_start+t)*(v_start+t+1)/2) + t; // Cantor pairing function
-		int node1 = VarToID(v_id, false, vertex_id, dict);
 
 		t = inst->LastTimestep(a, v_goal, max_timestep, delta, cost_function);
 		int u_id = ((v_goal+t)*(v_goal+t+1)/2)+t; // Cantor pairing function, u is reached at t+1
+
+		if (v_id == u_id)	// agent starts at its goal and does not move, the node has no edges
+			continue;
+
+		int node1 = VarToID(v_id, false, vertex_id, dict);
 		int node2 = VarToID(u_id, false, vertex_id, dict);
 
 		//g_theory->reaches(node1, node2, lit);
