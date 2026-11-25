@@ -51,6 +51,13 @@ void _MAPFSAT_ISolver::PrintSolveDetails(int time_left)
 	cout << endl;
 };
 
+void _MAPFSAT_ISolver::ResetCNFPrintable()
+{
+	cnf_printable.str("");	// clear() alone only resets the stream flags
+	cnf_printable.clear();
+	cnf_printable_offset = nr_clauses;
+}
+
 /********************************/
 // MARK: solving MAPF
 /********************************/
@@ -70,7 +77,7 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 	nr_clauses_soc = 0;
 	nr_clauses_unit = 0;
 	keep_plan = keep;
-	cnf_printable.clear();	// store cnf here if specified to print in cnf_file
+	ResetCNFPrintable();	// store cnf here if specified to print in cnf_file
 	vertex_conflicts.clear();
 	swap_conflicts.clear();
 	pebble_conflicts.clear();
@@ -143,7 +150,7 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 		// prepare for next iteration of solving, delat++
 		CleanUp();	
 		ReleaseSolver();
-		cnf_printable.clear();
+		ResetCNFPrintable();
 		first_try = true;
 		delta++;
 
@@ -1320,7 +1327,7 @@ int _MAPFSAT_ISolver::InvokeSolver(int timelimit)
 		std::ofstream out(cnf_file);
 		if (out.is_open())
 		{
-			out << "p cnf " << nr_vars-1 << " " << nr_clauses << endl;
+			out << "p cnf " << nr_vars-1 << " " << nr_clauses - cnf_printable_offset << endl;
 			out << cnf_printable.str() << endl;
 			out.close();
 		}
@@ -1330,7 +1337,7 @@ int _MAPFSAT_ISolver::InvokeSolver(int timelimit)
 	if (!print_plan && !keep_plan && lazy_const != 2)
 	{
 		CleanUp();
-		cnf_printable.clear();
+		ResetCNFPrintable();
 	}
 
 	int res = -1;
