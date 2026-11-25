@@ -1,5 +1,7 @@
 #include "solver_common.hpp"
 
+#include <sys/wait.h>
+
 /*
 #pragma GCC diagnostic push // external libs have some warnings, lets ignore them
 #pragma GCC diagnostic ignored "-Wsign-compare"
@@ -368,8 +370,12 @@ int _MAPFSAT_SMT::InvokeSolverImplementation(int timelimit)
 		<< " > /dev/null";							// do not care about stdout 
 
 	int ret = system(exec.str().c_str());
+	int exit_code = (ret != -1 && WIFEXITED(ret)) ? WEXITSTATUS(ret) : -1;
 
-	if ((print_plan || keep_plan || lazy_const == 2) && ret == 2560)
+	if (exit_code != 10 && exit_code != 20)	// neither sat nor unsat, monosat failed or timed out
+		return -1;
+
+	if ((print_plan || keep_plan || lazy_const == 2) && exit_code == 10)
 	{
 		ifstream input("tmp.out");
 		if (!input.is_open())
@@ -416,7 +422,7 @@ int _MAPFSAT_SMT::InvokeSolverImplementation(int timelimit)
 			NormalizePlan();
 	}
 
-	return (ret == 2560) ? 0 : 1;
+	return (exit_code == 10) ? 0 : 1;
 }
 
 int _MAPFSAT_SMT::VarToID(int var, bool duplicate, int& freshID, unordered_map<int, int>& dict)
