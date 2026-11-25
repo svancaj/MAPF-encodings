@@ -142,7 +142,8 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 		// what to do next?
 		if (res == 0 && lazy_const == 2 && conflicts_present) // if there are still conflicts, add contraints
 		{
-			cout << "conflicts present, go again" << endl;
+			if (!quiet)
+				cout << "conflicts present, go again" << endl;
 			first_try = false;
 			continue;
 		}
