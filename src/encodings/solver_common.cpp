@@ -51,6 +51,13 @@ void _MAPFSAT_ISolver::PrintSolveDetails(int time_left)
 	cout << endl;
 };
 
+void _MAPFSAT_ISolver::ResetCNFPrintable()
+{
+	cnf_printable.str("");	// clear() alone only resets the stream flags
+	cnf_printable.clear();
+	cnf_printable_offset = nr_clauses;
+}
+
 /********************************/
 // MARK: solving MAPF
 /********************************/
@@ -70,7 +77,7 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 	nr_clauses_soc = 0;
 	nr_clauses_unit = 0;
 	keep_plan = keep;
-	cnf_printable.clear();	// store cnf here if specified to print in cnf_file
+	ResetCNFPrintable();	// store cnf here if specified to print in cnf_file
 	vertex_conflicts.clear();
 	swap_conflicts.clear();
 	pebble_conflicts.clear();
@@ -135,7 +142,8 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 		// what to do next?
 		if (res == 0 && lazy_const == 2 && conflicts_present) // if there are still conflicts, add contraints
 		{
-			cout << "conflicts present, go again" << endl;
+			if (!quiet)
+				cout << "conflicts present, go again" << endl;
 			first_try = false;
 			continue;
 		}
@@ -143,8 +151,9 @@ int _MAPFSAT_ISolver::Solve(int ags, int input_delta, bool oneshot, bool keep)
 		// prepare for next iteration of solving, delat++
 		CleanUp();	
 		ReleaseSolver();
-		cnf_printable.clear();
+		ResetCNFPrintable();
 		first_try = true;
+		nr_vars = 1;	// new solver, number variables from 1 again
 		delta++;
 
 		/*if (res == 0 && lazy_const == 2 && !conflicts_present) // if there are no more conflicts, return success
@@ -179,7 +188,7 @@ int _MAPFSAT_ISolver::CreateAt(int lit, int timesteps)
 		at[a] = new _MAPFSAT_TEGAgent[vertices];
 		for (int v = 0; v < vertices; v++)
 		{
-			if (inst->FirstTimestep(a, v) <= inst->LastTimestep(a, v, timesteps, delta, cost_function))
+			if (inst->FirstTimestep(a, v) >= 0 && inst->FirstTimestep(a, v) <= inst->LastTimestep(a, v, timesteps, delta, cost_function)) // -1 = unreachable
 			{
 				at[a][v].first_variable = lit;
 				at[a][v].first_timestep = inst->FirstTimestep(a, v);
@@ -218,7 +227,7 @@ int _MAPFSAT_ISolver::CreatePass(int lit, int timesteps)
 					pass[a][v][dir].first_variable = 0;
 					continue;
 				}
-				if (inst->FirstTimestep(a, v) < inst->LastTimestep(a, inst->GetNeighbor(v, dir), timesteps, delta, cost_function)) // !!! might be wrong
+				if (inst->FirstTimestep(a, v) >= 0 && inst->FirstTimestep(a, v) < inst->LastTimestep(a, inst->GetNeighbor(v, dir), timesteps, delta, cost_function)) // !!! might be wrong
 				{
 					pass[a][v][dir].first_variable = lit;
 					pass[a][v][dir].first_timestep = inst->FirstTimestep(a, v);
@@ -260,7 +269,7 @@ int _MAPFSAT_ISolver::CreateShift(int lit, int timesteps)
 				for (int a = 0; a < agents; a++)
 				{	
 					// create shift variable only for possition only if any agent can traverse there
-					if (inst->FirstTimestep(a, v) <= t && inst->LastTimestep(a, inst->GetNeighbor(v, dir), timesteps, delta, cost_function) > t)
+					if (inst->FirstTimestep(a, v) >= 0 && inst->FirstTimestep(a, v) <= t && inst->LastTimestep(a, inst->GetNeighbor(v, dir), timesteps, delta, cost_function) > t)
 					{
 						shift[v][dir].timestep.push_back(t);
 						lit++;
@@ -898,17 +907,14 @@ void _MAPFSAT_ISolver::CreateMove_ExactlyOneIncoming_Shift()
 					vc.push_back(shift_var);
 					//cout << "there is a shift from " << u << ", " << op_dir << " in timestep " << t << " varaible " <<  shift_var << endl;
 				}
+			}
 
-				if (vc.empty())
-					continue;
-
-				for (size_t i = 0; i < vc.size(); i++)
+			for (size_t i = 0; i < vc.size(); i++)
+			{
+				for (size_t j = i+1; j < vc.size(); j++)
 				{
-					for (size_t j = i+1; j < vc.size(); j++)
-					{
-						AddClause(vector<int>{-vc[i], -vc[j]}); // at most 1
-						nr_clauses_move++;
-					}
+					AddClause(vector<int>{-vc[i], -vc[j]}); // at most 1
+					nr_clauses_move++;
 				}
 			}
 		}
@@ -1320,7 +1326,7 @@ int _MAPFSAT_ISolver::InvokeSolver(int timelimit)
 		std::ofstream out(cnf_file);
 		if (out.is_open())
 		{
-			out << "p cnf " << nr_vars-1 << " " << nr_clauses << endl;
+			out << "p cnf " << nr_vars-1 << " " << nr_clauses - cnf_printable_offset << endl;
 			out << cnf_printable.str() << endl;
 			out.close();
 		}
@@ -1330,7 +1336,7 @@ int _MAPFSAT_ISolver::InvokeSolver(int timelimit)
 	if (!print_plan && !keep_plan && lazy_const != 2)
 	{
 		CleanUp();
-		cnf_printable.clear();
+		ResetCNFPrintable();
 	}
 
 	int res = -1;

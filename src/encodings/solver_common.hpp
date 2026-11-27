@@ -84,6 +84,7 @@ protected:
 	int delta;
 	int max_timestep;
 	std::stringstream cnf_printable;
+	long long cnf_printable_offset; // nr_clauses when cnf_printable was last reset
 
 	_MAPFSAT_TEGAgent** at;
 	_MAPFSAT_TEGAgent*** pass;
@@ -115,6 +116,7 @@ protected:
 
 	// before solving
 	void PrintSolveDetails(int);
+	void ResetCNFPrintable();
 
 	// virtual encoding to be used
 	virtual int CreateFormula(int) = 0;
@@ -195,7 +197,6 @@ private:
 	int InvokeSolverImplementation(int);
 
 	// specialized functions
-	static void WaitForTerminate(int, void*, bool&);
 	int GetNextVertex(int, int, int);
 };
 

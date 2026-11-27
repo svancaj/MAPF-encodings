@@ -1,5 +1,7 @@
 #include "solver_common.hpp"
 
+#include <sys/wait.h>
+
 /*
 #pragma GCC diagnostic push // external libs have some warnings, lets ignore them
 #pragma GCC diagnostic ignored "-Wsign-compare"
@@ -120,8 +122,6 @@ int _MAPFSAT_SMT::CreateFormula(int time_left)
 	/************/
 	if (variables == 2)
 	{
-		CreateConf_Vertex();
-		CreateConf_Swapping_Pass();
 		if (duplicates == 1)
 			lit = CreateMove_NoDuplicates(lit);
 	}
@@ -308,10 +308,14 @@ int _MAPFSAT_SMT::CreateMove_Graph_MonosatShift(int lit)
 
 		int t = 0;
 		int v_id = ((v_start+t)*(v_start+t+1)/2) + t; // Cantor pairing function
-		int node1 = VarToID(v_id, false, vertex_id, dict);
 
 		t = inst->LastTimestep(a, v_goal, max_timestep, delta, cost_function);
 		int u_id = ((v_goal+t)*(v_goal+t+1)/2)+t; // Cantor pairing function, u is reached at t+1
+
+		if (v_id == u_id)	// agent starts at its goal and does not move, the node has no edges
+			continue;
+
+		int node1 = VarToID(v_id, false, vertex_id, dict);
 		int node2 = VarToID(u_id, false, vertex_id, dict);
 
 		//g_theory->reaches(node1, node2, lit);
@@ -366,8 +370,12 @@ int _MAPFSAT_SMT::InvokeSolverImplementation(int timelimit)
 		<< " > /dev/null";							// do not care about stdout 
 
 	int ret = system(exec.str().c_str());
+	int exit_code = (ret != -1 && WIFEXITED(ret)) ? WEXITSTATUS(ret) : -1;
 
-	if ((print_plan || keep_plan || lazy_const == 2) && ret == 2560)
+	if (exit_code != 10 && exit_code != 20)	// neither sat nor unsat, monosat failed or timed out
+		return -1;
+
+	if ((print_plan || keep_plan || lazy_const == 2) && exit_code == 10)
 	{
 		ifstream input("tmp.out");
 		if (!input.is_open())
@@ -414,7 +422,7 @@ int _MAPFSAT_SMT::InvokeSolverImplementation(int timelimit)
 			NormalizePlan();
 	}
 
-	return (ret == 2560) ? 0 : 1;
+	return (exit_code == 10) ? 0 : 1;
 }
 
 int _MAPFSAT_SMT::VarToID(int var, bool duplicate, int& freshID, unordered_map<int, int>& dict)
